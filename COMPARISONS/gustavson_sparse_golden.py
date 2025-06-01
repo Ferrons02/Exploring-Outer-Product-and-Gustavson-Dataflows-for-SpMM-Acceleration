@@ -60,7 +60,7 @@ def gustavson_sparse_golden(reuse_policy, X_elem_size, Y_elem_size, X_sparsity, 
                                     k] == 1]  # Keeps the row major indices of the nonzero X elements of X in the metadata block
 
             # I lose a cycle to load the metadata chunk
-            X_offset_addr.append([math.ceil(start_meta / 8)])
+            X_offset_addr.append([math.floor(start_meta / 8)])
             Y_offset_addr.append([])
             Z_offset_addr.append([])
             latency += 1
@@ -223,7 +223,7 @@ def gustavson_sparse_golden(reuse_policy, X_elem_size, Y_elem_size, X_sparsity, 
                                         k] == 1]  # Keeps the row major indices of the nonzero X elements of X in the metadata block
 
                 # I lose a cycle to load the metadata chunk
-                X_offset_addr.append([math.ceil(start_meta / 8)])
+                X_offset_addr.append([math.floor(start_meta / 8)])
                 Y_offset_addr.append([])
                 Z_offset_addr.append([])
                 latency += 1
@@ -373,6 +373,9 @@ def gustavson_sparse_golden(reuse_policy, X_elem_size, Y_elem_size, X_sparsity, 
     elif reuse_policy == "Z":
 
         meta_iters = math.ceil(X_columns * X_rows / meta_chunk_size)
+        previous_row = 0
+        Z_offset_addr_fetch = []
+
         # This cycle loads the metadata chunks
         for meta_chunk in range(meta_iters):
 
@@ -384,7 +387,7 @@ def gustavson_sparse_golden(reuse_policy, X_elem_size, Y_elem_size, X_sparsity, 
                                     k] == 1]  # Keeps the row major indices of the nonzero X elements of X in the metadata block
 
             # I lose a cycle to load the metadata chunk
-            X_offset_addr.append([math.ceil(start_meta / 8)])
+            X_offset_addr.append([math.floor(start_meta / 8)])
             Y_offset_addr.append([])
             Z_offset_addr.append([])
             latency += 1
@@ -412,8 +415,20 @@ def gustavson_sparse_golden(reuse_policy, X_elem_size, Y_elem_size, X_sparsity, 
                     start_Y = Y_column_block * Y_elem_size
                     end_Y = min(start_Y + Y_elem_size, Y_columns)
 
-                    # Output buffer initialization
-                    out_buffer = ['0' * Out_data_size] * (end_Y - start_Y)
+                    if X_row + starting_row == previous_row:
+                        # Output buffer initialization
+                        out_buffer = Z[starting_row + X_row][start_Y:end_Y]
+
+                        # Appending data fetch of Z
+
+                        Z_start_addr = ((starting_row + X_row) * Y_columns + Y_column_block * Y_elem_size) * (
+                                Out_data_size / 8)
+                        cycle_Z = [Z_start_addr + i * (Out_data_size / 8) for i in range(end_Y - start_Y)]
+                        Z_offset_addr_fetch.append(cycle_Z)
+
+                    else:
+                        # Output buffer initialization
+                        out_buffer = ['0' * Out_data_size] * (end_Y - start_Y)
 
                     for tile in range(k_iters):
 
@@ -486,11 +501,12 @@ def gustavson_sparse_golden(reuse_policy, X_elem_size, Y_elem_size, X_sparsity, 
 
                         latency += 1
 
+            previous_row = X_row_iters + starting_row - 1
+
         # At the end as final step I add a stall for the first load cycle and the last store cycle where no computation is done
 
         X_offset_addr = X_offset_addr + [[]] + [[]]
         Y_offset_addr = Y_offset_addr + [[]] + [[]]
-        Z_offset_addr_fetch = [[] for _ in range(len(X_offset_addr))]
         Z_offset_addr_store = [[]] + [[]] + Z_offset_addr
 
         # I calculate the average utilization of the
@@ -501,7 +517,7 @@ def gustavson_sparse_golden(reuse_policy, X_elem_size, Y_elem_size, X_sparsity, 
 
         X_offset_addr = input_accesses_calculation(X_offset_addr)
         Y_offset_addr = input_accesses_calculation(Y_offset_addr)
-        Z_offset_addr_fetch = input_accesses_calculation(Z_offset_addr_fetch)
+        Z_offset_addr_fetch = Z_offset_addr_fetch + [[] for _ in range(len(X_offset_addr) - len(Z_offset_addr_fetch))]
         Z_offset_addr_store = output_accesses_calculation(Z_offset_addr_store)
 
         # FINAL LATENCY CALCULATION

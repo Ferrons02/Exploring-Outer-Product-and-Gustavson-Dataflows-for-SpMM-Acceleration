@@ -10,6 +10,7 @@ import math
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 import numpy as np
+from result_check import result_check
 
 def gustavson_sparse_golden(reuse_policy, X_elem_size, Y_elem_size):
     # Matrix generation
@@ -19,7 +20,7 @@ def gustavson_sparse_golden(reuse_policy, X_elem_size, Y_elem_size):
     # In gustavson they are row major for X (multiple of 8)
     meta_chunk_size = 32
 
-    X_rows, X_columns, X_sparsity = 16, 10, 0.9  # X_columns = Y_rows
+    X_rows, X_columns, X_sparsity = 10, 10, 0.9  # X_columns = Y_rows
     Y_rows, Y_columns, Y_sparsity = 10, 10, 0.9
 
     X = generate_sparse_matrix(X_rows, X_columns, X_sparsity, In_data_size)
@@ -60,10 +61,11 @@ def gustavson_sparse_golden(reuse_policy, X_elem_size, Y_elem_size):
             start_meta = meta_chunk * meta_chunk_size
             end_meta = min(start_meta + meta_chunk_size, X_columns * X_rows)
             X_meta_positions = [k for k in range(start_meta, end_meta) if
-                           X_mask[k] == 1]  # Keeps the row major indices of the nonzero X elements of X in the metadata block
+                                X_mask[
+                                    k] == 1]  # Keeps the row major indices of the nonzero X elements of X in the metadata block
 
             # I lose a cycle to load the metadata chunk
-            X_offset_addr.append([math.ceil(start_meta / 8)])
+            X_offset_addr.append([math.floor(start_meta / 8)])
             Y_offset_addr.append([])
             Z_offset_addr.append([])
             latency += 1
@@ -80,7 +82,8 @@ def gustavson_sparse_golden(reuse_policy, X_elem_size, Y_elem_size):
             for X_row in range(X_row_iters):
 
                 # Indices of data belonging to the same row
-                X_row_positions = [x for x in X_meta_positions if (starting_row + X_row) * X_columns <= x < (starting_row + X_row + 1) * X_columns]
+                X_row_positions = [x for x in X_meta_positions if
+                                   (starting_row + X_row) * X_columns <= x < (starting_row + X_row + 1) * X_columns]
 
                 # Compute the number of iterations along the k dimension
                 k_iters = math.ceil(len(X_row_positions) / X_elem_size)
@@ -91,7 +94,8 @@ def gustavson_sparse_golden(reuse_policy, X_elem_size, Y_elem_size):
                     end_X = min(start_X + X_elem_size, len(X_row_positions))
 
                     # Take a slice of the meta positions
-                    X_row_positions_tile = X_row_positions[start_X:end_X] # Keeps the indices of the nonzero elements of the row tile of X
+                    X_row_positions_tile = X_row_positions[
+                                           start_X:end_X]  # Keeps the indices of the nonzero elements of the row tile of X
                     # Pad globals so we always have X_elem_size entries even in the last iteration
                     pad_len = X_elem_size - len(X_row_positions_tile)
                     X_row_positions_tile += [None] * pad_len
@@ -135,7 +139,8 @@ def gustavson_sparse_golden(reuse_policy, X_elem_size, Y_elem_size):
 
                         # Offset addresses for the current cycle
                         Y_start_addr = Y_column_block * Y_elem_size * Y_rows
-                        Z_start_addr = ((starting_row + X_row) * Y_columns + Y_column_block * Y_elem_size) * (Out_data_size / 8)
+                        Z_start_addr = ((starting_row + X_row) * Y_columns + Y_column_block * Y_elem_size) * (
+                                Out_data_size / 8)
 
                         # Load the addresses of the accessed elements of each matrix for this cycle
                         cycle_X = [
@@ -147,7 +152,8 @@ def gustavson_sparse_golden(reuse_policy, X_elem_size, Y_elem_size):
                             base_offset = step * (Y_rows * (In_data_size / 8))
                             for k in range(end_X - start_X):
                                 if X_row_positions_tile[k] is not None:
-                                    addr = (Y_start_addr + base_offset + (X_row_positions_tile[k]- (starting_row + X_row) * X_columns))
+                                    addr = (Y_start_addr + base_offset + (
+                                            X_row_positions_tile[k] - (starting_row + X_row) * X_columns))
                                     cycle_Y.append(addr * (In_data_size / 8))
                         cycle_Z = [Z_start_addr + i * (Out_data_size / 8) for i in range(end_Y - start_Y)]
 
@@ -280,7 +286,6 @@ def gustavson_sparse_golden(reuse_policy, X_elem_size, Y_elem_size):
 
     elif reuse_policy == "Y":
 
-        # Now the first thing to do is to load the whole Y column block
         for Y_column_block in range(Y_column_blocks):
 
             start_Y = Y_column_block * Y_elem_size
@@ -298,7 +303,7 @@ def gustavson_sparse_golden(reuse_policy, X_elem_size, Y_elem_size):
                                         k] == 1]  # Keeps the row major indices of the nonzero X elements of X in the metadata block
 
                 # I lose a cycle to load the metadata chunk
-                X_offset_addr.append([math.ceil(start_meta / 8)])
+                X_offset_addr.append([math.floor(start_meta / 8)])
                 Y_offset_addr.append([])
                 Z_offset_addr.append([])
                 latency += 1
@@ -521,6 +526,9 @@ def gustavson_sparse_golden(reuse_policy, X_elem_size, Y_elem_size):
     elif reuse_policy == "Z":
 
         meta_iters = math.ceil(X_columns * X_rows / meta_chunk_size)
+        previous_row = 0
+        Z_offset_addr_fetch = []
+
         # This cycle loads the metadata chunks
         for meta_chunk in range(meta_iters):
 
@@ -532,7 +540,7 @@ def gustavson_sparse_golden(reuse_policy, X_elem_size, Y_elem_size):
                                     k] == 1]  # Keeps the row major indices of the nonzero X elements of X in the metadata block
 
             # I lose a cycle to load the metadata chunk
-            X_offset_addr.append([math.ceil(start_meta / 8)])
+            X_offset_addr.append([math.floor(start_meta / 8)])
             Y_offset_addr.append([])
             Z_offset_addr.append([])
             latency += 1
@@ -560,8 +568,20 @@ def gustavson_sparse_golden(reuse_policy, X_elem_size, Y_elem_size):
                     start_Y = Y_column_block * Y_elem_size
                     end_Y = min(start_Y + Y_elem_size, Y_columns)
 
-                    # Output buffer initialization
-                    out_buffer = ['0' * Out_data_size] * (end_Y - start_Y)
+                    if X_row + starting_row == previous_row:
+                        # Output buffer initialization
+                        out_buffer = Z[starting_row + X_row][start_Y:end_Y]
+
+                        # Appending data fetch of Z
+
+                        Z_start_addr = ((starting_row + X_row) * Y_columns + Y_column_block * Y_elem_size) * (
+                                Out_data_size / 8)
+                        cycle_Z = [Z_start_addr + i * (Out_data_size / 8) for i in range(end_Y - start_Y)]
+                        Z_offset_addr_fetch.append(cycle_Z)
+
+                    else:
+                        # Output buffer initialization
+                        out_buffer = ['0' * Out_data_size] * (end_Y - start_Y)
 
                     for tile in range(k_iters):
 
@@ -607,7 +627,7 @@ def gustavson_sparse_golden(reuse_policy, X_elem_size, Y_elem_size):
                         # Offset addresses for the current cycle
                         Y_start_addr = Y_column_block * Y_elem_size * Y_rows
                         Z_start_addr = ((starting_row + X_row) * Y_columns + Y_column_block * Y_elem_size) * (
-                                    Out_data_size / 8)
+                                Out_data_size / 8)
 
                         # Load the addresses of the accessed elements of each matrix for this cycle
                         cycle_X = [
@@ -621,7 +641,7 @@ def gustavson_sparse_golden(reuse_policy, X_elem_size, Y_elem_size):
                             for k in range(end_X - start_X):
                                 if X_row_positions_tile[k] is not None:
                                     addr = (Y_start_addr + base_offset + (
-                                                X_row_positions_tile[k] - (starting_row + X_row) * X_columns))
+                                            X_row_positions_tile[k] - (starting_row + X_row) * X_columns))
                                     cycle_Y.append(addr * (In_data_size / 8))
                         cycle_Z = [Z_start_addr + i * (Out_data_size / 8) for i in range(end_Y - start_Y)]
 
@@ -634,11 +654,12 @@ def gustavson_sparse_golden(reuse_policy, X_elem_size, Y_elem_size):
 
                         latency += 1
 
+            previous_row = X_row_iters + starting_row - 1
+
         # At the end as final step I add a stall for the first load cycle and the last store cycle where no computation is done
 
         X_offset_addr = X_offset_addr + [[]] + [[]]
         Y_offset_addr = Y_offset_addr + [[]] + [[]]
-        Z_offset_addr_fetch = [[] for _ in range(len(X_offset_addr))]
         Z_offset_addr_store = [[]] + [[]] + Z_offset_addr
 
         # I calculate the average utilization of the
@@ -649,7 +670,7 @@ def gustavson_sparse_golden(reuse_policy, X_elem_size, Y_elem_size):
 
         X_offset_addr = input_accesses_calculation(X_offset_addr)
         Y_offset_addr = input_accesses_calculation(Y_offset_addr)
-        Z_offset_addr_fetch = input_accesses_calculation(Z_offset_addr_fetch)
+        Z_offset_addr_fetch = Z_offset_addr_fetch + [[] for _ in range(len(X_offset_addr) - len(Z_offset_addr_fetch))]
         Z_offset_addr_store = output_accesses_calculation(Z_offset_addr_store)
 
         # FINAL LATENCY CALCULATION
@@ -760,7 +781,7 @@ def gustavson_sparse_golden(reuse_policy, X_elem_size, Y_elem_size):
 # FUNCTION INVOKING
 
 # Parameters and execution
-reuse_policy = "Y"
+reuse_policy = "Z"
 X_elem_size = 4
 Y_elem_size = 4
 
@@ -779,3 +800,5 @@ for row in Y_mat:
 print("\nResult Z:")
 for row in Z_result:
     print(row)
+
+print(result_check(X_mat, Y_mat, Z_result))
