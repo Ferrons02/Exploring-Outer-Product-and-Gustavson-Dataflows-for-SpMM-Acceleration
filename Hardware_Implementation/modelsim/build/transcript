@@ -1,0 +1,86 @@
+# Reading pref.tcl
+# //  Questa Sim-64
+# //  Version 2023.4 linux_x86_64 Oct  9 2023
+# //
+# //  Copyright 1991-2023 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  QuestaSim and its associated documentation contain trade
+# //  secrets and commercial or financial information that are the property of
+# //  Mentor Graphics Corporation and are privileged, confidential,
+# //  and exempt from disclosure under the Freedom of Information Act,
+# //  5 U.S.C. Section 552. Furthermore, this information
+# //  is prohibited from disclosure under the Trade Secrets Act,
+# //  18 U.S.C. Section 1905.
+# //
+# source ../sim_tb_datamover_top.tcl
+# +acc
+# vsim -voptargs="+acc" -debugdb -pedanticerrors -lib work tb_datamover_top 
+# Start time: 16:16:07 on Jun 17,2025
+# ** Note: (vsim-3812) Design is being optimized...
+# ** Note: (vsim-8611) Generating debug db.
+# ** Warning: (vopt-10587) Some optimizations are turned off because the +acc switch is in effect. This will cause your simulation to run slowly. Please use -access/-debug to maintain needed visibility.
+# ** Note: (vopt-143) Recognized 1 FSM in module "datamover_top(fast)".
+# ** Note: (vopt-143) Recognized 1 FSM in module "hwpe_ctrl_slave(fast)".
+# ** Warning: /home/sem25f34/PROGETTONE/DATAMOVER/verif/tb/tb_datamover_top.sv(166): (vopt-2685) [TFMPC] - Too few port connections for 'i_dummy_memory'.  Expected 6, found 5.
+# ** Warning: /home/sem25f34/PROGETTONE/DATAMOVER/verif/tb/tb_datamover_top.sv(166): (vopt-2718) [TFMPC] - Missing connection for port 'clk_delayed_i'.
+# ** Note: (vopt-143) Recognized 1 FSM in module "hci_core_sink(fast)".
+# ** Note: (vopt-143) Recognized 1 FSM in module "hci_core_source(fast)".
+# ** Note: (vopt-143) Recognized 1 FSM in module "hwpe_stream_fifo(fast)".
+# ** Note: (vopt-143) Recognized 1 FSM in module "hwpe_stream_fifo(fast__1)".
+# ** Note: (vopt-143) Recognized 1 FSM in module "hwpe_stream_fifo(fast__2)".
+# ** Note: (vopt-4301) Memory core inferred for signal 'fifo_registers' width=144, depth=4, type=RAM at location /home/sem25f34/PROGETTONE/DATAMOVER/.bender/git/checkouts/hwpe-stream-11876d121d6ecdf0/rtl/fifo/hwpe_stream_fifo.sv:93
+# ** Note: (vopt-143) Recognized 1 FSM in module "hwpe_stream_fifo(fast__3)".
+# ** Note: (vsim-12126) Error and warning message counts have been restored: Errors=0, Warnings=3.
+# Loading sv_std.std
+# Loading work.tb_package(fast)
+# Loading work.hwpe_stream_package(fast)
+# Loading work.hci_package(fast)
+# Loading work.datamover_package(fast)
+# Loading work.tb_datamover_top(fast)
+# Loading work.hwpe_ctrl_package(fast)
+# Loading work.datamover_top_wrap(fast)
+# Loading work.hci_core_intf(fast__1)
+# Loading work.hwpe_ctrl_intf_periph(fast__1)
+# Loading work.datamover_top_sv_unit(fast)
+# Loading work.datamover_top(fast)
+# Loading work.hwpe_stream_intf_stream(fast__1)
+# Loading work.datamover_streamer_sv_unit(fast)
+# Loading work.datamover_streamer(fast)
+# Loading work.hci_core_intf(fast__3)
+# Loading work.hci_core_source(fast)
+# Loading work.hwpe_stream_intf_stream(fast__2)
+# Loading work.hwpe_stream_intf_stream(fast__3)
+# Loading work.hwpe_stream_addressgen_v3_sv_unit(fast)
+# Loading work.hwpe_stream_addressgen_v3(fast)
+# Loading work.hwpe_stream_fifo_sv_unit(fast)
+# Loading work.hwpe_stream_fifo(fast)
+# Loading work.hwpe_stream_intf_stream(fast__4)
+# Loading work.hwpe_stream_intf_stream(fast__5)
+# Loading work.hwpe_stream_fifo(fast__1)
+# Loading work.hci_core_sink(fast)
+# Loading work.hwpe_stream_intf_stream(fast__6)
+# Loading work.hwpe_stream_intf_stream(fast__7)
+# Loading work.hci_core_intf(fast__5)
+# Loading work.hwpe_stream_addressgen_v3(fast__1)
+# Loading work.hwpe_stream_fifo(fast__2)
+# Loading work.hci_core_assign(fast)
+# Loading work.hci_core_mux_dynamic(fast)
+# Loading work.hci_core_r_valid_filter(fast)
+# Loading work.datamover_engine_sv_unit(fast)
+# Loading work.datamover_engine(fast)
+# Loading work.hwpe_stream_fifo(fast__3)
+# Loading work.hwpe_ctrl_slave(fast)
+# Loading work.hwpe_ctrl_regfile(fast)
+# Loading work.hwpe_ctrl_regfile_latch_test_wrap(fast)
+# Loading work.hwpe_ctrl_regfile_latch(fast)
+# Loading work.tc_clk_gating(fast)
+# Loading work.tb_dummy_memory(fast)
+# Loading work.hwpe_stream_intf_tcdm(fast__1)
+# Loading work.hci_core_intf(fast__2)
+# Loading work.hci_core_intf(fast__4)
+# ** Warning: (vsim-3015) [PCDPC] - Port size (2) does not match connection size (1) for port 'evt_o'. The port definition is at: /home/sem25f34/PROGETTONE/DATAMOVER/rtl/datamover_top_wrap.sv(32).
+#    Time: 0 ps  Iteration: 0  Instance: /tb_datamover_top/i_hwpe_top_wrap File: /home/sem25f34/PROGETTONE/DATAMOVER/verif/tb/tb_datamover_top.sv Line: 131
+# ** Note: (vsim-8900) Creating design debug database vsim.dbg.
+# End time: 16:17:22 on Jun 17,2025, Elapsed time: 0:01:15
+# Errors: 0, Warnings: 4
