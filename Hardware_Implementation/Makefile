@@ -17,46 +17,65 @@ SYNTH_PATH  = synopsys
 
 BENDER_TARGETS = -t rtl -t test
 
-target ?= sim_tb_datamover_top
+target ?= sim_tb_accelerator_streamer
 
 VLOG_FLAGS += -svinputport=compat
 VLOG_FLAGS += -timescale 1ns/1ps
 
 STIMULI_DIR ?= ${ROOT_DIR}/verif/python/generated
 
-STIMULI_FILE_PATH ?= ${STIMULI_DIR}/initial_memory.txt
-GOLDEN_FILE_PATH ?= ${STIMULI_DIR}/updated_memory.txt
-TESTBENCH_DEFINES  ?= -DSTIMULI_PATH="\"${STIMULI_FILE_PATH}\""
-TESTBENCH_DEFINES  += -DGOLDEN_PATH="\"${GOLDEN_FILE_PATH}\""
+# Default file paths (overridable)
+DATA_GOLDEN_PATH            ?= ${STIMULI_DIR}/data_constants.txt
+INITIAL_MEMORY_CONTENT_PATH ?= ${STIMULI_DIR}/initial_memory.txt
+X_GOLDEN_PATH               ?= ${STIMULI_DIR}/x_order.txt
+Y_GOLDEN_PATH               ?= ${STIMULI_DIR}/y_order.txt
+Z_GOLDEN_PATH               ?= ${STIMULI_DIR}/z_order.txt
 
-STIM_READ_BASE_ADDR ?= 0
-STIM_READ_D0_LENGTH ?= 4
-STIM_READ_D0_STRIDE ?= 4
-STIM_READ_D1_LENGTH ?= 4
-STIM_READ_D1_STRIDE ?= 16
-STIM_READ_TOT_LENGTH ?= 16
+# Testbench parameters (defaults, overridable)
+MP                   ?= 4
+META_CHUNK_SIZE      ?= 32
+X_ITEM_SIZE          ?= 32
+Y_ITEM_SIZE          ?= 32
+Z_ITEM_SIZE          ?= 64
+Y_BLOCK_SIZE         ?= 4
 
-STIM_WRITE_BASE_ADDR ?= 128
-STIM_WRITE_D0_LENGTH ?= 4
-STIM_WRITE_D0_STRIDE ?= 16
-STIM_WRITE_D1_LENGTH ?= 4
-STIM_WRITE_D1_STRIDE ?= 64
-STIM_WRITE_TOT_LENGTH ?= 16
-STIM_MEM_SIZE ?= 65536
+# Addresses are interpreted as hexadecimal
+X_BASE_ADDRESS       ?= 0 								#32'h0
+Y_BASE_ADDRESS       ?= 4096							#32'h00001000
+Z_BASE_ADDRESS       ?= 8192							#32'h00002000
+X_COLUMNS            ?= 8
+Y_COLUMNS            ?= 8
+X_ROWS               ?= 8
+Y_ROWS               ?= 8
 
-TESTBENCH_DEFINES += -DSTIM_READ_BASE_ADDR=${STIM_READ_BASE_ADDR}
-TESTBENCH_DEFINES += -DSTIM_READ_D0_STRIDE=${STIM_READ_D0_STRIDE}
-TESTBENCH_DEFINES += -DSTIM_READ_D0_LENGTH=${STIM_READ_D0_LENGTH}
-TESTBENCH_DEFINES += -DSTIM_READ_D1_STRIDE=${STIM_READ_D1_STRIDE}
-TESTBENCH_DEFINES += -DSTIM_READ_D1_LENGTH=${STIM_READ_D1_LENGTH}
-TESTBENCH_DEFINES += -DSTIM_READ_TOT_LENGTH=${STIM_READ_TOT_LENGTH}
+ifeq ("$(wildcard $(DATA_GOLDEN_PATH))","")
+  $(error DATA_GOLDEN_PATH '$(DATA_GOLDEN_PATH)' not found )
+endif
 
-TESTBENCH_DEFINES += -DSTIM_WRITE_BASE_ADDR=${STIM_WRITE_BASE_ADDR}
-TESTBENCH_DEFINES += -DSTIM_WRITE_D0_STRIDE=${STIM_WRITE_D0_STRIDE}
-TESTBENCH_DEFINES += -DSTIM_WRITE_D0_LENGTH=${STIM_WRITE_D0_LENGTH}
-TESTBENCH_DEFINES += -DSTIM_WRITE_D1_STRIDE=${STIM_WRITE_D1_STRIDE}
-TESTBENCH_DEFINES += -DSTIM_WRITE_D1_LENGTH=${STIM_WRITE_D1_LENGTH}
-TESTBENCH_DEFINES += -DSTIM_WRITE_TOT_LENGTH=${STIM_WRITE_TOT_LENGTH}
+X_TOTAL_LOADS := $(shell awk 'NR==1 {print $$1}' $(DATA_GOLDEN_PATH))
+Y_TOTAL_LOADS := $(shell awk 'NR==1 {print $$2}' $(DATA_GOLDEN_PATH))
+
+TESTBENCH_DEFINES += \
+  -DMP=$(MP) \
+  -DMETA_CHUNK_SIZE=$(META_CHUNK_SIZE) \
+  -DX_ITEM_SIZE=$(X_ITEM_SIZE) \
+  -DY_ITEM_SIZE=$(Y_ITEM_SIZE) \
+  -DZ_ITEM_SIZE=$(Z_ITEM_SIZE) \
+  -DY_BLOCK_SIZE=$(Y_BLOCK_SIZE) \
+  -DX_BASE_ADDRESS=$(X_BASE_ADDRESS) \
+  -DY_BASE_ADDRESS=$(Y_BASE_ADDRESS) \
+  -DZ_BASE_ADDRESS=$(Z_BASE_ADDRESS) \
+  -DX_COLUMNS=$(X_COLUMNS) \
+  -DY_COLUMNS=$(Y_COLUMNS) \
+  -DX_ROWS=$(X_ROWS) \
+  -DY_ROWS=$(Y_ROWS) \
+  -DX_TOTAL_LOADS=$(X_TOTAL_LOADS) \
+  -DY_TOTAL_LOADS=$(Y_TOTAL_LOADS) \
+  -DDATA_GOLDEN_PATH=\"$(DATA_GOLDEN_PATH)\" \
+  -DINITIAL_MEMORY_CONTENT_PATH=\"$(INITIAL_MEMORY_CONTENT_PATH)\" \
+  -DX_GOLDEN_PATH=\"$(X_GOLDEN_PATH)\" \
+  -DY_GOLDEN_PATH=\"$(Y_GOLDEN_PATH)\" \
+  -DZ_GOLDEN_PATH=\"$(Z_GOLDEN_PATH)\"
 
 # .PHONY: clean-sim sim-script sim synopsys-script
 all: testvector sim
@@ -78,19 +97,21 @@ sim: stimuli sim-script
 	$(MAKE) $(target) buildpath=$(ROOT_DIR)/$(SIM_PATH)
 
 stimuli: 
-	python -m verif.python.generate_stimuli \
-	--mem_size $(STIM_MEM_SIZE) \
-	--read_base_addr $(STIM_READ_BASE_ADDR) \
-	--read_d0_stride $(STIM_READ_D0_STRIDE) \
-	--read_d0_length $(STIM_READ_D0_LENGTH) \
-	--read_d1_stride $(STIM_READ_D1_STRIDE) \
-	--read_d1_length $(STIM_READ_D1_LENGTH) \
-	--write_base_addr $(STIM_WRITE_BASE_ADDR) \
-	--write_d0_stride $(STIM_WRITE_D0_STRIDE) \
-	--write_d0_length $(STIM_WRITE_D0_LENGTH) \
-	--write_d1_stride $(STIM_WRITE_D1_STRIDE) \
-	--write_d1_length $(STIM_WRITE_D1_LENGTH) \
-	--output_dir "verif/python/generated"
+	python -m verif.python.generate_stimuli_streamer \
+	  --mp $(MP) \
+	  --meta_chunk_size $(META_CHUNK_SIZE) \
+	  --x_item_size $(X_ITEM_SIZE) \
+	  --y_item_size $(Y_ITEM_SIZE) \
+	  --z_item_size $(Z_ITEM_SIZE) \
+	  --y_block_size $(Y_BLOCK_SIZE) \
+	  --x_base_address $(X_BASE_ADDRESS) \
+	  --y_base_address $(Y_BASE_ADDRESS) \
+	  --z_base_address $(Z_BASE_ADDRESS) \
+	  --x_columns $(X_COLUMNS) \
+	  --y_columns $(Y_COLUMNS) \
+	  --x_rows $(X_ROWS) \
+	  --y_rows $(Y_ROWS) \
+	  --output_dir "verif/python/generated"
 
 # Bender
 bender: check-bender
