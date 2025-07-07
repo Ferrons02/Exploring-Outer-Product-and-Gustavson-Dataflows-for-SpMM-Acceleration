@@ -30,6 +30,7 @@ package accelerator_package;
     logic[15:0] x_columns;
     logic[15:0] x_columns_log;
     logic[15:0] x_rows;
+    logic[15:0] total_meta_words;
   } X_param_t;
 
   typedef struct packed {
@@ -37,8 +38,9 @@ package accelerator_package;
     logic[15:0] y_columns;
     logic[15:0] y_row_iters;
     logic[15:0] y_rows;
-    logic[15:0] y_rows_log;
+    logic[15:0] y_columns_log;
     logic[15:0] x_rows;
+    logic[15:0] x_columns_log;
   } Y_param_t;
 
   typedef struct packed {

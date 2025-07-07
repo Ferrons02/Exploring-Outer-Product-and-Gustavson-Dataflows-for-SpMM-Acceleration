@@ -43,10 +43,11 @@ Y_BLOCK_SIZE         ?= 4
 X_BASE_ADDRESS       ?= 0 								#32'h0
 Y_BASE_ADDRESS       ?= 4096							#32'h00001000
 Z_BASE_ADDRESS       ?= 8192							#32'h00002000
-X_COLUMNS            ?= 8
-Y_COLUMNS            ?= 8
-X_ROWS               ?= 8
-Y_ROWS               ?= 8
+X_COLUMNS            ?= 32
+Y_COLUMNS            ?= 32
+X_ROWS               ?= 32
+Y_ROWS               ?= 32
+X_SPARSITY					 ?= 0.1
 
 ifeq ("$(wildcard $(DATA_GOLDEN_PATH))","")
   $(error DATA_GOLDEN_PATH '$(DATA_GOLDEN_PATH)' not found )
@@ -92,7 +93,7 @@ sim-script: clean-sim
 	mkdir -p $(SIM_PATH)
 	$(BENDER_INSTALL_DIR)/bender script vsim $(BENDER_TARGETS) $(TESTBENCH_DEFINES) --vlog-arg="$(VLOG_FLAGS)" >> $(SIM_PATH)/compile.tcl
 
-sim: stimuli sim-script
+sim: sim-script
 	cd modelsim && \
 	$(MAKE) $(target) buildpath=$(ROOT_DIR)/$(SIM_PATH)
 
@@ -111,6 +112,7 @@ stimuli:
 	  --y_columns $(Y_COLUMNS) \
 	  --x_rows $(X_ROWS) \
 	  --y_rows $(Y_ROWS) \
+	  --x_sparsity $(X_SPARSITY) \
 	  --output_dir "verif/python/generated"
 
 # Bender

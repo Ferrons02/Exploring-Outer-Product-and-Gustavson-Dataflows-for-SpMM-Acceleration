@@ -60,20 +60,24 @@ module accelerator_streamer #(
   localparam int unsigned EW  = `HCI_SIZE_GET_EW(tcdm);
   localparam int unsigned EHW = `HCI_SIZE_GET_EHW(tcdm);
 
+  localparam int unsigned X_ITEM_SIZE_LOG = $clog2(X_ITEM_SIZE);
+  localparam int unsigned Y_ITEM_SIZE_LOG = $clog2(Y_ITEM_SIZE);
   // We "sacrifice" 1 word of memory interface bandwidth in order to support
   // realignment at a byte boundary if the access are misaligned.
   localparam Z_BW_ALIGNED = MISALIGNED_ACCESSES === 0 ? BW : BW-32;
 
-  logic[1:0] data_demux_sel;
-  logic[META_CHUNK_SIZE-1:0] metadata_buf_d, metadata_buf_q;
-  params_schedulers_t params_schedulers_d, params_schedulers_q;
-  assign metadata_buf_o = metadata_buf_q;
+  logic meta_in_buf_d, meta_in_buf_q;
+  assign meta_in_buf_d = output_data_demux[0].valid && output_data_demux[0].ready;
+  logic [15:0] X_mask_d, X_mask_q, Y_mask_d, Y_mask_q;
+  logic req_start_source;
+  logic[1:0] data_demux_sel_d, data_demux_sel_q;
+  logic req_mux_sel;
+  logic[META_CHUNK_SIZE-1:0] metadata_buf_data_d, metadata_buf_data_q;
 
   // Source and sink flag and control signals
-  hci_streamer_ctrl_t source_ctrl_d, source_ctrl_q;
-  hci_streamer_ctrl_t sink_ctrl_d, sink_ctrl_q;
-  hci_streamer_flags_t source_flags_d, source_flags_q;
-  hci_streamer_flags_t sink_flags_d, sink_flags_q;
+  hci_streamer_ctrl_t sink_ctrl, sink_ctrl_d, sink_ctrl_q;
+  hci_streamer_flags_t source_flags;
+  hci_streamer_flags_t sink_flags;
 
   // Signals for the storing FSM
   hci_streamer_ctrl_t Z_sink_ctrl;
@@ -88,16 +92,17 @@ module accelerator_streamer #(
   logic meta_used_for_Y_i, meta_used_for_Y_o;
   logic need_for_meta;
   assign need_for_meta = meta_used_for_X_i & meta_used_for_Y_i;
-  logic Xsched_proceed, Ysched_proceed;
+  logic X_request_ready, Y_request_ready;
   logic load_new_X, load_new_Y;
-  assign load_new_X = dataX_o.ready & (!meta_used_for_X_i);
-  assign load_new_Y = dataY_o.ready & (!meta_used_for_Y_i);
-  hci_streamer_ctrl_t X_source_ctrl;
-  hci_streamer_ctrl_t Y_source_ctrl;
+  assign load_new_X = dataX_o.ready & (!meta_used_for_X_i) &  X_request_ready;
+  assign load_new_Y = dataY_o.ready & (!meta_used_for_Y_i) & Y_request_ready;
 
   // State for the loading FSM
   typedef enum { SOURCE_INACTIVE, SOURCE_IDLE, LOADING_META, LOADING_X, LOADING_Y} source_state;
   source_state source_state_d, source_state_q;
+
+  assign X_mask_d = (X_source_req.valid && X_source_req.ready && !need_for_meta) ? X_source_req.data[47:32] : X_mask_q;
+  assign Y_mask_d = (Y_source_req.valid && Y_source_req.ready && !need_for_meta) ? Y_source_req.data[47:32] : Y_mask_q;
 
   // "Virtual" HCI TCDM interfaces. Interface [0] maps loads (coming from
   // and HCI source) and interface [1] maps stores (coming from an HCI sink).
@@ -128,20 +133,32 @@ module accelerator_streamer #(
   );
 
   hwpe_stream_intf_stream #(
-    .DATA_WIDTH (BW)
-  ) meta_buf_intf (
+    .DATA_WIDTH (48)
+  ) X_source_req (
+    .clk(clk_i)
+  );
+
+  hwpe_stream_intf_stream #(
+    .DATA_WIDTH (48)
+  ) Y_source_req (
+    .clk(clk_i)
+  );
+
+  hwpe_stream_intf_stream #(
+    .DATA_WIDTH (32)
+  ) source_req (
     .clk(clk_i)
   );
 
   hwpe_stream_intf_stream #(
     .DATA_WIDTH (BW)
-  ) input_demux (
+  ) input_data_demux (
     .clk(clk_i)
   );
 
   hwpe_stream_intf_stream #(
     .DATA_WIDTH (BW)
-  ) output_demux[2:0] (
+  ) output_data_demux[2:0] (
     .clk(clk_i)
   );
 
@@ -149,24 +166,35 @@ module accelerator_streamer #(
     .DATA_WIDTH (Z_BW_ALIGNED)
   ) dataZ_outcoming (
     .clk(clk_i)
-  );
+  ); 
 
-  assign meta_buf_intf.valid            = output_demux[0].valid;
-  assign meta_buf_intf.data             = output_demux[0].data;
-  assign meta_buf_intf.strb             = output_demux[0].strb;
-  assign output_demux[0].ready          = meta_buf_intf.ready;
+  genvar i,j;
 
-  assign dataX_o.valid           = output_demux[1].valid;
-  assign dataX_o.data            = output_demux[1].data;
-  assign dataX_o.strb            = output_demux[1].strb;
-  assign output_demux[1].ready          = dataX_o.ready;
+  assign output_data_demux[0].ready   = 1'b1;
+  assign metadata_buf_o = metadata_buf_data_q;
+  generate
+    for (j = 0; j < META_CHUNK_SIZE / 32; j++) begin
+      for (i = 0; i < 32; i = i + 1) begin
+        assign metadata_buf_data_d[i + j * 32] = 
+          (output_data_demux[0].valid)
+          ? output_data_demux[0].data[i + (META_CHUNK_SIZE / 32 - 1 - j) * 32]
+          : metadata_buf_data_q[i + j * 32];
+      end
+    end
+  endgenerate
 
-  assign dataY_o.valid           = output_demux[2].valid;
-  assign dataY_o.data            = output_demux[2].data;
-  assign dataY_o.strb            = output_demux[2].strb;
-  assign output_demux[2].ready          = dataY_o.ready;
+  assign output_data_demux[1].ready          = dataX_o.ready;
+  assign dataX_o.data = output_data_demux[1].data & ( {BW{1'b1}} >> (BW - (X_mask_q << X_ITEM_SIZE_LOG)) );
+  assign dataX_o.valid                  = output_data_demux[1].valid;
+  assign dataX_o.strb                   = output_data_demux[1].strb;
+
+  assign output_data_demux[2].ready          = dataY_o.ready;
+  assign dataY_o.data = output_data_demux[2].data & ( {BW{1'b1}} >> (BW - (Y_mask_q << Y_ITEM_SIZE_LOG)) );
+  assign dataY_o.valid                  = output_data_demux[2].valid;
+  assign dataY_o.strb                   = output_data_demux[2].strb;
 
   output_stream_accumulator #(
+    .INPUT_ITEM_SIZE (Z_ITEM_SIZE),
     .BW_IN        (Y_BLOCK_SIZE * Z_ITEM_SIZE),
     .BW_OUT       (Z_BW_ALIGNED)
   ) Z_data_accumulator (
@@ -174,9 +202,10 @@ module accelerator_streamer #(
     .rst_ni      ( rst_ni                      ),
     .clear_i     ( clear_i                     ),
 
-    .stream_i    ( dataZ_i            ),
+    .flags_sink_i (sink_flags),
+    .stream_i    ( dataZ_i.sink            ),
 
-    .stream_o    (  dataZ_outcoming        )
+    .stream_o    (  dataZ_outcoming.source        )
   );
 
   // If not using a FIFO, it is possible to use a standard mux instead
@@ -212,21 +241,33 @@ module accelerator_streamer #(
   // dataX_o, dataY_o, dataZ_o or meta_incoming
   hwpe_stream_demux_static #(
     .NB_OUT_STREAMS (3)
-  ) demux(
+  ) data_demux(
     .clk_i        ( clk_i                         ),
     .rst_ni       ( rst_ni                        ),
     .clear_i      ( clear_i                       ),
 
-    .sel_i        ( data_demux_sel                ),
+    .sel_i        ( data_demux_sel_q                ),
 
-    .push_i       ( input_demux.sink              ),
-    .pop_o        ( output_demux.source           )
+    .push_i       ( input_data_demux.sink              ),
+    .pop_o        ( output_data_demux.source           )
+  );
+
+  hwpe_stream_mux_static req_mux(
+    .clk_i        ( clk_i                         ),
+    .rst_ni       ( rst_ni                        ),
+    .clear_i      ( clear_i                       ),
+
+    .sel_i        ( req_mux_sel                ),
+
+    .push_0_i       ( X_source_req.sink              ),
+    .push_1_i       ( Y_source_req.sink              ),
+    .pop_o        ( source_req.source           )
   );
 
   // Standard HCI core source. The DATA_WIDTH parameter is referred to
   // the HWPE-Stream, since the source also performs realignment, it will
   // expose a 32-bit larger HCI TCDM interface.
-  hci_core_source #(
+  source_fast #(
     .`HCI_SIZE_PARAM(tcdm) ( `HCI_SIZE_PARAM(tcdm) ),
     .MISALIGNED_ACCESSES(MISALIGNED_ACCESSES)
   ) i_source (
@@ -235,10 +276,11 @@ module accelerator_streamer #(
     .test_mode_i ( test_mode_i                   ),
     .clear_i     ( clear_i                       ),
     .enable_i    ( 1'b1                          ),
+    .req_start   ( req_start_source             ),
     .tcdm        ( virt_tcdm [0]                 ),
-    .stream      ( input_demux.source           ),
-    .ctrl_i      ( source_ctrl_q    ),
-    .flags_o     ( source_flags_d  )
+    .stream      ( input_data_demux.source           ),
+    .addr_i      ( source_req.sink    ),
+    .flags_o     ( source_flags  )
   );
 
   // Standard HCI core sink. The DATA_WIDTH parameter is referred to
@@ -255,8 +297,8 @@ module accelerator_streamer #(
     .enable_i    ( 1'b1                        ),
     .tcdm        ( virt_tcdm [1]               ),
     .stream      ( dataZ_outcoming.sink                    ),
-    .ctrl_i      ( sink_ctrl_q   ),
-    .flags_o     ( sink_flags_d )
+    .ctrl_i      ( sink_ctrl   ),
+    .flags_o     ( sink_flags )
   );
 
   // Scheduler for X
@@ -268,16 +310,18 @@ module accelerator_streamer #(
     .clk_i       ( clk_i                       ),
     .rst_ni      ( rst_ni                      ),
     .clear_i     ( clear_i                     ),
+    .working_i    ( ctrl_i.acc_working ),
+    .done_i       ( ctrl_i.acc_done ),
 
-    .sched_proceed_i   (  Xsched_proceed             ),
     .meta_used_i (  meta_used_for_X_o          ),
     .meta_used_o (  meta_used_for_X_i          ),
 
-    .metadata_chunk ( metadata_buf_d           ),
+    .metadata_chunk ( metadata_buf_data_q           ),
 
-    .params_i       ( params_schedulers_q.X_sched_params),
+    .params_i       ( params_schedulers_i.X_sched_params),
 
-    .config_o    (  X_source_ctrl              )
+    .request_ready_o (X_request_ready),
+    .addr_o    (  X_source_req              )
   );
 
   Y_data_scheduler #(
@@ -288,29 +332,33 @@ module accelerator_streamer #(
     .clk_i       ( clk_i                       ),
     .rst_ni      ( rst_ni                      ),
     .clear_i     ( clear_i                     ),
+    .working_i    ( ctrl_i.acc_working ),
+    .done_i       ( ctrl_i.acc_done ),
 
-    .sched_proceed_i   (  Ysched_proceed             ),
     .meta_used_i (  meta_used_for_Y_o          ),
     .meta_used_o (  meta_used_for_Y_i          ),
 
-    .metadata_chunk ( metadata_buf_d           ),
+    .metadata_chunk ( metadata_buf_data_q           ),
 
-    .params_i       ( params_schedulers_q.Y_sched_params),
+    .params_i       ( params_schedulers_i.Y_sched_params),
 
-    .config_o     ( Y_source_ctrl              )
+    .request_ready_o (Y_request_ready),
+    .addr_o     ( Y_source_req              )
   );
 
   Z_data_scheduler #(
+    .BW                (Z_BW_ALIGNED),
     .DATA_SIZE         (Z_ITEM_SIZE),            // Size of each data element in bits
     .Y_BLOCK_SIZE      (Y_BLOCK_SIZE)            // Number of Y columns per block
   ) Z_scheduler (
     .clk_i       ( clk_i                       ),
     .rst_ni      ( rst_ni                      ),
     .clear_i     ( clear_i                     ),
-
+    .working_i    ( ctrl_i.acc_working ),
+    .done_i       ( ctrl_i.acc_done ),
     .sched_proceed_i   (  Zsched_proceed             ),
 
-    .params_i    ( params_schedulers_q.Z_sched_params),
+    .params_i    ( params_schedulers_i.Z_sched_params),
 
     .config_o    ( Z_sink_ctrl      )
   );
@@ -320,15 +368,12 @@ module accelerator_streamer #(
   begin : store_fsm_seq
     if(~rst_ni) begin
       sink_state_q <= SINK_INACTIVE;
-      sink_flags_q <= '0;
       sink_ctrl_q  <= '0;
     end else if(clear_i)begin
       sink_state_q <= SINK_INACTIVE;
-      sink_flags_q <= '0;
       sink_ctrl_q  <= '0;
     end else begin
       sink_state_q <= sink_state_d;
-      sink_flags_q <= sink_flags_d;
       sink_ctrl_q  <= sink_ctrl_d;
     end
   end
@@ -344,11 +389,11 @@ module accelerator_streamer #(
     if(sink_state_q == SINK_IDLE) begin
       if(ctrl_i.acc_done)
         sink_state_d = SINK_INACTIVE;
-      else if(sink_flags_q.ready_start & dataZ_i.valid)
+      else if(sink_flags.ready_start & dataZ_i.valid)
           sink_state_d = STORING_Z;
     end
     else if(sink_state_q == STORING_Z) begin
-      if (sink_flags_q.done)
+      if (sink_flags.done)
         sink_state_d = SINK_IDLE;
     end
     else begin
@@ -360,17 +405,18 @@ module accelerator_streamer #(
   always_comb
   begin : store_fsm_out_comb
     sink_ctrl_d = sink_ctrl_q;
+    sink_ctrl = '0;
     Zsched_proceed = 1'b0;
     if (sink_state_q == SINK_IDLE) begin
-      if(sink_flags_q.ready_start & dataZ_i.valid & ~ctrl_i.acc_done)begin
+      if(sink_flags.ready_start & dataZ_i.valid & ~ctrl_i.acc_done)begin
         // Send request to store Z
-        sink_ctrl_d = Z_sink_ctrl;
-        sink_ctrl_d.req_start = 1'b1;
+        sink_ctrl = Z_sink_ctrl;
+        sink_ctrl.req_start = 1'b1;
       end
     end
     else if (sink_state_q == STORING_Z) begin
-      sink_ctrl_d = Z_sink_ctrl;
-      if(sink_flags_q.done)
+      sink_ctrl = Z_sink_ctrl;
+      if(sink_flags.done)
         Zsched_proceed = 1'b1;
     end
   end
@@ -380,23 +426,26 @@ module accelerator_streamer #(
   begin: load_fsm_seq
     if (~rst_ni) begin
       source_state_q        <= SOURCE_INACTIVE;
-      metadata_buf_q        <= '0;
-      params_schedulers_q   <= '0;
-      source_flags_q        <= '0;
-      source_ctrl_q         <= '0;
+      metadata_buf_data_q  <= '0;
+      data_demux_sel_q      <= '0;
+      meta_in_buf_q         <= '0;
+      X_mask_q              <= '0;
+      Y_mask_q              <= '0;
     end else begin
       if (clear_i) begin
         source_state_q      <= SOURCE_INACTIVE;
-        metadata_buf_q      <= '0;
-        params_schedulers_q   <= '0;
-        source_flags_q        <= '0;
-        source_ctrl_q         <= '0;
+        metadata_buf_data_q  <= '0;
+        data_demux_sel_q      <= '0;
+        meta_in_buf_q         <= '0;
+        X_mask_q              <= '0;
+        Y_mask_q              <= '0;
       end else begin
         source_state_q      <= source_state_d;
-        metadata_buf_q      <= metadata_buf_d;
-        params_schedulers_q <= params_schedulers_d;
-        source_flags_q      <= source_flags_d;
-        source_ctrl_q       <= source_ctrl_d;
+        metadata_buf_data_q  <= metadata_buf_data_d;
+        data_demux_sel_q      <= data_demux_sel_d;
+        meta_in_buf_q         <= meta_in_buf_d;
+        X_mask_q              <= X_mask_d;
+        Y_mask_q              <= Y_mask_d;
       end
     end
   end
@@ -412,7 +461,7 @@ module accelerator_streamer #(
     if(source_state_q == SOURCE_IDLE) begin
       if(ctrl_i.acc_done)
         source_state_d = SOURCE_INACTIVE;
-      else if(source_flags_q.ready_start)begin
+      else if(source_flags.ready_start)begin
           if(need_for_meta)
             source_state_d = LOADING_META;
           else
@@ -424,16 +473,32 @@ module accelerator_streamer #(
       end
     end
     else if(source_state_q == LOADING_META) begin
-      if(source_flags_q.done)
+      if(meta_in_buf_q)
         source_state_d = SOURCE_IDLE;
     end
     else if(source_state_q == LOADING_X) begin
-      if(source_flags_q.done)
-        source_state_d = SOURCE_IDLE;
+      if(!load_new_X) begin
+        if(need_for_meta)
+            source_state_d = LOADING_META;
+        else if(load_new_Y)
+            source_state_d = LOADING_Y;
+        else
+          source_state_d = SOURCE_IDLE;
+      end else begin
+        source_state_d = LOADING_X;
+      end
     end
     else if(source_state_q == LOADING_Y) begin
-      if(source_flags_q.done)
-        source_state_d = SOURCE_IDLE;
+      if(!load_new_Y) begin
+        if(need_for_meta)
+            source_state_d = LOADING_META;
+        else if(load_new_X)
+            source_state_d = LOADING_X;
+        else 
+          source_state_d = SOURCE_IDLE;
+      end else begin
+        source_state_d = LOADING_Y;
+      end
     end
     else begin
       source_state_d = SOURCE_IDLE;
@@ -443,65 +508,81 @@ module accelerator_streamer #(
   // Load FSM: combinational output calculation process.
   always_comb
   begin : load_fsm_out_comb
-    Xsched_proceed = 1'b0;
-    Ysched_proceed = 1'b0;
-    data_demux_sel = 2'b00;
     meta_used_for_X_o = 1'b1;
     meta_used_for_Y_o = 1'b1;
-    meta_buf_intf.ready = 1'b0;
-    source_ctrl_d = source_ctrl_q;
+    req_mux_sel = 0;
+    req_start_source = 0;
 
-    metadata_buf_d = metadata_buf_q;
-    params_schedulers_d = params_schedulers_q;
+    data_demux_sel_d = data_demux_sel_q;
 
-    if(source_state_q == SOURCE_INACTIVE)begin
-      if(ctrl_i.acc_working)
-        params_schedulers_d = params_schedulers_i;
-    end
-    else if(source_state_q == SOURCE_IDLE) begin
-      if(source_flags_q.ready_start & ~ctrl_i.acc_done)begin
+    if(source_state_q == SOURCE_IDLE) begin
+      data_demux_sel_d = '0;
+      if(source_flags.ready_start & ~ctrl_i.acc_done)begin
         if(need_for_meta)begin
           // Send request to load metadata
-          source_ctrl_d = X_source_ctrl;
-          source_ctrl_d.req_start = 1'b1;
+          data_demux_sel_d = 2'b00;
+          req_mux_sel = 0;
+          req_start_source = 1'b1;
         end else if(load_new_X)begin
           // Send request to load X
-          source_ctrl_d = X_source_ctrl;
-          source_ctrl_d.req_start = 1'b1;
+          data_demux_sel_d = 2'b01;
+          req_mux_sel = 0;
+          req_start_source = 1'b1;
         end else if(load_new_Y)begin
           // Send request to load Y
-          source_ctrl_d = Y_source_ctrl;
-          source_ctrl_d.req_start = 1'b1;
+          data_demux_sel_d = 2'b10;
+          req_mux_sel = 1;
+          req_start_source = 1'b1;
         end
       end
     end
     else if(source_state_q == LOADING_META) begin
-      data_demux_sel = 2'b00;
-      source_ctrl_d = X_source_ctrl;
-      meta_buf_intf.ready = 1'b1;
-      if (meta_buf_intf.valid)
-        metadata_buf_d = meta_buf_intf.data;
-      if(source_flags_q.done) begin
-        source_ctrl_d = '0;
+      req_mux_sel = 0;
+      req_start_source = 1'b1;
+      data_demux_sel_d = 2'b00;
+      if(meta_in_buf_q) begin
         meta_used_for_X_o = 1'b0;
         meta_used_for_Y_o = 1'b0;
-        Xsched_proceed = 1'b1;
-        Ysched_proceed = 1'b1;
+        req_start_source = 1'b0;
       end
     end
     else if(source_state_q == LOADING_X) begin
-      data_demux_sel = 2'b01;
-      source_ctrl_d = X_source_ctrl;
-      source_ctrl_d.req_start = 1'b0;
-      if(source_flags_q.done)
-          Xsched_proceed = 1'b1;
+      req_mux_sel = 0;
+      req_start_source = 1'b1;
+      data_demux_sel_d = 2'b01;
+      if(!load_new_X)begin
+        if(need_for_meta)begin
+          // Send request to load metadata
+          data_demux_sel_d = 2'b00;
+          req_mux_sel = 0;
+        end else if(load_new_Y)begin
+          // Send request to load Y
+          data_demux_sel_d = 2'b10;
+          req_mux_sel = 1;
+        end 
+      end else begin
+        req_mux_sel = 0;
+        req_start_source = 1'b1;
+      end
     end
     else if(source_state_q == LOADING_Y) begin
-      data_demux_sel = 2'b10;
-      source_ctrl_d = Y_source_ctrl;
-      source_ctrl_d.req_start = 1'b0;
-      if(source_flags_q.done)
-        Ysched_proceed = 1'b1;
+      req_mux_sel = 1;
+      req_start_source = 1'b1;
+      data_demux_sel_d = 2'b10;
+      if(!load_new_Y)begin
+        if(need_for_meta)begin
+          // Send request to load metadata
+          data_demux_sel_d = 2'b00;
+          req_mux_sel = 0;
+        end else if(load_new_X)begin
+          // Send request to load X
+          data_demux_sel_d = 2'b01;
+          req_mux_sel = 0;
+        end
+      end else begin
+        req_mux_sel = 1;
+        req_start_source = 1'b1;
+      end
     end
   end
 

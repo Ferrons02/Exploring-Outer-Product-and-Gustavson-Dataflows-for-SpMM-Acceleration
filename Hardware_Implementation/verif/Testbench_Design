@@ -1,7 +1,0 @@
-TESTBENCH:
-
--1 core (engine), 1 tcdm port (worst case)
--Matrix sizes are 16X16
--The accelerator accepts 2 elems long elements of X and 2x2 blocks of Y
--We assume 32 bits long elements of X and Y while 32*4 bits long elements of Z such that each cycle requires (4+2)*(32/8)= 24bytes in input (or 6 32 bit words) and at the end of the cycle it outputs 4*(32*4/8) = 64bytes in output (or 16 32 bit words).
--We load enough data at once for 3 cycles 24*3= 72bytes so the maximum BW required would be 72bytes

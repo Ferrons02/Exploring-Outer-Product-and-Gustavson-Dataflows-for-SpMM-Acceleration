@@ -4,6 +4,9 @@ This ReadMe provides instructions on how to set up and run the standalone simula
 
 ## Available Make Commands
 
+### 0. Put the desired parameters inside the makefile:
+Choose the sizes of the matrices and their sparsity inside the makefile (lower sparsity factor means an X matrix more dense). The number of columns of X and columns of Y must be powers of 2, while the size of the metadata chunk should be a multiple of 32 and a power of 2.
+
 ### 1. To clone the dependencies, run:
 ```sh
 make bender
@@ -30,7 +33,7 @@ make sim
 ## Test Results
 If the tests pass successfully, you should see the following message displayed at the end:
 ```
-PASSED!!!!
+TEST PASSED! :)
 ```
 
 ## Contributors
@@ -39,7 +42,7 @@ PASSED!!!!
 - Marco Ferroni, ETH Zurich (*mferroni@ethz.ch*)
 
 ## NOTE
-This project is NOT functioning yet; the verification phase is still ongoing
+There might be minor changes in the future
 
 ## License
 This repository makes use of two licenses:

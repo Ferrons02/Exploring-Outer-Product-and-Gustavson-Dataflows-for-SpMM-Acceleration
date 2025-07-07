@@ -1,5 +1,6 @@
 import accelerator_package::*;
 import hci_package::*;
+import hwpe_stream_package::*;
 
 `ifndef Y_DATA_SCHEDULER_SV
 `define Y_DATA_SCHEDULER_SV
@@ -12,16 +13,18 @@ module Y_data_scheduler #(
     input  logic                 clk_i,
     input  logic                 rst_ni,
     input  logic                 clear_i,
+    input  logic                 working_i,
+    input  logic                 done_i,
 
-    input  logic                 sched_proceed_i,    // Advance scheduler
     input  logic                 meta_used_i,      // Indicates new metadata_chunk is ready
     output logic                 meta_used_o,      // Raises high to request new metadata
 
     input  logic [META_CHUNK_SIZE-1:0] metadata_chunk, // Bitmap for one row of X
 
     input  Y_param_t             params_i,
+    output logic                 request_ready_o,
 
-    output hci_streamer_ctrl_t   config_o           // Configuration to load Y blocks
+    hwpe_stream_intf_stream.source addr_o
 );
 
     // ---------------------------------------------------------------------------------------------
@@ -45,170 +48,171 @@ module Y_data_scheduler #(
     //----------------------------------------------------------------------------------------------
 
     // State registers
+    logic fifo_empty_q, fifo_empty_d;
+    logic chunk_done;
     logic [15:0]  x_row_q, x_row_d;                                 // Actual row of X
     logic [15:0]  scanned_rows_q, scanned_rows_d;                   // Current row index in Y-column block being scanned
     logic [15:0]  y_col_block_q, y_col_block_d;                     // Which block (0..params_i.y_row_iters-1) of Y[*] we're loading
     logic [15:0]  meta_chunk_used_bits_q, meta_chunk_used_bits_d;   // Counts come many bits of the metadata chunk have been used
-    logic [15:0]  row_to_load_q, row_to_load_d;                     // Keeps the index of the Y row to load
-    logic         needing_meta_q, needing_meta_d;                   // High if we need a fresh metadata_chunk
+    logic [META_CHUNK_SIZE - 1 : 0] meta_portion_tocheck;
+    logic [$clog2(META_CHUNK_SIZE) - 1 : 0] meta_position;
+    logic           needing_meta_q, needing_meta_d;                   // High if we need a fresh metadata_chunk
+    Y_param_t       params_q, params_d;
+    flags_fifo_t    flags_fifo;
 
-    hci_streamer_ctrl_t config_o_q, config_o_d;
+    assign meta_portion_tocheck = (metadata_chunk << meta_chunk_used_bits_q);
+    assign fifo_empty_d = flags_fifo.empty;
 
     // Derived constants
     localparam int DATA_SIZE_BYTES      = DATA_SIZE >> 3;
     localparam int DATA_SIZE_BYTES_LOG  = $clog2(DATA_SIZE_BYTES);
     localparam int Y_BLOCK_SIZE_LOG     = $clog2(Y_BLOCK_SIZE);
+    localparam int META_CHUNK_SIZE_LOG  = $clog2(META_CHUNK_SIZE);
 
-    // ---------------------------------------------------------------------------------------------
-    // Combinatorial logic: next-state and config generation
-    // ---------------------------------------------------------------------------------------------
-    always_comb begin
+    lzc #(
+        .WIDTH (META_CHUNK_SIZE),
+        .MODE (1)
+    ) meta_searcher (
+        .in_i               (meta_portion_tocheck),
+        .cnt_o              (meta_position),
+        .empty_o            (chunk_done)
+    );
+
+    hwpe_stream_intf_stream #(
+        .DATA_WIDTH (48)
+    ) push_addr (
+        .clk(clk_i)
+    );
+
+    assign push_addr.strb = '1;
+
+    hwpe_stream_fifo #(
+        .DATA_WIDTH (48),
+        .FIFO_DEPTH (2)
+    ) Y_addr_fifo (
+        .clk_i       ( clk_i                       ),
+        .rst_ni      ( rst_ni                      ),
+        .clear_i     ( clear_i                     ),
+
+        .flags_o    (flags_fifo),
+        .push_i     (push_addr),
+        .pop_o      (addr_o)
+    );
+
+    always_comb
+    begin
+
         // Default: hold current state
         x_row_d                 = x_row_q;
         scanned_rows_d          = scanned_rows_q;
         y_col_block_d           = y_col_block_q;
         needing_meta_d          = needing_meta_q;
         meta_chunk_used_bits_d  = meta_chunk_used_bits_q;
-        row_to_load_d           = row_to_load_q;
-        config_o_d              = config_o_q;
+        params_d                = params_q;
 
-        if (needing_meta_q)
-            needing_meta_d = meta_used_i;
-        else
-            needing_meta_d = needing_meta_q;
+        push_addr.valid = 1'b0;
 
-        if (sched_proceed_i) begin
-            
-            // First we check if we need metadata
-            // End of row?
-            if (scanned_rows_q >= params_i.y_rows) begin
+        if (working_i) begin
 
-                scanned_rows_d            = '0;
-                meta_chunk_used_bits_d    = 16'd8 - ((META_CHUNK_SIZE - meta_chunk_used_bits_q) & 3'b111);  // The next tile of metadata might have the first byte that shares bits with the previous row
-                needing_meta_d            = 1'b1;
-                y_col_block_d             = y_col_block_q + 16'b1;
+            if (needing_meta_q)
+                needing_meta_d = meta_used_i;
+            else
+                needing_meta_d = needing_meta_q;
 
-                // Next X row?
-                if (y_col_block_d >= params_i.y_row_iters) begin
+            // REQUEST GENERATION
+            if (!flags_fifo.full && ((needing_meta_q && !meta_used_i) || !needing_meta_q) ) begin
 
+                // For the next request
+                scanned_rows_d         = scanned_rows_q + meta_position + 1;
+                meta_chunk_used_bits_d = meta_chunk_used_bits_q + meta_position + 1;
+
+                if (scanned_rows_q + meta_position >= params_q.y_rows || (scanned_rows_q == '0 && chunk_done && META_CHUNK_SIZE == params_i.y_rows)) begin
+
+                    needing_meta_d            = 1;
+                    scanned_rows_d            = '0;
+                    y_col_block_d             = y_col_block_q + 16'b1;
+                    meta_chunk_used_bits_d    = (x_row_q << params_q.x_columns_log) - (((x_row_q << params_q.x_columns_log) >> META_CHUNK_SIZE_LOG) << META_CHUNK_SIZE_LOG);
+
+                    // Next row of X? Hence restart of the matrix Y
+                    if (y_col_block_q + 1 >= params_q.y_row_iters) begin
+
+                        meta_chunk_used_bits_d    = ((x_row_q + 1) << params_q.x_columns_log) - ((((x_row_q + 1) << params_q.x_columns_log) >> META_CHUNK_SIZE_LOG) << META_CHUNK_SIZE_LOG);
+                        y_col_block_d             = '0;
+                        x_row_d                   = x_row_q + 16'b1;
+
+                    end
+                end else if (chunk_done)begin
+
+                    scanned_rows_d            = scanned_rows_q + (META_CHUNK_SIZE - meta_chunk_used_bits_q);
+                    needing_meta_d            = 1;
                     meta_chunk_used_bits_d    = '0;
-                    y_col_block_d             = '0;
-                    x_row_d                   = x_row_q + 16'b1;
 
-                end
-
-            end else if (meta_chunk_used_bits_q >= META_CHUNK_SIZE) begin
-
-                meta_chunk_used_bits_d      = '0;
-                needing_meta_d              = 1'b1;
-
-            end else begin
-
-                // Loop to search for the next tile of Y to load
-                while ((meta_chunk_used_bits_d < META_CHUNK_SIZE) && (scanned_rows_d < params_i.y_rows) && (row_to_load_d == row_to_load_q)) begin
-                    if (metadata_chunk[meta_chunk_used_bits_d])
-                        row_to_load_d = scanned_rows_d;
-                    meta_chunk_used_bits_d   = meta_chunk_used_bits_d + 1'b1;
-                    scanned_rows_d           = scanned_rows_d + 1'b1;
-                end
-
-                // Check if there is indeed a new row chunk to load or the metadata chunk/ Y column is just finished
-                if (row_to_load_d == row_to_load_q)begin
-
-                    // End of row?
-                    if (scanned_rows_d >= params_i.y_rows) begin
-
-                        scanned_rows_d            = '0;
-                        meta_chunk_used_bits_d    = 16'd8 - ((META_CHUNK_SIZE - meta_chunk_used_bits_q) & 3'b111);  // The next tile of metadata might have the first byte that shares bits with the previous row
-                        needing_meta_d            = 1'b1;
-                        y_col_block_d             = y_col_block_q + 16'b1;
-
-                        // Next X row?
-                        if (y_col_block_d >= params_i.y_row_iters) begin
-
-                            meta_chunk_used_bits_d    = '0;
-                            y_col_block_d             = '0;
-                            x_row_d                   = x_row_q + 16'b1;
-
-                        end
-
-                    end else if (meta_chunk_used_bits_d >= META_CHUNK_SIZE) begin
-
-                        meta_chunk_used_bits_d      = '0;
-                        needing_meta_d              = 1'b1;
-
-                    end
-
-                end else begin
-
-                    if (x_row_d >= params_i.x_rows) begin
-
-                        // The calculation is finished and everything starts again
-                        x_row_d                     = '0;
-                        scanned_rows_d              = '0;
-                        y_col_block_d               = '0;
-                        needing_meta_d              = '1;
-                        meta_chunk_used_bits_d      = '0;
-                        row_to_load_d               = '0;
-
-                        config_o_d                  = '0;
-
-                    end else begin
-
-                        // Config to load Y
-                        config_o_d.req_start = 1'b0;
-                        config_o_d.addressgen_ctrl.base_addr = params_i.base_address + ((((y_col_block_q << Y_BLOCK_SIZE_LOG) << params_i.y_rows_log) + row_to_load_d) << DATA_SIZE_BYTES_LOG);
-                        config_o_d.addressgen_ctrl.tot_len   = (((y_col_block_q << Y_BLOCK_SIZE_LOG) + Y_BLOCK_SIZE) <= params_i.y_columns) ? Y_BLOCK_SIZE : (params_i.y_columns - (y_col_block_q << Y_BLOCK_SIZE_LOG));
-                        config_o_d.addressgen_ctrl.d0_len    = (((y_col_block_q << Y_BLOCK_SIZE_LOG) + Y_BLOCK_SIZE) <= params_i.y_columns) ? Y_BLOCK_SIZE : (params_i.y_columns - (y_col_block_q << Y_BLOCK_SIZE_LOG));
-                        config_o_d.addressgen_ctrl.d0_stride = DATA_SIZE_BYTES;
-
-                    end
                 end
             end
-        end
+
+            if ((x_row_q >= params_q.x_rows) & (y_col_block_q >= params_q.y_row_iters)) begin
+                
+                // The calculation is finished and everything starts again
+
+                x_row_d                     = '0;
+                scanned_rows_d              = '0;
+                y_col_block_d               = '0;
+                needing_meta_d              = '1;
+                meta_chunk_used_bits_d      = '0;
+
+            end
+
+            //REQUEST PUSH
+            if(push_addr.ready & !needing_meta_q) begin
+
+                push_addr.valid = 1'b1;
+                push_addr.data = {((y_col_block_q << Y_BLOCK_SIZE_LOG) + Y_BLOCK_SIZE) > params_q.y_columns ? (params_q.y_columns - (y_col_block_q << Y_BLOCK_SIZE_LOG)): Y_BLOCK_SIZE, params_q.base_address + ((((scanned_rows_q - 1) << params_q.y_columns_log) + (y_col_block_q << Y_BLOCK_SIZE_LOG)) << DATA_SIZE_BYTES_LOG)};
+            
+            end 
+        
+        end else
+    
+            params_d = params_i;
+
     end
 
-    // ---------------------------------------------------------------------------------------------
-    // Sequential logic: update registers on rising clock
-    // ---------------------------------------------------------------------------------------------
-    always_ff @(posedge clk_i or negedge rst_ni) begin
-        if (!rst_ni) begin
+    always_ff @(posedge clk_i or negedge rst_ni)
+    begin
+        if(~rst_ni) begin
 
+            params_q                    <= '0;
             x_row_q                     <= '0;
             scanned_rows_q              <= '0;
             y_col_block_q               <= '0;
             needing_meta_q              <= 1'b1;
             meta_chunk_used_bits_q      <= '0;
-            row_to_load_q               <= '0;
-            config_o_q                  <= '0;
+            fifo_empty_q                <= '0;
+
+        end else if(clear_i)begin
+
+            params_q                    <= '0;
+            x_row_q                     <= '0;
+            scanned_rows_q              <= '0;
+            y_col_block_q               <= '0;
+            needing_meta_q              <= 1'b1;
+            meta_chunk_used_bits_q      <= '0;
+            fifo_empty_q                <= '0;
 
         end else begin
-            if (clear_i) begin
 
-                x_row_q                     <= '0;
-                scanned_rows_q              <= '0;
-                y_col_block_q               <= '0;
-                needing_meta_q              <= '1;
-                meta_chunk_used_bits_q      <= '0;
-                row_to_load_q               <= '0;
-                config_o_q                  <= '0;
-
-            end else begin
-
-                x_row_q                     <= x_row_d;
-                scanned_rows_q              <= scanned_rows_d;
-                y_col_block_q               <= y_col_block_d;
-                meta_chunk_used_bits_q      <= meta_chunk_used_bits_d;
-                row_to_load_q               <= row_to_load_d;
-                needing_meta_q              <= needing_meta_d;
-                config_o_q                  <= config_o_d;
-
-            end
+            params_q                    <= params_d;
+            x_row_q                     <= x_row_d;
+            scanned_rows_q              <= scanned_rows_d;
+            y_col_block_q               <= y_col_block_d;
+            meta_chunk_used_bits_q      <= meta_chunk_used_bits_d;
+            needing_meta_q              <= needing_meta_d;
+            fifo_empty_q                <= fifo_empty_d;
+            
         end
     end
 
-    assign config_o    = config_o_q;
-    assign meta_used_o = needing_meta_q;
+    assign meta_used_o     = needing_meta_q && flags_fifo.empty;
+    assign request_ready_o = !flags_fifo.empty|| (push_addr.valid && push_addr.ready && flags_fifo.empty);
 
 endmodule
 

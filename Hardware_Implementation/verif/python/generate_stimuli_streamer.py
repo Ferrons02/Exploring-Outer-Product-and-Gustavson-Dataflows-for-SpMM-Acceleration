@@ -117,6 +117,7 @@ def generate_stimuli_streamer(
     y_columns: int,
     x_rows: int,
     y_rows: int,
+    x_sparsity : float,
     output_dir: str
 ):
     
@@ -132,7 +133,6 @@ def generate_stimuli_streamer(
     x_total_loads = 0
     y_total_loads = 0
 
-    x_sparsity = 0.5
     y_sparsity = 0
 
     X = generate_sparse_matrix(x_rows, x_columns, x_sparsity, x_item_size)
@@ -213,6 +213,11 @@ def generate_stimuli_streamer(
 
     # INITIAL MEMORY CREATION
 
+    # Padding to meta
+    if len(X_mask) % 32 != 0:
+        padding_len = 32 - (len(X_mask) % 32)
+        X_mask += [0] * padding_len
+
     num_meta_bytes = len(X_mask) // 8
     for byte_idx in range(num_meta_bytes):
         # collect 8 bits into a string
@@ -257,12 +262,11 @@ def generate_stimuli_streamer(
             if (idx + 1) % 4 == 0:
                 mf.write(" ")
 
-
     # X ORDER OUTPUT
     path = os.path.join(output_dir, "x_order.txt")
     with open(path, "w") as f:
         for row in X_elems_list:
-            elems = row[:x_elems_per_cycle] + [0] * (x_elems_per_cycle - len(row))
+            elems = (row[:x_elems_per_cycle] + [0] * (x_elems_per_cycle - len(row)))[::-1]
             word_strs = [f"{(int(e, 2) if isinstance(e, str) else e):0{x_item_size}b}" for e in elems]
             f.write("".join(word_strs) + "\n")
 
@@ -271,16 +275,20 @@ def generate_stimuli_streamer(
     with open(path, "w") as f:
         for row in Y_elems_list:
             for sub in row:
-                elems = sub[:y_block_size] + [0] * (y_block_size - len(sub))
+                elems = (sub[:y_block_size] + [0] * (y_block_size - len(sub)))[::-1]
                 word_strs = [f"{(int(e, 2) if isinstance(e, str) else e):0{y_item_size}b}" for e in elems]
                 f.write("".join(word_strs) + "\n")
 
     # Z ORDER OUTPUT
     path = os.path.join(output_dir, "z_order.txt")
     with open(path, "w") as f:
-        for item in Z_elems_list:
-            bitstr = item.zfill(z_item_size) if isinstance(item, str) else format(item, f'0{z_item_size}b')
-            f.write(bitstr + "\n")
+        for i in range(0, len(Z_elems_list), y_block_size):
+            group = Z_elems_list[i:i + y_block_size]
+            line = ""
+            for item in group:
+                bitstr = item.zfill(z_item_size) if isinstance(item, str) else format(item, f'0{z_item_size}b')
+                line += bitstr
+            f.write(line + "\n")
 
 
     return X, Y
@@ -304,6 +312,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--y_columns",         type=int,   required=True)
     parser.add_argument("--x_rows",            type=int,   required=True)
     parser.add_argument("--y_rows",            type=int,   required=True)
+    parser.add_argument("--x_sparsity",        type=float, required=True)
     parser.add_argument("--output_dir",        type=str,   required=True)
     return parser.parse_args()
 
@@ -323,6 +332,7 @@ def main():
         y_columns        = args.y_columns,
         x_rows           = args.x_rows,
         y_rows           = args.y_rows,
+        x_sparsity       = args.x_sparsity,      
         output_dir       = args.output_dir
     )
 

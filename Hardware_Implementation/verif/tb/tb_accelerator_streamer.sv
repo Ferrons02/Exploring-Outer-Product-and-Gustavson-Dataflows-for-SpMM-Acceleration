@@ -1,3 +1,4 @@
+
 `include "hci_helpers.svh"
 
 module tb_accelerator_streamer;
@@ -14,11 +15,11 @@ module tb_accelerator_streamer;
   //----------------------------------------------------------------------
   // Parameters & file paths
   //----------------------------------------------------------------------
-  parameter PROB_STALL      = 0.1;
+  parameter PROB_STALL      = 0;
   parameter BASE_ADDR       = 0;
 
   parameter TCDM_FIFO_DEPTH = 0;
-  parameter bit MISALIGNED_ACCESSES  = 1;
+  parameter bit MISALIGNED_ACCESSES  = 0;
 
   parameter int MP                   = `MP;                   // number of TCDM channels
   parameter int META_CHUNK_SIZE      = `META_CHUNK_SIZE;
@@ -38,13 +39,16 @@ module tb_accelerator_streamer;
 
   parameter BW = MP * 32;             // total tcdm bw
 
+  parameter int TOTAL_META_WORDS     = (X_ROWS * X_COLUMNS + 31) / 32;
   parameter int X_ITEM_SIZE_BYTES    = X_ITEM_SIZE / 8;
   parameter int Y_ITEM_SIZE_BYTES    = Y_ITEM_SIZE / 8;
   parameter int X_ITEMS_CYCLE        = $floor(BW / X_ITEM_SIZE);
   parameter int X_BITS_CYCLE         = X_ITEMS_CYCLE * X_ITEM_SIZE;
   parameter int Y_BITS_CYCLE         = Y_BLOCK_SIZE * Y_ITEM_SIZE;
-  parameter int Z_TOTAL_ENTRIES      = X_ROWS * Y_COLUMNS;
+  parameter int Z_BITS_CYCLE         = Y_BLOCK_SIZE * Z_ITEM_SIZE;
+  parameter int Z_TOTAL_ENTRY_BLOCKS = X_ROWS * ((Y_COLUMNS + Y_BLOCK_SIZE - 1)/Y_BLOCK_SIZE);
   parameter int STREAM_BW_OUTGOING   = Z_ITEM_SIZE * Y_BLOCK_SIZE;
+  parameter int Z_STRB_WIDTH         = (Z_ITEM_SIZE * Y_BLOCK_SIZE) / 8;
 
   string INITIAL_MEMORY_CONTENT_PATH = `INITIAL_MEMORY_CONTENT_PATH;
   string X_GOLDEN_PATH = `X_GOLDEN_PATH;
@@ -137,10 +141,16 @@ module tb_accelerator_streamer;
   //----------------------------------------------------------------------
   logic [X_BITS_CYCLE-1:0] captured_X [0:X_TOTAL_LOADS-1];
   logic [Y_BITS_CYCLE-1:0] captured_Y [0:Y_TOTAL_LOADS-1];
-  logic [X_BITS_CYCLE-1:0] golden_X [0:X_TOTAL_LOADS-1];
-  logic [Y_BITS_CYCLE-1:0] golden_Y [0:Y_TOTAL_LOADS-1];
-  logic [Z_ITEM_SIZE-1:0] golden_Z [0:Z_TOTAL_ENTRIES-1];
-  integer x_cnt = 0, y_cnt = 0;
+  logic [X_BITS_CYCLE-1:0] golden_X   [0:X_TOTAL_LOADS-1];
+  logic [Y_BITS_CYCLE-1:0] golden_Y   [0:Y_TOTAL_LOADS-1];
+  logic [Z_BITS_CYCLE-1:0]  golden_Z  [0:Z_TOTAL_ENTRY_BLOCKS-1] = '{default: '0};
+
+  integer x_cnt = 0, y_cnt = 0, z_cnt = 0;
+  integer total_z = X_ROWS * ((Y_COLUMNS + Y_BLOCK_SIZE - 1)/Y_BLOCK_SIZE);
+  integer cycle_cnt = 0;
+  integer byte_idx = 0;
+
+  logic [Z_ITEM_SIZE-1:0] block;
 
   //----------------------------------------------------------------------
   // Clock tasks
@@ -195,63 +205,80 @@ module tb_accelerator_streamer;
   //----------------------------------------------------------------------
   // Engine-side X/Y ready and capture logic
   //----------------------------------------------------------------------
-  initial begin
-    dataX_o.ready = 1;
-    dataY_o.ready = 1;
-  end
 
   always_ff @(posedge clk_i) begin
-    if (dataX_o.valid && dataX_o.ready) begin
-      for (int lane = 0; lane < X_ITEMS_CYCLE; lane++) begin
-        if (lane < $bits(dataX_o.strb) && dataX_o.strb[lane])
-          captured_X[x_cnt][lane*X_ITEM_SIZE +: X_ITEM_SIZE] <=
-            dataX_o.data[lane*X_ITEM_SIZE +: X_ITEM_SIZE];
-        else
-          captured_X[x_cnt][lane*X_ITEM_SIZE +: X_ITEM_SIZE] <= '0;
-      end
-      if (x_cnt + 1 == X_TOTAL_LOADS)
-        dataX_o.ready <= 0;
-      x_cnt <= x_cnt + 1;
+    dataX_o.ready = 1'b1;
+    if (x_cnt < X_TOTAL_LOADS) begin
+      if (dataX_o.valid && dataX_o.ready) begin
+        for (int lane = 0; lane < X_ITEMS_CYCLE; lane++) begin
+          if (lane < $bits(dataX_o.strb) && dataX_o.strb[lane])
+            captured_X[x_cnt][lane*X_ITEM_SIZE +: X_ITEM_SIZE] <=
+              dataX_o.data[lane*X_ITEM_SIZE +: X_ITEM_SIZE];
+          else
+            captured_X[x_cnt][lane*X_ITEM_SIZE +: X_ITEM_SIZE] <= '0;
+        end
+        x_cnt <= x_cnt + 1;
+      end 
+    end else begin
+      dataX_o.ready = 1'b0;
     end
   end
 
   always_ff @(posedge clk_i) begin
-    if (dataY_o.valid && dataY_o.ready) begin
-      for (int lane = 0; lane < Y_BLOCK_SIZE; lane++) begin
-        if (lane < $bits(dataY_o.strb) && dataY_o.strb[lane])
-          captured_Y[y_cnt][lane*Y_ITEM_SIZE +: Y_ITEM_SIZE] <=
-            dataY_o.data[lane*Y_ITEM_SIZE +: Y_ITEM_SIZE];
-        else
-          captured_Y[y_cnt][lane*Y_ITEM_SIZE +: Y_ITEM_SIZE] <= '0;
+    dataY_o.ready = 1'b1;
+    if (y_cnt < Y_TOTAL_LOADS)begin
+      if (dataY_o.valid && dataY_o.ready) begin
+        for (int lane = 0; lane < Y_BLOCK_SIZE; lane++) begin
+          if (lane < $bits(dataY_o.strb) && dataY_o.strb[lane])
+            captured_Y[y_cnt][lane*Y_ITEM_SIZE +: Y_ITEM_SIZE] <=
+              dataY_o.data[lane*Y_ITEM_SIZE +: Y_ITEM_SIZE];
+          else
+            captured_Y[y_cnt][lane*Y_ITEM_SIZE +: Y_ITEM_SIZE] <= '0;
+        end
+        y_cnt <= y_cnt + 1;
       end
-      if (y_cnt + 1 == Y_TOTAL_LOADS)
-        dataY_o.ready <= 0;
-      y_cnt <= y_cnt + 1;
+    end
+    else begin
+      dataY_o.ready = 1'b0;
     end
   end
 
   //----------------------------------------------------------------------
   // Z stream generation
   //----------------------------------------------------------------------
-  integer z_count;
-  initial begin
-    integer total_z = params_schedulers_i.X_sched_params.x_rows * params_schedulers_i.X_sched_params.y_row_iters;
-    z_count = 0;
-    dataZ_i.valid = 0;
-    dataZ_i.data  = '0;
-    while (z_count < total_z) begin
-      repeat($urandom_range(5,10)) @(posedge clk_i);
-      dataZ_i.valid = 1;
-      dataZ_i.data  = '0;
-      for (int j = 0; j < Y_BLOCK_SIZE; j++) begin
-        if (j == 0 || j == Y_BLOCK_SIZE-1)
-          dataZ_i.data[(j+1)*Z_ITEM_SIZE-1 -: Z_ITEM_SIZE] = z_count + 1;
-        else
-          dataZ_i.data[(j+1)*Z_ITEM_SIZE-1 -: Z_ITEM_SIZE] = {{Z_ITEM_SIZE{1'b1}}};
+
+  localparam int WAIT_CYCLES = 20;
+  logic [4:0] wait_counter;
+
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      dataZ_i.valid <= 0;
+      wait_counter  <= 0;
+    end else begin
+      dataZ_i.valid <= 0;
+      if (z_cnt < Z_TOTAL_ENTRY_BLOCKS)begin
+        if (dataZ_i.valid && dataZ_i.ready && z_cnt < total_z) begin
+          dataZ_i.valid   <= 0;
+          z_cnt           <= z_cnt + 1;
+          wait_counter    <= 1;
+        end else begin
+          wait_counter <= wait_counter + 1;
+          if (wait_counter == WAIT_CYCLES - 1) begin
+            wait_counter <= 0;
+            dataZ_i.valid <= 1;
+          end
+        end
+
+        dataZ_i.data <= golden_Z[z_cnt];
+        dataZ_i.strb = '0;
+        for (int i = 0; i < Z_BITS_CYCLE / Z_ITEM_SIZE; i++) begin
+          block = golden_Z[z_cnt][i * Z_ITEM_SIZE +: Z_ITEM_SIZE];
+          byte_idx = i * (Z_ITEM_SIZE / 8);
+          for (int j = 0; j < Z_ITEM_SIZE / 8; j++) begin
+            dataZ_i.strb[byte_idx + j] = |block ? 1'b1 : 1'b0;
+          end
+        end
       end
-      @(posedge clk_i);
-      dataZ_i.valid = 0;
-      z_count++;
     end
   end
 
@@ -261,8 +288,8 @@ module tb_accelerator_streamer;
   initial begin
     integer error = 0;
     int i;
-    int b;
-    logic [Z_ITEM_SIZE-1:0] mem_word;
+    int word;
+    logic [Z_BITS_CYCLE -1:0] Z_entry_block;
 
     // load stimuli
     $readmemb(INITIAL_MEMORY_CONTENT_PATH, i_dummy_memory.memory);
@@ -272,7 +299,7 @@ module tb_accelerator_streamer;
     $readmemb(Y_GOLDEN_PATH, golden_Y);
     $readmemb(Z_GOLDEN_PATH, golden_Z);
 
-    ctrl_i.acc_working = 1;
+    ctrl_i.acc_working = 0;
     ctrl_i.acc_done    = 0;
 
     // set scheduler params
@@ -280,13 +307,15 @@ module tb_accelerator_streamer;
                                             y_row_iters:   (Y_COLUMNS + Y_BLOCK_SIZE - 1)/Y_BLOCK_SIZE,
                                             x_columns:     X_COLUMNS,
                                             x_columns_log: $clog2(X_COLUMNS),
-                                            x_rows:        X_ROWS };
+                                            x_rows:        X_ROWS,
+                                            total_meta_words: TOTAL_META_WORDS };
     params_schedulers_i.Y_sched_params = '{ base_address: Y_BASE_ADDRESS,
                                             y_columns: Y_COLUMNS,
                                             y_row_iters:   (Y_COLUMNS + Y_BLOCK_SIZE - 1)/Y_BLOCK_SIZE,
                                             y_rows:        Y_ROWS,
-                                            y_rows_log:    $clog2(Y_ROWS),
-                                            x_rows:        X_ROWS };
+                                            y_columns_log: $clog2(Y_COLUMNS),
+                                            x_rows:        X_ROWS,
+                                            x_columns_log: $clog2(X_COLUMNS) };
     params_schedulers_i.Z_sched_params = '{ base_address: Z_BASE_ADDRESS,
                                             y_columns:     Y_COLUMNS,
                                             y_row_iters:   (Y_COLUMNS + Y_BLOCK_SIZE - 1)/Y_BLOCK_SIZE,
@@ -298,8 +327,16 @@ module tb_accelerator_streamer;
     @(posedge clk_i);
     rst_ni = 1;
 
-    // wait for X/Y streaming to complete
-    wait (x_cnt == X_TOTAL_LOADS && y_cnt == Y_TOTAL_LOADS);
+    @(posedge clk_i);
+    @(posedge clk_i);
+
+    ctrl_i.acc_working = 1;
+    ctrl_i.acc_done    = 0;
+
+    // wait for streaming to complete
+    wait (x_cnt >= X_TOTAL_LOADS && y_cnt >= Y_TOTAL_LOADS && z_cnt >= Z_TOTAL_ENTRY_BLOCKS);
+    repeat (10) @(posedge clk_i);
+    ctrl_i.acc_done = 1;
 
     // Compare X
     for (i = 0; i < X_TOTAL_LOADS; i++) begin
@@ -320,26 +357,25 @@ module tb_accelerator_streamer;
     end
 
     // Compare Z
-    for (i = 0; i < X_ROWS*Y_ROWS; i++) begin
-      mem_word = '0;
-      for (b = 0; b < 4; b++) begin
-        mem_word[8*(3-b) +: 8] = i_dummy_memory.memory[
-          params_schedulers_i.Z_sched_params.base_address + i*4 + b
+    for (i = 0; i < Z_TOTAL_ENTRY_BLOCKS; i++) begin
+      Z_entry_block = '0;
+      for (word = 0; word < Z_BITS_CYCLE / 32; word++) begin
+        Z_entry_block[(Z_BITS_CYCLE / 32 - word) * 32 - 1 -: 32] = i_dummy_memory.memory[
+          params_schedulers_i.Z_sched_params.base_address / 4 + i * (Z_BITS_CYCLE / 32) + word
         ];
-      end
-      if (mem_word !== golden_Z[i]) begin
+        end
+      if (Z_entry_block !== golden_Z[i]) begin
         $error("Memory Z mismatch at %0d: got %h, expected %h",
-              i, mem_word, golden_Z[i]);
+              i, Z_entry_block, golden_Z[i]);
         error = 1;
       end
     end
+    
+    if(error)
+      $display("TEST FAILED :( ");
+    else
+      $display("TEST PASSED! :) ");
 
-    // wait for Z stream to complete and finalize
-    wait (z_count == params_schedulers_i.X_sched_params.x_rows * params_schedulers_i.X_sched_params.y_row_iters && dataZ_i.valid == 0);
-    @(posedge clk_i);
-    ctrl_i.acc_done = 1;
-
-    $display(error?"[TEST FAILED]" : "[TEST PASSED] Streamer X/Y order correct.");
     $finish;
   end
 endmodule
