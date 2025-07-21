@@ -60,15 +60,18 @@ module accelerator_streamer #(
   localparam int unsigned EW  = `HCI_SIZE_GET_EW(tcdm);
   localparam int unsigned EHW = `HCI_SIZE_GET_EHW(tcdm);
 
+  localparam int MAX_ELEMS_PER_REQ     = (BW / X_ITEM_SIZE) > 0 ? $floor(BW / X_ITEM_SIZE) : 1;
   localparam int unsigned X_ITEM_SIZE_LOG = $clog2(X_ITEM_SIZE);
   localparam int unsigned Y_ITEM_SIZE_LOG = $clog2(Y_ITEM_SIZE);
   // We "sacrifice" 1 word of memory interface bandwidth in order to support
   // realignment at a byte boundary if the access are misaligned.
   localparam Z_BW_ALIGNED = MISALIGNED_ACCESSES === 0 ? BW : BW-32;
 
+  logic passed_from_y_d, passed_from_y_q;
+  logic [BW - 1 : 0] X_buf_d, X_buf_q;
+  logic [7:0] elem_cnt_d, elem_cnt_q;
   logic meta_in_buf_d, meta_in_buf_q;
-  assign meta_in_buf_d = output_data_demux[0].valid && output_data_demux[0].ready;
-  logic [15:0] X_mask_d, X_mask_q, Y_mask_d, Y_mask_q;
+  logic [15:0] Y_mask_d, Y_mask_q;
   logic req_start_source;
   logic[1:0] data_demux_sel_d, data_demux_sel_q;
   logic req_mux_sel;
@@ -101,7 +104,6 @@ module accelerator_streamer #(
   typedef enum { SOURCE_INACTIVE, SOURCE_IDLE, LOADING_META, LOADING_X, LOADING_Y} source_state;
   source_state source_state_d, source_state_q;
 
-  assign X_mask_d = (X_source_req.valid && X_source_req.ready && !need_for_meta) ? X_source_req.data[47:32] : X_mask_q;
   assign Y_mask_d = (Y_source_req.valid && Y_source_req.ready && !need_for_meta) ? Y_source_req.data[47:32] : Y_mask_q;
 
   // "Virtual" HCI TCDM interfaces. Interface [0] maps loads (coming from
@@ -168,8 +170,27 @@ module accelerator_streamer #(
     .clk(clk_i)
   ); 
 
+  hwpe_stream_intf_stream #(
+    .DATA_WIDTH (8)
+  ) elem_num (
+    .clk(clk_i)
+  );
+
   genvar i,j;
 
+  assign X_buf_d = output_data_demux[1].valid ? output_data_demux[1].data : X_buf_q;
+  assign output_data_demux[1].ready = 1;
+
+  assign dataX_o.data = (X_buf_q >> (elem_cnt_q << X_ITEM_SIZE_LOG)) & {X_ITEM_SIZE{1'b1}};
+  assign dataX_o.valid                  = dataY_o.valid;
+  assign dataX_o.strb                   = '1;
+
+  assign output_data_demux[2].ready          = dataY_o.ready;
+  assign dataY_o.data = output_data_demux[2].data & ( {BW{1'b1}} >> (BW - (Y_mask_q << Y_ITEM_SIZE_LOG)) );
+  assign dataY_o.valid                  = output_data_demux[2].valid;
+  assign dataY_o.strb                   = output_data_demux[2].strb;
+
+  assign meta_in_buf_d = output_data_demux[0].ready && output_data_demux[0].valid;
   assign output_data_demux[0].ready   = 1'b1;
   assign metadata_buf_o = metadata_buf_data_q;
   generate
@@ -183,16 +204,6 @@ module accelerator_streamer #(
     end
   endgenerate
 
-  assign output_data_demux[1].ready          = dataX_o.ready;
-  assign dataX_o.data = output_data_demux[1].data & ( {BW{1'b1}} >> (BW - (X_mask_q << X_ITEM_SIZE_LOG)) );
-  assign dataX_o.valid                  = output_data_demux[1].valid;
-  assign dataX_o.strb                   = output_data_demux[1].strb;
-
-  assign output_data_demux[2].ready          = dataY_o.ready;
-  assign dataY_o.data = output_data_demux[2].data & ( {BW{1'b1}} >> (BW - (Y_mask_q << Y_ITEM_SIZE_LOG)) );
-  assign dataY_o.valid                  = output_data_demux[2].valid;
-  assign dataY_o.strb                   = output_data_demux[2].strb;
-
   output_stream_accumulator #(
     .INPUT_ITEM_SIZE (Z_ITEM_SIZE),
     .BW_IN        (Y_BLOCK_SIZE * Z_ITEM_SIZE),
@@ -203,7 +214,7 @@ module accelerator_streamer #(
     .clear_i     ( clear_i                     ),
 
     .flags_sink_i (sink_flags),
-    .stream_i    ( dataZ_i.sink            ),
+    .stream_i    ( dataZ_i            ),
 
     .stream_o    (  dataZ_outcoming.source        )
   );
@@ -321,6 +332,7 @@ module accelerator_streamer #(
     .params_i       ( params_schedulers_i.X_sched_params),
 
     .request_ready_o (X_request_ready),
+    .elem_num_o     (elem_num),
     .addr_o    (  X_source_req              )
   );
 
@@ -429,23 +441,29 @@ module accelerator_streamer #(
       metadata_buf_data_q  <= '0;
       data_demux_sel_q      <= '0;
       meta_in_buf_q         <= '0;
-      X_mask_q              <= '0;
+      elem_cnt_q            <= '0;
+      X_buf_q               <= '0;
       Y_mask_q              <= '0;
+      passed_from_y_q       <= 1;
     end else begin
       if (clear_i) begin
         source_state_q      <= SOURCE_INACTIVE;
         metadata_buf_data_q  <= '0;
         data_demux_sel_q      <= '0;
         meta_in_buf_q         <= '0;
-        X_mask_q              <= '0;
+        elem_cnt_q            <= '0;
+        X_buf_q               <= '0;
         Y_mask_q              <= '0;
+        passed_from_y_q       <= 1;
       end else begin
         source_state_q      <= source_state_d;
         metadata_buf_data_q  <= metadata_buf_data_d;
         data_demux_sel_q      <= data_demux_sel_d;
         meta_in_buf_q         <= meta_in_buf_d;
-        X_mask_q              <= X_mask_d;
+        elem_cnt_q            <= elem_cnt_d;
+        X_buf_q               <= X_buf_d;
         Y_mask_q              <= Y_mask_d;
+        passed_from_y_q       <= passed_from_y_d;
       end
     end
   end
@@ -464,12 +482,10 @@ module accelerator_streamer #(
       else if(source_flags.ready_start)begin
           if(need_for_meta)
             source_state_d = LOADING_META;
-          else
-          if(load_new_X)
-            source_state_d = LOADING_X;
-          else
-          if(load_new_Y)
+          else if(!passed_from_y_q && load_new_Y)
             source_state_d = LOADING_Y;
+          else if(passed_from_y_q && load_new_X)
+            source_state_d = LOADING_X;
       end
     end
     else if(source_state_q == LOADING_META) begin
@@ -477,27 +493,24 @@ module accelerator_streamer #(
         source_state_d = SOURCE_IDLE;
     end
     else if(source_state_q == LOADING_X) begin
-      if(!load_new_X) begin
+      if(output_data_demux[1].valid) begin
         if(need_for_meta)
-            source_state_d = LOADING_META;
+          source_state_d = LOADING_META;
         else if(load_new_Y)
-            source_state_d = LOADING_Y;
+          source_state_d = LOADING_Y;
         else
           source_state_d = SOURCE_IDLE;
-      end else begin
+      end else
         source_state_d = LOADING_X;
-      end
     end
     else if(source_state_q == LOADING_Y) begin
-      if(!load_new_Y) begin
+      if(!load_new_Y || (dataY_o.ready && dataY_o.valid) && ((elem_cnt_q + 1) >= (elem_num.valid ? elem_num.data : MAX_ELEMS_PER_REQ))) begin
         if(need_for_meta)
-            source_state_d = LOADING_META;
+          source_state_d = LOADING_META;
         else if(load_new_X)
-            source_state_d = LOADING_X;
+          source_state_d = LOADING_X;
         else 
           source_state_d = SOURCE_IDLE;
-      end else begin
-        source_state_d = LOADING_Y;
       end
     end
     else begin
@@ -513,25 +526,30 @@ module accelerator_streamer #(
     req_mux_sel = 0;
     req_start_source = 0;
 
+    passed_from_y_d  = passed_from_y_q;
+    elem_cnt_d       = elem_cnt_q;
     data_demux_sel_d = data_demux_sel_q;
+    elem_num.ready   = 0;
 
     if(source_state_q == SOURCE_IDLE) begin
       data_demux_sel_d = '0;
+      if(!passed_from_y_q)
+        req_mux_sel = 1;
       if(source_flags.ready_start & ~ctrl_i.acc_done)begin
         if(need_for_meta)begin
           // Send request to load metadata
           data_demux_sel_d = 2'b00;
           req_mux_sel = 0;
           req_start_source = 1'b1;
-        end else if(load_new_X)begin
-          // Send request to load X
-          data_demux_sel_d = 2'b01;
-          req_mux_sel = 0;
-          req_start_source = 1'b1;
-        end else if(load_new_Y)begin
+        end else if (!passed_from_y_q && load_new_Y) begin
           // Send request to load Y
           data_demux_sel_d = 2'b10;
           req_mux_sel = 1;
+          req_start_source = 1'b1;
+        end else if(passed_from_y_q && load_new_X)begin
+          // Send request to load X
+          data_demux_sel_d = 2'b01;
+          req_mux_sel = 0;
           req_start_source = 1'b1;
         end
       end
@@ -547,10 +565,11 @@ module accelerator_streamer #(
       end
     end
     else if(source_state_q == LOADING_X) begin
+      passed_from_y_d = 0;
       req_mux_sel = 0;
       req_start_source = 1'b1;
       data_demux_sel_d = 2'b01;
-      if(!load_new_X)begin
+      if(output_data_demux[1].valid) begin
         if(need_for_meta)begin
           // Send request to load metadata
           data_demux_sel_d = 2'b00;
@@ -559,17 +578,25 @@ module accelerator_streamer #(
           // Send request to load Y
           data_demux_sel_d = 2'b10;
           req_mux_sel = 1;
-        end 
+        end else begin
+          req_start_source = 1'b0;
+          req_mux_sel = 1;
+        end
       end else begin
         req_mux_sel = 0;
         req_start_source = 1'b1;
+        data_demux_sel_d = 2'b01;
       end
     end
     else if(source_state_q == LOADING_Y) begin
+      passed_from_y_d = 1;
       req_mux_sel = 1;
       req_start_source = 1'b1;
       data_demux_sel_d = 2'b10;
-      if(!load_new_Y)begin
+      elem_cnt_d = (dataY_o.ready && dataY_o.valid) ? (elem_cnt_q + 1) : elem_cnt_q;
+      if(!load_new_Y || (dataY_o.ready && dataY_o.valid) && ((elem_cnt_q + 1) >= (elem_num.valid ? elem_num.data : MAX_ELEMS_PER_REQ)))begin
+        elem_cnt_d = '0;
+        elem_num.ready = 1;
         if(need_for_meta)begin
           // Send request to load metadata
           data_demux_sel_d = 2'b00;
@@ -578,10 +605,14 @@ module accelerator_streamer #(
           // Send request to load X
           data_demux_sel_d = 2'b01;
           req_mux_sel = 0;
+        end else begin
+          req_start_source = 1'b0;
+          req_mux_sel = 0;
         end
       end else begin
         req_mux_sel = 1;
         req_start_source = 1'b1;
+        elem_cnt_d = (dataY_o.ready && dataY_o.valid) ? (elem_cnt_q + 1) : elem_cnt_q;
       end
     end
   end

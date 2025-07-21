@@ -52,7 +52,7 @@ module Z_data_scheduler #(
     logic sched_proceed_q, sched_proceed_d;
     assign sched_proceed_d = sched_proceed_i;
     logic [15:0]  x_row_q, x_row_d;                                       // Actual row of X
-    logic [15:0]  current_offset_address_q, current_offset_address_d;     // Current address of the block
+    logic [31:0]  current_offset_address_q, current_offset_address_d;     // Current address of the block
     logic [15:0]  y_col_block_q, y_col_block_d;                           // Current column block
     Z_param_t params_q, params_d;
 
@@ -131,8 +131,8 @@ module Z_data_scheduler #(
             
             config_o_d.req_start        = 1'b0;
             config_o_d.addressgen_ctrl.base_addr        = params_i.base_address;
-            config_o_d.addressgen_ctrl.tot_len          <= ((Y_BLOCK_SIZE << DATA_SIZE_LOG) + BW - 1) / BW;
-            config_o_d.addressgen_ctrl.d0_len           <= ((Y_BLOCK_SIZE << DATA_SIZE_LOG) + BW - 1) / BW;
+            config_o_d.addressgen_ctrl.tot_len          = ((Y_BLOCK_SIZE << DATA_SIZE_LOG) + BW - 1) / BW;
+            config_o_d.addressgen_ctrl.d0_len           = ((Y_BLOCK_SIZE << DATA_SIZE_LOG) + BW - 1) / BW;
             config_o_d.addressgen_ctrl.d0_stride        = BW_BYTES;
             config_o_d.addressgen_ctrl.d1_len           = '0;
             config_o_d.addressgen_ctrl.d1_stride        = '0;

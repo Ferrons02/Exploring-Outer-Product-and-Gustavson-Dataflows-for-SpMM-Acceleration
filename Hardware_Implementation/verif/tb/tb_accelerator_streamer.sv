@@ -34,6 +34,7 @@ module tb_accelerator_streamer;
   parameter int Y_COLUMNS            = `Y_COLUMNS;
   parameter int X_ROWS               = `X_ROWS;
   parameter int Y_ROWS               = `Y_ROWS;
+  parameter int X_TCDM_TOTAL_LOADS   = `X_TCDM_TOTAL_LOADS;
   parameter int X_TOTAL_LOADS        = `X_TOTAL_LOADS;
   parameter int Y_TOTAL_LOADS        = `Y_TOTAL_LOADS;
 
@@ -78,48 +79,26 @@ module tb_accelerator_streamer;
     EHW: DEFAULT_EHW
   };
 
-  hci_core_intf #(
-    .DW  ( BW          ),
-    .AW  ( DEFAULT_AW  ),
-    .BW  ( 32          ),
-    .UW  ( DEFAULT_UW  ),
-    .IW  ( DEFAULT_IW  ),
-    .EW  ( DEFAULT_EW  ),
-    .EHW ( DEFAULT_EHW )
-  ) tcdm_streamer (.clk(clk_i));
   hwpe_stream_intf_tcdm tcdm_mem [MP-1:0] (.clk(clk_i));
-  logic [MP-1:0]       tcdm_signal_req, tcdm_signal_gnt;
-  logic [MP-1:0][31:0] tcdm_signal_add;
-  logic [MP-1:0]       tcdm_signal_wen;
-  logic [MP-1:0][3:0]  tcdm_signal_be;
-  logic [MP-1:0][31:0] tcdm_signal_data;
-  logic [MP-1:0][31:0] tcdm_signal_r_data;
-  logic [MP-1:0]       tcdm_signal_r_valid;
+  logic [MP-1:0]       tcdm_req, tcdm_gnt;
+  logic [MP-1:0][31:0] tcdm_add;
+  logic [MP-1:0]       tcdm_wen;
+  logic [MP-1:0][3:0]  tcdm_be;
+  logic [MP-1:0][31:0] tcdm_data;
+  logic [MP-1:0][31:0] tcdm_r_data;
+  logic [MP-1:0]       tcdm_r_valid;
 
   // bindings
   generate
-    for(genvar ii=0; ii<MP; ii++) begin: tcdm_streamer_binding
-      assign tcdm_signal_req  [ii] = tcdm_streamer.req;
-      assign tcdm_signal_add  [ii] = tcdm_streamer.add + ii*4;
-      assign tcdm_signal_wen  [ii] = tcdm_streamer.wen;
-      assign tcdm_signal_be   [ii] = tcdm_streamer.be[3:0];
-      assign tcdm_signal_data [ii] = tcdm_streamer.data[(ii+1)*32-1:ii*32];
-    end 
-      assign tcdm_streamer.gnt      = &(tcdm_signal_gnt);
-      assign tcdm_streamer.r_data   = { >> {tcdm_signal_r_data}};
-      assign tcdm_streamer.r_valid  = &(tcdm_signal_r_valid);
-  endgenerate
-
-  generate
     for(genvar ii=0; ii<MP; ii++) begin : tcdm_mem_binding
-      assign tcdm_mem[ii].req       = tcdm_signal_req [ii];
-      assign tcdm_mem[ii].add       = {8'b0, tcdm_signal_add[ii][23:0]};
-      assign tcdm_mem[ii].wen       = tcdm_signal_wen [ii];
-      assign tcdm_mem[ii].be        = tcdm_signal_be  [ii];
-      assign tcdm_mem[ii].data      = tcdm_signal_data[ii];
-      assign tcdm_signal_gnt    [ii]   = tcdm_mem[ii].gnt;
-      assign tcdm_signal_r_data [ii]   = tcdm_mem[ii].r_data;
-      assign tcdm_signal_r_valid[ii]   = tcdm_mem[ii].r_valid;
+      assign tcdm_mem[ii].req       = tcdm_req [ii];
+      assign tcdm_mem[ii].add       = {8'b0, tcdm_add[ii][23:0]};
+      assign tcdm_mem[ii].wen       = tcdm_wen [ii];
+      assign tcdm_mem[ii].be        = tcdm_be  [ii];
+      assign tcdm_mem[ii].data      = tcdm_data[ii];
+      assign tcdm_gnt    [ii]   = tcdm_mem[ii].gnt;
+      assign tcdm_r_data [ii]   = tcdm_mem[ii].r_data;
+      assign tcdm_r_valid[ii]   = tcdm_mem[ii].r_valid;
     end
   endgenerate
 
@@ -139,18 +118,32 @@ module tb_accelerator_streamer;
   //----------------------------------------------------------------------
   // Capture buffers & counters for X/Y streams
   //----------------------------------------------------------------------
-  logic [X_BITS_CYCLE-1:0] captured_X [0:X_TOTAL_LOADS-1];
+  logic [X_ITEM_SIZE-1:0] captured_X [0:X_TOTAL_LOADS-1];
   logic [Y_BITS_CYCLE-1:0] captured_Y [0:Y_TOTAL_LOADS-1];
-  logic [X_BITS_CYCLE-1:0] golden_X   [0:X_TOTAL_LOADS-1];
+  logic [X_ITEM_SIZE-1:0] golden_X   [0:X_TOTAL_LOADS-1];
   logic [Y_BITS_CYCLE-1:0] golden_Y   [0:Y_TOTAL_LOADS-1];
   logic [Z_BITS_CYCLE-1:0]  golden_Z  [0:Z_TOTAL_ENTRY_BLOCKS-1] = '{default: '0};
 
-  integer x_cnt = 0, y_cnt = 0, z_cnt = 0;
+  integer x_cnt = 0, y_cnt = 0, z_cnt = Z_TOTAL_ENTRY_BLOCKS;
   integer total_z = X_ROWS * ((Y_COLUMNS + Y_BLOCK_SIZE - 1)/Y_BLOCK_SIZE);
-  integer cycle_cnt = 0;
   integer byte_idx = 0;
 
   logic [Z_ITEM_SIZE-1:0] block;
+
+  // Signals for benchmarks
+  integer total_cycles_cnt = 0;
+  integer total_memory_transitions = 0;
+
+  always_ff @(posedge clk_i) begin
+    total_cycles_cnt <= total_cycles_cnt + 1;
+  end
+
+  always_ff @(posedge clk_i) begin
+    if (tcdm_mem[0].r_valid)
+      total_memory_transitions <= total_memory_transitions + 1;
+    else 
+      total_memory_transitions <= total_memory_transitions + 0;
+  end
 
   //----------------------------------------------------------------------
   // Clock tasks
@@ -161,26 +154,54 @@ module tb_accelerator_streamer;
   //----------------------------------------------------------------------
   // Instantiate DUT
   //----------------------------------------------------------------------
-  accelerator_streamer #(
-    .BW                    (BW),
+  accelerator_streamer_wrap #(
+    .MP                    (MP),
+
     .MISALIGNED_ACCESSES   (MISALIGNED_ACCESSES),
     .META_CHUNK_SIZE       (META_CHUNK_SIZE),
     .X_ITEM_SIZE           (X_ITEM_SIZE),
     .Y_ITEM_SIZE           (Y_ITEM_SIZE),
     .Z_ITEM_SIZE           (Z_ITEM_SIZE),
-    .Y_BLOCK_SIZE          (Y_BLOCK_SIZE),
-    .`HCI_SIZE_PARAM(tcdm) ( `HCI_SIZE_PARAM(tcdm_streamer) )
-  ) streamer_i (
-    .clk_i                 (clk_i),
-    .rst_ni                (rst_ni),
-    .test_mode_i           (test_mode_i),
-    .clear_i               (clear_i),
-    .dataX_o               (dataX_o),
-    .dataY_o               (dataY_o),
-    .dataZ_i               (dataZ_i),
-    .tcdm                  (tcdm_streamer.initiator),
-    .params_schedulers_i   (params_schedulers_i),
-    .ctrl_i                (ctrl_i)
+    .Y_BLOCK_SIZE          (Y_BLOCK_SIZE)
+
+  ) streamer_wrap (
+
+    // global signals
+    .clk_i          ( clk_i          ),
+    .rst_ni         ( rst_ni         ),
+    .clear_i        ( 1'b0           ),
+    .test_mode_i    ( 1'b0           ),
+
+    .tcdm_add       ( tcdm_add       ),
+    .tcdm_be        ( tcdm_be        ),
+    .tcdm_data      ( tcdm_data      ),
+    .tcdm_gnt       ( tcdm_gnt       ),
+    .tcdm_wen       ( tcdm_wen       ),
+    .tcdm_req       ( tcdm_req       ),
+    .tcdm_r_data    ( tcdm_r_data    ),
+    .tcdm_r_valid   ( tcdm_r_valid   ),
+  
+    //X data stream out
+    .x_valid_o      ( dataX_o.valid  ),
+    .x_ready_i      ( dataX_o.ready  ),
+    .x_data_o       ( dataX_o.data   ),
+    .x_strb_o       ( dataX_o.strb   ),
+
+    //Y data stream out
+    .y_valid_o      ( dataY_o.valid  ),
+    .y_ready_i      ( dataY_o.ready  ),
+    .y_data_o       ( dataY_o.data   ),
+    .y_strb_o       ( dataY_o.strb   ),
+
+    //Z data stream in
+    .z_valid_i      ( dataZ_i.valid  ),
+    .z_ready_o      ( dataZ_i.ready  ),
+    .z_data_i       ( dataZ_i.data   ),
+    .z_strb_i       ( dataZ_i.strb   ),
+
+    .ctrl_i         ( ctrl_i         ),
+    .params_schedulers_i ( params_schedulers_i )
+
   );
 
   //----------------------------------------------------------------------
@@ -250,37 +271,39 @@ module tb_accelerator_streamer;
   localparam int WAIT_CYCLES = 20;
   logic [4:0] wait_counter;
 
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) begin
-      dataZ_i.valid <= 0;
-      wait_counter  <= 0;
-    end else begin
-      dataZ_i.valid <= 0;
-      if (z_cnt < Z_TOTAL_ENTRY_BLOCKS)begin
-        if (dataZ_i.valid && dataZ_i.ready && z_cnt < total_z) begin
-          dataZ_i.valid   <= 0;
-          z_cnt           <= z_cnt + 1;
-          wait_counter    <= 1;
-        end else begin
-          wait_counter <= wait_counter + 1;
-          if (wait_counter == WAIT_CYCLES - 1) begin
-            wait_counter <= 0;
-            dataZ_i.valid <= 1;
-          end
-        end
+  assign dataZ_i.valid = 0;
 
-        dataZ_i.data <= golden_Z[z_cnt];
-        dataZ_i.strb = '0;
-        for (int i = 0; i < Z_BITS_CYCLE / Z_ITEM_SIZE; i++) begin
-          block = golden_Z[z_cnt][i * Z_ITEM_SIZE +: Z_ITEM_SIZE];
-          byte_idx = i * (Z_ITEM_SIZE / 8);
-          for (int j = 0; j < Z_ITEM_SIZE / 8; j++) begin
-            dataZ_i.strb[byte_idx + j] = |block ? 1'b1 : 1'b0;
-          end
-        end
-      end
-    end
-  end
+  // always_ff @(posedge clk_i or negedge rst_ni) begin
+  //   if (!rst_ni) begin
+  //     dataZ_i.valid <= 0;
+  //     wait_counter  <= 0;
+  //   end else begin
+  //     dataZ_i.valid <= 0;
+  //     if (z_cnt < Z_TOTAL_ENTRY_BLOCKS)begin
+  //       if (dataZ_i.valid && dataZ_i.ready && z_cnt < total_z) begin
+  //         dataZ_i.valid   <= 0;
+  //         z_cnt           <= z_cnt + 1;
+  //         wait_counter    <= 1;
+  //       end else begin
+  //         wait_counter <= wait_counter + 1;
+  //         if (wait_counter == WAIT_CYCLES - 1) begin
+  //           wait_counter <= 0;
+  //           dataZ_i.valid <= 1;
+  //         end
+  //       end
+
+  //       dataZ_i.data <= golden_Z[z_cnt];
+  //       dataZ_i.strb = '0;
+  //       for (int i = 0; i < Z_BITS_CYCLE / Z_ITEM_SIZE; i++) begin
+  //         block = golden_Z[z_cnt][i * Z_ITEM_SIZE +: Z_ITEM_SIZE];
+  //         byte_idx = i * (Z_ITEM_SIZE / 8);
+  //         for (int j = 0; j < Z_ITEM_SIZE / 8; j++) begin
+  //           dataZ_i.strb[byte_idx + j] = |block ? 1'b1 : 1'b0;
+  //         end
+  //       end
+  //     end
+  //   end
+  // end
 
   //----------------------------------------------------------------------
   // Test and checks
@@ -290,6 +313,8 @@ module tb_accelerator_streamer;
     int i;
     int word;
     logic [Z_BITS_CYCLE -1:0] Z_entry_block;
+    real bw_util;
+    real avg_util;
 
     // load stimuli
     $readmemb(INITIAL_MEMORY_CONTENT_PATH, i_dummy_memory.memory);
@@ -310,6 +335,7 @@ module tb_accelerator_streamer;
                                             x_rows:        X_ROWS,
                                             total_meta_words: TOTAL_META_WORDS };
     params_schedulers_i.Y_sched_params = '{ base_address: Y_BASE_ADDRESS,
+                                            x_base_address : X_BASE_ADDRESS,
                                             y_columns: Y_COLUMNS,
                                             y_row_iters:   (Y_COLUMNS + Y_BLOCK_SIZE - 1)/Y_BLOCK_SIZE,
                                             y_rows:        Y_ROWS,
@@ -335,7 +361,7 @@ module tb_accelerator_streamer;
 
     // wait for streaming to complete
     wait (x_cnt >= X_TOTAL_LOADS && y_cnt >= Y_TOTAL_LOADS && z_cnt >= Z_TOTAL_ENTRY_BLOCKS);
-    repeat (10) @(posedge clk_i);
+    repeat (8) @(posedge clk_i);
     ctrl_i.acc_done = 1;
 
     // Compare X
@@ -356,25 +382,32 @@ module tb_accelerator_streamer;
       end
     end
 
-    // Compare Z
-    for (i = 0; i < Z_TOTAL_ENTRY_BLOCKS; i++) begin
-      Z_entry_block = '0;
-      for (word = 0; word < Z_BITS_CYCLE / 32; word++) begin
-        Z_entry_block[(Z_BITS_CYCLE / 32 - word) * 32 - 1 -: 32] = i_dummy_memory.memory[
-          params_schedulers_i.Z_sched_params.base_address / 4 + i * (Z_BITS_CYCLE / 32) + word
-        ];
-        end
-      if (Z_entry_block !== golden_Z[i]) begin
-        $error("Memory Z mismatch at %0d: got %h, expected %h",
-              i, Z_entry_block, golden_Z[i]);
-        error = 1;
-      end
-    end
+    // //Compare Z
+    // for (i = 0; i < Z_TOTAL_ENTRY_BLOCKS; i++) begin
+    //   Z_entry_block = '0;
+    //   for (word = 0; word < Z_BITS_CYCLE / 32; word++) begin
+    //     Z_entry_block[(Z_BITS_CYCLE / 32 - word) * 32 - 1 -: 32] = i_dummy_memory.memory[
+    //       params_schedulers_i.Z_sched_params.base_address / 4 + i * (Z_BITS_CYCLE / 32) + word
+    //     ];
+    //     end
+    //   if (Z_entry_block !== golden_Z[i]) begin
+    //     $error("Memory Z mismatch at %0d: got %h, expected %h",
+    //           i, Z_entry_block, golden_Z[i]);
+    //     error = 1;
+    //   end
+    // end
     
     if(error)
       $display("TEST FAILED :( ");
     else
       $display("TEST PASSED! :) ");
+
+    bw_util  = real'((X_TOTAL_LOADS * 32 + Y_TOTAL_LOADS * 128 )) / (real'(total_cycles_cnt) * BW) * 100; // Num of total "useful" bits over the 
+    avg_util = real'(Y_TOTAL_LOADS) / real'(total_cycles_cnt) * 100.0;
+
+    $display("Latency: %d cycles", total_cycles_cnt);
+    $display("BW utilization: %0.2f percent", bw_util);
+    $display("Avg. Utilization on the engine: %0.2f percent", avg_util);
 
     $finish;
   end

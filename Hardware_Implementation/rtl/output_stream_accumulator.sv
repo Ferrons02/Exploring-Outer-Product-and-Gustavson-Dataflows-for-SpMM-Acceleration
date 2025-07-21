@@ -80,25 +80,10 @@ module output_stream_accumulator #(
 
     genvar i, j;
 
-    //OLD VERSION WITH PADDING ON THE RIGHT
-    // generate
-    // for (j = 0; j < N_BEATS; j++) begin
-    //   for (i = 0; i < BW_OUT / 32; i = i + 1) begin
-    //     localparam int stream_data_idx = (N_BEATS - j) * BW_OUT - i * 32 - 1;
-    //     localparam int buffer_idx = j * BW_OUT + (i + 1) * 32 - 1;
-    //     assign buffer_d[buffer_idx -: 32] = 
-    //     (accumulator_state_q == RECEIVING_DATA && stream_i.valid)
-    //         ? ((stream_data_idx < BW_IN)
-    //             ? stream_i.data[stream_data_idx -: 32]
-    //             : 32'h00000000)
-    //         : buffer_q[buffer_idx -: 32];
-    //   end
-    // end
-    // endgenerate
-
     generate
     for (j = 0; j < N_BEATS; j++) begin
         for (i = 0; i < BW_OUT / 32; i = i + 1) begin
+            
             localparam int stream_data_idx = (N_BEATS - j) * BW_OUT - i * 32 - 1;
             localparam int buffer_idx      = j * BW_OUT + (i + 1) * 32 - 1;
 

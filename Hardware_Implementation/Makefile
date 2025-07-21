@@ -33,21 +33,21 @@ Z_GOLDEN_PATH               ?= ${STIMULI_DIR}/z_order.txt
 
 # Testbench parameters (defaults, overridable)
 MP                   ?= 4
-META_CHUNK_SIZE      ?= 32
+META_CHUNK_SIZE      ?= 128
 X_ITEM_SIZE          ?= 32
 Y_ITEM_SIZE          ?= 32
 Z_ITEM_SIZE          ?= 64
 Y_BLOCK_SIZE         ?= 4
 
 # Addresses are interpreted as hexadecimal
-X_BASE_ADDRESS       ?= 0 								#32'h0
-Y_BASE_ADDRESS       ?= 4096							#32'h00001000
-Z_BASE_ADDRESS       ?= 8192							#32'h00002000
-X_COLUMNS            ?= 32
-Y_COLUMNS            ?= 32
-X_ROWS               ?= 32
-Y_ROWS               ?= 32
-X_SPARSITY					 ?= 0.1
+X_BASE_ADDRESS       ?= 0
+Y_BASE_ADDRESS       ?= 2000000
+Z_BASE_ADDRESS       ?= 4000000
+X_COLUMNS            ?= 16
+Y_COLUMNS            ?= 16
+X_ROWS               ?= 2
+Y_ROWS               ?= 16
+X_SPARSITY					 ?= 0.95
 
 ifeq ("$(wildcard $(DATA_GOLDEN_PATH))","")
   $(error DATA_GOLDEN_PATH '$(DATA_GOLDEN_PATH)' not found )
@@ -55,6 +55,7 @@ endif
 
 X_TOTAL_LOADS := $(shell awk 'NR==1 {print $$1}' $(DATA_GOLDEN_PATH))
 Y_TOTAL_LOADS := $(shell awk 'NR==1 {print $$2}' $(DATA_GOLDEN_PATH))
+X_TCDM_TOTAL_LOADS := $(shell awk 'NR==1 {print $$3}' $(DATA_GOLDEN_PATH))
 
 TESTBENCH_DEFINES += \
   -DMP=$(MP) \
@@ -70,6 +71,7 @@ TESTBENCH_DEFINES += \
   -DY_COLUMNS=$(Y_COLUMNS) \
   -DX_ROWS=$(X_ROWS) \
   -DY_ROWS=$(Y_ROWS) \
+  -DX_TCDM_TOTAL_LOADS=$(X_TCDM_TOTAL_LOADS) \
   -DX_TOTAL_LOADS=$(X_TOTAL_LOADS) \
   -DY_TOTAL_LOADS=$(Y_TOTAL_LOADS) \
   -DDATA_GOLDEN_PATH=\"$(DATA_GOLDEN_PATH)\" \

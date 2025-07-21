@@ -129,7 +129,8 @@ def generate_stimuli_streamer(
     x_item_size_bytes = x_item_size / 8
     y_item_size_bytes = y_item_size / 8
 
-    initial_memory = [0] * (4096 * 3)
+    initial_memory = [0] * 20000000
+    x_total_tcdm_loads = 0
     x_total_loads = 0
     y_total_loads = 0
 
@@ -200,16 +201,17 @@ def generate_stimuli_streamer(
                     for k in X_row_positions_tile:
                         Y_elems_list.append([Y[k - X_row * x_columns][start_Y:end_Y]])
 
-                    x_total_loads += 1 
+                    x_total_tcdm_loads += 1
+                    x_total_loads += end_X - start_X 
                     y_total_loads += end_X - start_X
 
-                # Store back
-                for j in range(y_block_size):
-                    if j == 0 or j == y_block_size - 1:
-                        Z_elems_list.append(format(z_count + 1, f'0{z_item_size}b'))
-                    else:
-                        Z_elems_list.append('1' * z_item_size)
-                z_count += 1
+            # Store back
+            for j in range(y_block_size):
+                if j == 0 or j == y_block_size - 1:
+                    Z_elems_list.append(format(z_count + 1, f'0{z_item_size}b'))
+                else:
+                    Z_elems_list.append('1' * z_item_size)
+            z_count += 1
 
     # INITIAL MEMORY CREATION
 
@@ -252,7 +254,7 @@ def generate_stimuli_streamer(
     # DATA CONSTANTS OUTPUT
     constants_path = os.path.join(output_dir, "data_constants.txt")
     with open(constants_path, "w") as f:
-        f.write(f"{x_total_loads} {y_total_loads}")
+        f.write(f"{x_total_loads} {y_total_loads} {x_total_tcdm_loads}")
 
     # INITIAL MEMORY OUTPUT
     mem_path = os.path.join(output_dir, "initial_memory.txt")
@@ -265,10 +267,16 @@ def generate_stimuli_streamer(
     # X ORDER OUTPUT
     path = os.path.join(output_dir, "x_order.txt")
     with open(path, "w") as f:
+        zero_str = "0" * x_item_size
         for row in X_elems_list:
             elems = (row[:x_elems_per_cycle] + [0] * (x_elems_per_cycle - len(row)))[::-1]
-            word_strs = [f"{(int(e, 2) if isinstance(e, str) else e):0{x_item_size}b}" for e in elems]
-            f.write("".join(word_strs) + "\n")
+            word_strs = [
+                f"{(int(e, 2) if isinstance(e, str) else e):0{x_item_size}b}"
+                for e in elems
+            ]
+            for word in reversed(word_strs):
+                if word != zero_str:
+                    f.write(word + "\n")
 
     # Y ORDER OUTPUT
     path = os.path.join(output_dir, "y_order.txt")

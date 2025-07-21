@@ -3,7 +3,7 @@ package tb_package;
   timeprecision 1ps;
 
   localparam int ID = 10;
-  localparam int MEMORY_SIZE = 4096*3;
+  localparam int MEMORY_SIZE = 10000000;
   localparam TCP = 1.0ns;
   localparam TA  = 0.2ns;
   localparam TT  = 0.8ns;

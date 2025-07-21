@@ -27,7 +27,7 @@ timeprecision 1ps;
 module tb_dummy_memory
 #(
   parameter MP          = 1,
-  parameter MEMORY_SIZE = 1024,
+  parameter MEMORY_SIZE = 10000000, //Number of words
   parameter BASE_ADDR   = 0,
   parameter PROB_STALL  = 0.0,
 `ifndef VERILATOR

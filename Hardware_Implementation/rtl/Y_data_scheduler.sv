@@ -48,8 +48,8 @@ module Y_data_scheduler #(
     //----------------------------------------------------------------------------------------------
 
     // State registers
-    logic fifo_empty_q, fifo_empty_d;
     logic chunk_done;
+    logic [15:0] previous_meta_addr_q, previous_meta_addr_d;
     logic [15:0]  x_row_q, x_row_d;                                 // Actual row of X
     logic [15:0]  scanned_rows_q, scanned_rows_d;                   // Current row index in Y-column block being scanned
     logic [15:0]  y_col_block_q, y_col_block_d;                     // Which block (0..params_i.y_row_iters-1) of Y[*] we're loading
@@ -58,16 +58,17 @@ module Y_data_scheduler #(
     logic [$clog2(META_CHUNK_SIZE) - 1 : 0] meta_position;
     logic           needing_meta_q, needing_meta_d;                   // High if we need a fresh metadata_chunk
     Y_param_t       params_q, params_d;
-    flags_fifo_t    flags_fifo;
+    flags_fifo_t    flags_addr_fifo;
 
     assign meta_portion_tocheck = (metadata_chunk << meta_chunk_used_bits_q);
-    assign fifo_empty_d = flags_fifo.empty;
 
     // Derived constants
     localparam int DATA_SIZE_BYTES      = DATA_SIZE >> 3;
     localparam int DATA_SIZE_BYTES_LOG  = $clog2(DATA_SIZE_BYTES);
     localparam int Y_BLOCK_SIZE_LOG     = $clog2(Y_BLOCK_SIZE);
     localparam int META_CHUNK_SIZE_LOG  = $clog2(META_CHUNK_SIZE);
+    localparam int META_CHUNK_SIZE_BYTE = META_CHUNK_SIZE / 8;
+    localparam int META_CHUNK_SIZE_BYTES_LOG = $clog2(META_CHUNK_SIZE_BYTE);
 
     lzc #(
         .WIDTH (META_CHUNK_SIZE),
@@ -94,7 +95,7 @@ module Y_data_scheduler #(
         .rst_ni      ( rst_ni                      ),
         .clear_i     ( clear_i                     ),
 
-        .flags_o    (flags_fifo),
+        .flags_o    (flags_addr_fifo),
         .push_i     (push_addr),
         .pop_o      (addr_o)
     );
@@ -109,6 +110,7 @@ module Y_data_scheduler #(
         needing_meta_d          = needing_meta_q;
         meta_chunk_used_bits_d  = meta_chunk_used_bits_q;
         params_d                = params_q;
+        previous_meta_addr_d    = previous_meta_addr_q;
 
         push_addr.valid = 1'b0;
 
@@ -119,22 +121,41 @@ module Y_data_scheduler #(
             else
                 needing_meta_d = needing_meta_q;
 
-            // REQUEST GENERATION
-            if (!flags_fifo.full && ((needing_meta_q && !meta_used_i) || !needing_meta_q) ) begin
+            if (!flags_addr_fifo.full && ((needing_meta_q && !meta_used_i) || !needing_meta_q) ) begin
 
                 // For the next request
                 scanned_rows_d         = scanned_rows_q + meta_position + 1;
                 meta_chunk_used_bits_d = meta_chunk_used_bits_q + meta_position + 1;
 
-                if (scanned_rows_q + meta_position >= params_q.y_rows || (scanned_rows_q == '0 && chunk_done && META_CHUNK_SIZE == params_i.y_rows)) begin
+                // If the whole column doesn't have dense elements it simply gets skipped
+                if((scanned_rows_q == '0) && ((scanned_rows_q + meta_position) >= params_q.y_rows)) begin
+                    x_row_d = x_row_q + 1;
+                    meta_chunk_used_bits_d = meta_chunk_used_bits_q + params_q.y_rows;
+                    scanned_rows_d = '0;
+                    if(previous_meta_addr_q != (params_q.x_base_address + ((((x_row_q + 1) << params_q.x_columns_log) >> META_CHUNK_SIZE_LOG) << META_CHUNK_SIZE_BYTES_LOG))) begin
+                        needing_meta_d = 1;
+                        previous_meta_addr_d = params_q.x_base_address + ((((x_row_q + 1) << params_q.x_columns_log) >> META_CHUNK_SIZE_LOG) << META_CHUNK_SIZE_BYTES_LOG);
+                        meta_chunk_used_bits_d = '0;
+                    end
+                end else if (scanned_rows_q + meta_position >= params_q.y_rows || ((needing_meta_q && !meta_used_i) && chunk_done && (scanned_rows_q + meta_position + 1) >= params_q.y_rows)) begin
 
-                    needing_meta_d            = 1;
+                    //Can you keep using the previous metadata chunk?
+                    if(previous_meta_addr_q != (params_q.x_base_address + (((x_row_q << params_q.x_columns_log) >> META_CHUNK_SIZE_LOG) << META_CHUNK_SIZE_BYTES_LOG))) begin
+                        needing_meta_d = 1;
+                        previous_meta_addr_d = params_q.x_base_address + (((x_row_q << params_q.x_columns_log) >> META_CHUNK_SIZE_LOG) << META_CHUNK_SIZE_BYTES_LOG);
+                    end
+                    
                     scanned_rows_d            = '0;
                     y_col_block_d             = y_col_block_q + 16'b1;
                     meta_chunk_used_bits_d    = (x_row_q << params_q.x_columns_log) - (((x_row_q << params_q.x_columns_log) >> META_CHUNK_SIZE_LOG) << META_CHUNK_SIZE_LOG);
 
                     // Next row of X? Hence restart of the matrix Y
                     if (y_col_block_q + 1 >= params_q.y_row_iters) begin
+
+                        if(previous_meta_addr_q != (params_q.x_base_address + ((((x_row_q + 1) << params_q.x_columns_log) >> META_CHUNK_SIZE_LOG) << META_CHUNK_SIZE_BYTES_LOG))) begin
+                            needing_meta_d = 1;
+                            previous_meta_addr_d = params_q.x_base_address + ((((x_row_q + 1) << params_q.x_columns_log) >> META_CHUNK_SIZE_LOG) << META_CHUNK_SIZE_BYTES_LOG);
+                        end
 
                         meta_chunk_used_bits_d    = ((x_row_q + 1) << params_q.x_columns_log) - ((((x_row_q + 1) << params_q.x_columns_log) >> META_CHUNK_SIZE_LOG) << META_CHUNK_SIZE_LOG);
                         y_col_block_d             = '0;
@@ -145,34 +166,26 @@ module Y_data_scheduler #(
 
                     scanned_rows_d            = scanned_rows_q + (META_CHUNK_SIZE - meta_chunk_used_bits_q);
                     needing_meta_d            = 1;
+                    previous_meta_addr_d      = previous_meta_addr_q + META_CHUNK_SIZE_BYTE;
                     meta_chunk_used_bits_d    = '0;
 
                 end
             end
 
-            if ((x_row_q >= params_q.x_rows) & (y_col_block_q >= params_q.y_row_iters)) begin
-                
-                // The calculation is finished and everything starts again
-
-                x_row_d                     = '0;
-                scanned_rows_d              = '0;
-                y_col_block_d               = '0;
-                needing_meta_d              = '1;
-                meta_chunk_used_bits_d      = '0;
-
-            end
-
             //REQUEST PUSH
-            if(push_addr.ready & !needing_meta_q) begin
+            if(push_addr.ready && !needing_meta_q && scanned_rows_q != '0) begin
 
                 push_addr.valid = 1'b1;
                 push_addr.data = {((y_col_block_q << Y_BLOCK_SIZE_LOG) + Y_BLOCK_SIZE) > params_q.y_columns ? (params_q.y_columns - (y_col_block_q << Y_BLOCK_SIZE_LOG)): Y_BLOCK_SIZE, params_q.base_address + ((((scanned_rows_q - 1) << params_q.y_columns_log) + (y_col_block_q << Y_BLOCK_SIZE_LOG)) << DATA_SIZE_BYTES_LOG)};
             
             end 
         
-        end else
-    
+        end else begin
+
+            previous_meta_addr_d = params_q.x_base_address;
             params_d = params_i;
+
+        end
 
     end
 
@@ -186,7 +199,7 @@ module Y_data_scheduler #(
             y_col_block_q               <= '0;
             needing_meta_q              <= 1'b1;
             meta_chunk_used_bits_q      <= '0;
-            fifo_empty_q                <= '0;
+            previous_meta_addr_q        <= '0;
 
         end else if(clear_i)begin
 
@@ -196,7 +209,7 @@ module Y_data_scheduler #(
             y_col_block_q               <= '0;
             needing_meta_q              <= 1'b1;
             meta_chunk_used_bits_q      <= '0;
-            fifo_empty_q                <= '0;
+            previous_meta_addr_q        <= '0;
 
         end else begin
 
@@ -206,13 +219,13 @@ module Y_data_scheduler #(
             y_col_block_q               <= y_col_block_d;
             meta_chunk_used_bits_q      <= meta_chunk_used_bits_d;
             needing_meta_q              <= needing_meta_d;
-            fifo_empty_q                <= fifo_empty_d;
+            previous_meta_addr_q        <= previous_meta_addr_d;
             
         end
     end
 
-    assign meta_used_o     = needing_meta_q && flags_fifo.empty;
-    assign request_ready_o = !flags_fifo.empty|| (push_addr.valid && push_addr.ready && flags_fifo.empty);
+    assign meta_used_o     = needing_meta_q && flags_addr_fifo.empty;
+    assign request_ready_o = !flags_addr_fifo.empty;
 
 endmodule
 

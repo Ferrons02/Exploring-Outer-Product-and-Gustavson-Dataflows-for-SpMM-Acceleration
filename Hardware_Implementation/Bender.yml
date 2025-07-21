@@ -23,6 +23,7 @@ sources:
   # Level 1
   - rtl/accelerator_streamer.sv
   # Level 2
+  - rtl/accelerator_streamer_wrap.sv
   - target: test
     files:
       - verif/tb/tb_package.sv

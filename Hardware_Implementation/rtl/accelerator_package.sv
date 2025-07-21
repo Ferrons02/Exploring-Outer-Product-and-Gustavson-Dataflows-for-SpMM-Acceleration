@@ -35,6 +35,7 @@ package accelerator_package;
 
   typedef struct packed {
     logic[31:0] base_address;
+    logic[31:0] x_base_address;
     logic[15:0] y_columns;
     logic[15:0] y_row_iters;
     logic[15:0] y_rows;
