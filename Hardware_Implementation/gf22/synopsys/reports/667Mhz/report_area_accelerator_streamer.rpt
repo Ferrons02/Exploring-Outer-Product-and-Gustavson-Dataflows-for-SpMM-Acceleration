@@ -1,0 +1,35 @@
+ 
+****************************************
+Report : area
+Design : accelerator_streamer_wrap
+Version: T-2022.03
+Date   : Sat Jul 19 12:04:59 2025
+****************************************
+
+Library(s) Used:
+
+    GF22FDX_SC8T_104CPP_BASE_CSC28L_TT_0P80V_0P00V_0P00V_0P00V_25C (File: /scratch/sem25f34/AcceleratorDefinitive/gf22/technology/db/GF22FDX_SC8T_104CPP_BASE_CSC28L_TT_0P80V_0P00V_0P00V_0P00V_25C.db)
+    GF22FDX_SC8T_104CPP_BASE_CSC20SL_TT_0P80V_0P00V_0P00V_0P00V_25C (File: /scratch/sem25f34/AcceleratorDefinitive/gf22/technology/db/GF22FDX_SC8T_104CPP_BASE_CSC20SL_TT_0P80V_0P00V_0P00V_0P00V_25C.db)
+    GF22FDX_SC8T_104CPP_BASE_CSC20L_TT_0P80V_0P00V_0P00V_0P00V_25C (File: /scratch/sem25f34/AcceleratorDefinitive/gf22/technology/db/GF22FDX_SC8T_104CPP_BASE_CSC20L_TT_0P80V_0P00V_0P00V_0P00V_25C.db)
+    GF22FDX_SC8T_104CPP_BASE_CSC24L_TT_0P80V_0P00V_0P00V_0P00V_25C (File: /scratch/sem25f34/AcceleratorDefinitive/gf22/technology/db/GF22FDX_SC8T_104CPP_BASE_CSC24L_TT_0P80V_0P00V_0P00V_0P00V_25C.db)
+    GF22FDX_SC8T_104CPP_BASE_CSC24SL_TT_0P80V_0P00V_0P00V_0P00V_25C (File: /scratch/sem25f34/AcceleratorDefinitive/gf22/technology/db/GF22FDX_SC8T_104CPP_BASE_CSC24SL_TT_0P80V_0P00V_0P00V_0P00V_25C.db)
+    GF22FDX_SC8T_104CPP_BASE_CSC28SL_TT_0P80V_0P00V_0P00V_0P00V_25C (File: /scratch/sem25f34/AcceleratorDefinitive/gf22/technology/db/GF22FDX_SC8T_104CPP_BASE_CSC28SL_TT_0P80V_0P00V_0P00V_0P00V_25C.db)
+
+Number of ports:                         9693
+Number of nets:                         20027
+Number of cells:                        13469
+Number of combinational cells:          11668
+Number of sequential cells:              1756
+Number of macros/black boxes:               0
+Number of buf/inv:                       2118
+Number of references:                      13
+
+Combinational area:               4128.983023
+Buf/Inv area:                      296.724481
+Noncombinational area:            2770.493483
+Macro/Black Box area:                0.000000
+Net Interconnect area:      undefined  (No wire load specified)
+
+Total cell area:                  6899.476506
+Total area:                 undefined
+1

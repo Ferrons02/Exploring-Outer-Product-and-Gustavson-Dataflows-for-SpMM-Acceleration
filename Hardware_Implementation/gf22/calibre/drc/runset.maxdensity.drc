@@ -1,0 +1,361 @@
+// v0.1 Zerun - Thu 15 Jun 11:51:30 CEST 2023
+// # This a separate runset only for checking BEOL max density with Innvous gds (before dummy filling)
+// # DESIGN_TYPE : CHIP_DENSITY_ONLY
+// # add all the max density rule in recipe
+
+// Rules path
+drc.rulesFile.value = "$TECHDIR_DRC/cmos22fdsoi.drc.cal"
+
+// Run directory 
+drc.runDir.value = "../calibre/drc"
+
+// Input
+drc.layout.layoutFile.value = "../dfii/chip.gds"
+drc.setNameTemplate("nt_layFile", "%l.gds")
+drc.layout.topCell.value = "chip"
+drc.layout.extraGoldenLayoutFiles.value = [ "$TECHDIR_DRC/TechCell.GoLd/EQ_CFILL_GoLd.gds.gz", "$TECHDIR_DRC/TechCell.GoLd/EQ_CFILL_CT_GoLd.gds.gz", "$TECHDIR_DRC/TechCell.GoLd/EQ_CFILL_NP_GoLd.gds.gz", "$TECHDIR_DRC/TechCell.GoLd/EQ_CFILL_PP_GoLd.gds.gz", "$TECHDIR_DRC/TechCell.GoLd/SRAM.GoLd.gds.gz" ]
+drc.layout.extraGoldenLayoutFiles.specified = true
+
+// Output
+drc.drcdb.resultsFile.value = "chip.maxdensity.drc.results"
+drc.setNameTemplate("nt_drcResults", "%l.maxdensity.drc.results")
+drc.reports.drcSummaryReport.value = "chip.maxdensity.drc.summary"
+drc.setNameTemplate("nt_drcSummaryReport", "%l.maxdensity.drc.summary")
+
+cmn.transcriptPrefs.specified = true
+cmn.transcriptPrefs.transcriptEchoFile.value = "chip.maxdensity.drc.log"
+drc.setNameTemplate("nt_transcriptFile", "%l.maxdensity.drc.log")
+
+// Run control
+cmn.turboCommand.runHow.value = "all"
+cmn.turboCommand.runHyper.value = true
+cmn.miscPrefs.warnLayoutFormatsDiff.value = true
+
+// Preferences
+cmn.runsetPrefs.saveOnClose.value = "NOSAVE"
+
+// Customization
+cmn.customPrefs.customFile.value = "${TECHDIR_DRC}/runset/drc.ci.custom"
+cmn.customPrefs.customFile.specified = true
+cmn.miscPrefs.overwriteLayoutPref.value = false
+drc.envVars.setEnv("DESIGN_TYPE", "CHIP_DENSITY_ONLY", "Runset")
+$DESIGN_TYPE.value = "CHIP_DENSITY_ONLY"
+
+
+drc.recipeEditor.setUserRecipes("
+<user_recipes>$$  
+ <recipe>$$    
+  <name>CHIP BEOL Max density</name>$$   
+   <operations>$$   
+    <group_select>none</group_select>$$
+    <check_select>GRMxEz.DEN.1_M1</check_select>$$
+    <check_select>GRMxEz.DEN.1a_M1</check_select>$$
+    <check_select>GRMxEz.DEN.2_M1</check_select>$$
+    <check_select>GRMxEz.DEN.2a_M1</check_select>$$
+    <check_select>GRM1Ez.DEN.3_M1</check_select>$$
+    <check_select>GRMxEz.DEN.7_M1</check_select>$$
+    <check_select>GRMxEz.DEN.8_M1</check_select>$$
+    <check_select>GRMxEz.DEN.9_M1</check_select>$$
+    <check_select>GRMxEz.DEN.MyEz.1_M1</check_select>$$
+    <check_select>GRMxEz.DEN.MyEz.1a_M2</check_select>$$
+    <check_select>GRMxEz.DEN.MyEz.2_M1</check_select>$$
+    <check_select>GRMxEz.DEN.MyEz.2a_M2</check_select>$$
+    <check_select>GRMx.DEN.Cy.1</check_select>$$
+    <check_select>GRMx.DEN.Cy.1a</check_select>$$
+    <check_select>GRMx.DEN.Cy.1b</check_select>$$
+    <check_select>GRMx.DEN.Cy.1c</check_select>$$
+    <check_select>GRMx.DEN.Cy.3</check_select>$$
+    <check_select>GRMx.DEN.Cy.3a</check_select>$$
+    <check_select>GRMxEz.DEN.1_M2</check_select>$$
+    <check_select>GRMxEz.DEN.1a_M2</check_select>$$
+    <check_select>GRMxEz.DEN.2_M2</check_select>$$
+    <check_select>GRMxEz.DEN.2a_M2</check_select>$$
+    <check_select>GRMxEz.DEN.3_M2</check_select>$$
+    <check_select>GRMxEz.DEN.7_M2</check_select>$$
+    <check_select>GRMxEz.DEN.8_M2</check_select>$$
+    <check_select>GRMxEz.DEN.9_M2</check_select>$$
+    <check_select>GRVx.DEN.2</check_select>$$
+    <check_select>GRAY.DEN.2</check_select>$$
+    <check_select>GRATV.G1.Cx.DEN.10_C1</check_select>$$
+    <check_select>GRCx.DEN.1_C1</check_select>$$
+    <check_select>GRCx.DEN.1a_C1</check_select>$$
+    <check_select>GRCx.DEN.2_C1</check_select>$$
+    <check_select>GRCx.DEN.2a_C1</check_select>$$
+    <check_select>GRCx.DEN.3_C1</check_select>$$
+    <check_select>GRCx.DEN.7_C1</check_select>$$
+    <check_select>GRCx.DEN.8_C1</check_select>$$
+    <check_select>GRCx.DEN.9_C1</check_select>$$
+    <check_select>GRCx.DEN.Cy.1_C1</check_select>$$
+    <check_select>GRCx.DEN.Cy.1a_C1</check_select>$$
+    <check_select>GRATV.G1.Cx.DEN.10_C2</check_select>$$
+    <check_select>GRCx.DEN.1_C2</check_select>$$
+    <check_select>GRCx.DEN.1a_C2</check_select>$$
+    <check_select>GRCx.DEN.2_C2</check_select>$$
+    <check_select>GRCx.DEN.2a_C2</check_select>$$
+    <check_select>GRCx.DEN.3_C2</check_select>$$
+    <check_select>GRCx.DEN.7_C2</check_select>$$
+    <check_select>GRCx.DEN.8_C2</check_select>$$
+    <check_select>GRCx.DEN.9_C2</check_select>$$
+    <check_select>GRCx.DEN.Cy.1_C2</check_select>$$
+    <check_select>GRCx.DEN.Cy.1a_C2</check_select>$$
+    <check_select>GRATV.G1.Cx.DEN.10_C3</check_select>$$
+    <check_select>GRCx.DEN.1_C3</check_select>$$
+    <check_select>GRCx.DEN.1a_C3</check_select>$$
+    <check_select>GRCx.DEN.2_C3</check_select>$$
+    <check_select>GRCx.DEN.2a_C3</check_select>$$
+    <check_select>GRCx.DEN.3_C3</check_select>$$
+    <check_select>GRCx.DEN.7_C3</check_select>$$
+    <check_select>GRCx.DEN.8_C3</check_select>$$
+    <check_select>GRCx.DEN.9_C3</check_select>$$
+    <check_select>GRCx.DEN.Cy.1_C3</check_select>$$
+    <check_select>GRCx.DEN.Cy.1a_C3</check_select>$$
+    <check_select>GRATV.G1.Cx.DEN.10_C4</check_select>$$
+    <check_select>GRCx.DEN.1_C4</check_select>$$
+    <check_select>GRCx.DEN.1a_C4</check_select>$$
+    <check_select>GRCx.DEN.2_C4</check_select>$$
+    <check_select>GRCx.DEN.2a_C4</check_select>$$
+    <check_select>GRCx.DEN.3_C4</check_select>$$
+    <check_select>GRCx.DEN.7_C4</check_select>$$
+    <check_select>GRCx.DEN.8_C4</check_select>$$
+    <check_select>GRCx.DEN.9_C4</check_select>$$
+    <check_select>GRCx.DEN.Cy.1_C4</check_select>$$
+    <check_select>GRCx.DEN.Cy.1a_C4</check_select>$$
+    <check_select>GRATV.G1.Cx.DEN.10_C5</check_select>$$
+    <check_select>GRCx.DEN.1_C5</check_select>$$
+    <check_select>GRCx.DEN.1a_C5</check_select>$$
+    <check_select>GRCx.DEN.2_C5</check_select>$$
+    <check_select>GRCx.DEN.2a_C5</check_select>$$
+    <check_select>GRCx.DEN.3_C5</check_select>$$
+    <check_select>GRCx.DEN.7_C5</check_select>$$
+    <check_select>GRCx.DEN.8_C5</check_select>$$
+    <check_select>GRCx.DEN.9_C5</check_select>$$
+    <check_select>GRATV.G1.Cx.DEN.10_C6</check_select>$$
+    <check_select>GRCx.DEN.1_C6</check_select>$$
+    <check_select>GRCx.DEN.1a_C6</check_select>$$
+    <check_select>GRCx.DEN.2_C6</check_select>$$
+    <check_select>GRCx.DEN.2a_C6</check_select>$$
+    <check_select>GRCx.DEN.3_C6</check_select>$$
+    <check_select>GRCx.DEN.7_C6</check_select>$$
+    <check_select>GRCx.DEN.8_C6</check_select>$$
+    <check_select>GRCx.DEN.9_C6</check_select>$$
+    <check_select>GRAx.DEN.2_A1</check_select>$$
+    <check_select>GRAx.DEN.2_A2</check_select>$$
+    <check_select>GRAx.DEN.2a_A3</check_select>$$
+    <check_select>GRAx.DEN.2a_A4</check_select>$$
+    <check_select>GRAx.DEN.2a_A5</check_select>$$
+    <check_select>GRBx.DEN.1_BA</check_select>$$
+    <check_select>GRBx.DEN.1a_BA</check_select>$$
+    <check_select>GRBx.DEN.2_BA</check_select>$$
+    <check_select>GRBx.DEN.2a_BA</check_select>$$
+    <check_select>GRBx.DEN.3_BA</check_select>$$
+    <check_select>GRBx.DEN.7_BA</check_select>$$
+    <check_select>GRBx.DEN.8_BA</check_select>$$
+    <check_select>GRBx.DEN.9_BA</check_select>$$
+    <check_select>GRBx.DEN.1_BB</check_select>$$
+    <check_select>GRBx.DEN.1a_BB</check_select>$$
+    <check_select>GRBx.DEN.2_BB</check_select>$$
+    <check_select>GRBx.DEN.2a_BB</check_select>$$
+    <check_select>GRBx.DEN.3_BB</check_select>$$
+    <check_select>GRBx.DEN.7_BB</check_select>$$
+    <check_select>GRBx.DEN.8_BB</check_select>$$
+    <check_select>GRBx.DEN.9_BB</check_select>$$
+    <check_select>GRWx.DEN.2_WT</check_select>$$
+    <check_select>GRWx.DEN.2_WA</check_select>$$
+    <check_select>GRIx.DEN.1_IA</check_select>$$
+    <check_select>GRIx.DEN.1a_IA</check_select>$$
+    <check_select>GRIx.DEN.3_IA</check_select>$$
+    <check_select>GRIx.DEN.1_IB</check_select>$$
+    <check_select>GRIx.DEN.1a_IB</check_select>$$
+    <check_select>GRIx.DEN.3_IB</check_select>$$
+    <check_select>GRYx.DEN.2_YX</check_select>$$
+    <check_select>GRYx.DEN.2a_YZ</check_select>$$
+    <check_select>GRYx.DEN.2_XA</check_select>$$
+    <check_select>GRJx.DEN.1_JA</check_select>$$
+    <check_select>GRJx.DEN.1a_JA</check_select>$$
+    <check_select>GRJx.DEN.3_JA</check_select>$$
+    <check_select>GRJx.DEN.1_JB</check_select>$$
+    <check_select>GRJx.DEN.1a_JB</check_select>$$
+    <check_select>GRJx.DEN.3_JB</check_select>$$
+    <check_select>GRYy.DEN.2_YS</check_select>$$
+    <check_select>GRYy.DEN.2_YR</check_select>$$
+    <check_select>GRYy.DEN.2_XD</check_select>$$
+    <check_select>GRQx.DEN.1_QA</check_select>$$
+    <check_select>GRQx.DEN.1a_QA</check_select>$$
+    <check_select>GRQx.DEN.3_QA</check_select>$$
+    <check_select>GRQx.DEN.5_QA</check_select>$$
+    <check_select>GRJy.DEN.5_JV</check_select>$$
+    <check_select>GRQx.DEN.1_QB</check_select>$$
+    <check_select>GRQx.DEN.1a_QB</check_select>$$
+    <check_select>GRQx.DEN.3_QB</check_select>$$
+    <check_select>GRQx.DEN.5_QB</check_select>$$
+    <check_select>GRJy.DEN.5_JW</check_select>$$
+    <check_select>GRJQ.DEN.5</check_select>$$
+    <check_select>GROI.DEN.1</check_select>$$
+    <check_select>GROI.DEN.1a</check_select>$$
+    <check_select>GROI.DEN.3</check_select>$$
+    <check_select>GROI.DEN.5</check_select>$$
+    <check_select>GRVV.DEN.5</check_select>$$
+    <check_select>GRRS.DEN.5</check_select>$$
+    <check_select>GRLB.DEN.5</check_select>$$
+    <check_select>GRCLC.MxEz.DEN.1_M1</check_select>$$
+    <check_select>GRIPR.CLC.MxEz.DEN.1_M1</check_select>$$
+    <check_select>GRIPR.CLC.MxEz.DEN.1a_M1</check_select>$$
+    <check_select>GRIPR.CLC.MxEz.DEN.3_M1</check_select>$$
+    <check_select>GRIPR.CLC.MxEz.DEN.3a_M1</check_select>$$
+    <check_select>GRIPR.CLC.MxEz.DEN.4_M1</check_select>$$
+    <check_select>GRIPR.CLC.MxEz.DEN.4a_M1</check_select>$$
+    <check_select>GRIPR.CLC.MxEz.DEN.9_M1</check_select>$$
+    <check_select>GRIPR.CLC.MxEz.DEN.10_M1</check_select>$$
+    <check_select>GRCLC.MxEz.DEN.1a_M1</check_select>$$
+    <check_select>GRCLC.MxEz.DEN.3_M1</check_select>$$
+    <check_select>GRCLC.MxEz.DEN.3a_M1</check_select>$$
+    <check_select>GRCLC.MxEz.DEN.4_M1</check_select>$$
+    <check_select>GRCLC.MxEz.DEN.4a_M1</check_select>$$
+    <check_select>GRCLC.MxEz.DEN.9_M1</check_select>$$
+    <check_select>GRCLC.MxEz.DEN.10_M1</check_select>$$
+    <check_select>GRIPR.CLC.M1.DEN.1_M1</check_select>$$
+    <check_select>GRIPR.CLC.M1.DEN.1a_M1</check_select>$$
+    <check_select>GRIPR.CLC.M1.DEN.2_M1</check_select>$$
+    <check_select>GRIPR.CLC.M1.DEN.2a_M1</check_select>$$
+    <check_select>GRCLC.MxEz.DEN.1_M2</check_select>$$
+    <check_select>GRIPR.CLC.MxEz.DEN.1_M2</check_select>$$
+    <check_select>GRIPR.CLC.MxEz.DEN.1a_M2</check_select>$$
+    <check_select>GRIPR.CLC.MxEz.DEN.3_M2</check_select>$$
+    <check_select>GRIPR.CLC.MxEz.DEN.3a_M2</check_select>$$
+    <check_select>GRIPR.CLC.MxEz.DEN.4_M2</check_select>$$
+    <check_select>GRIPR.CLC.MxEz.DEN.4a_M2</check_select>$$
+    <check_select>GRIPR.CLC.MxEz.DEN.9_M2</check_select>$$
+    <check_select>GRIPR.CLC.MxEz.DEN.10_M2</check_select>$$
+    <check_select>GRCLC.MxEz.DEN.1a_M2</check_select>$$
+    <check_select>GRCLC.MxEz.DEN.3_M2</check_select>$$
+    <check_select>GRCLC.MxEz.DEN.3a_M2</check_select>$$
+    <check_select>GRCLC.MxEz.DEN.4_M2</check_select>$$
+    <check_select>GRCLC.MxEz.DEN.4a_M2</check_select>$$
+    <check_select>GRCLC.MxEz.DEN.9_M2</check_select>$$
+    <check_select>GRCLC.MxEz.DEN.10_M2</check_select>$$
+    <check_select>GRIPR.CLC.M2.DEN.1a_M2</check_select>$$
+    <check_select>GRIPR.CLC.M2.DEN.2a_M2</check_select>$$
+    <check_select>GRIPR.CLC.M2.DEN.C1.1b</check_select>$$
+    <check_select>GRIPR.CLC.M2.DEN.C1.1c</check_select>$$
+    <check_select>GRCLC.MxEz.DEN.MyEz.1a_M2</check_select>$$
+    <check_select>GRCLC.MxEz.DEN.MyEz.2a_M2</check_select>$$
+    <check_select>GRCLC.Cx.DEN.1_C1</check_select>$$
+    <check_select>GRCLC.Cx.DEN.1a_C1</check_select>$$
+    <check_select>GRCLC.Cx.DEN.3_C1</check_select>$$
+    <check_select>GRCLC.Cx.DEN.3a_C1</check_select>$$
+    <check_select>GRCLC.Cx.DEN.4_C1</check_select>$$
+    <check_select>GRCLC.Cx.DEN.4a_C1</check_select>$$
+    <check_select>GRCLC.Cx.DEN.9_C1</check_select>$$
+    <check_select>GRCLC.Cx.DEN.10_C1</check_select>$$
+    <check_select>GRCLC.Cx.DEN.My.1</check_select>$$
+    <check_select>GRCLC.Cx.DEN.My.1a</check_select>$$
+    <check_select>GRCLC.Cx.DEN.My.1b</check_select>$$
+    <check_select>GRCLC.Cx.DEN.My.1c</check_select>$$
+    <check_select>GRIPR.CLC.Cx.DEN.My.1</check_select>$$
+    <check_select>GRIPR.CLC.Cx.DEN.My.1a</check_select>$$
+    <check_select>GRCLC.Cx.DEN.Cy.1_C1</check_select>$$
+    <check_select>GRCLC.Cx.DEN.Cy.1a_C1</check_select>$$
+    <check_select>GRCLC.Cx.DEN.1_C2</check_select>$$
+    <check_select>GRCLC.Cx.DEN.1a_C2</check_select>$$
+    <check_select>GRCLC.Cx.DEN.3_C2</check_select>$$
+    <check_select>GRCLC.Cx.DEN.3a_C2</check_select>$$
+    <check_select>GRCLC.Cx.DEN.4_C2</check_select>$$
+    <check_select>GRCLC.Cx.DEN.4a_C2</check_select>$$
+    <check_select>GRCLC.Cx.DEN.9_C2</check_select>$$
+    <check_select>GRCLC.Cx.DEN.10_C2</check_select>$$
+    <check_select>GRCLC.Cx.DEN.My.3</check_select>$$
+    <check_select>GRCLC.Cx.DEN.My.3a</check_select>$$
+    <check_select>GRCLC.Cx.DEN.Cy.1_C2</check_select>$$
+    <check_select>GRCLC.Cx.DEN.Cy.1a_C2</check_select>$$
+    <check_select>GRCLC.Cx.DEN.1_C3</check_select>$$
+    <check_select>GRCLC.Cx.DEN.1a_C3</check_select>$$
+    <check_select>GRCLC.Cx.DEN.3_C3</check_select>$$
+    <check_select>GRCLC.Cx.DEN.3a_C3</check_select>$$
+    <check_select>GRCLC.Cx.DEN.4_C3</check_select>$$
+    <check_select>GRCLC.Cx.DEN.4a_C3</check_select>$$
+    <check_select>GRCLC.Cx.DEN.9_C3</check_select>$$
+    <check_select>GRCLC.Cx.DEN.10_C3</check_select>$$
+    <check_select>GRCLC.Cx.DEN.Cy.1_C3</check_select>$$
+    <check_select>GRCLC.Cx.DEN.Cy.1a_C3</check_select>$$
+    <check_select>GRCLC.Cx.DEN.1_C4</check_select>$$
+    <check_select>GRCLC.Cx.DEN.1a_C4</check_select>$$
+    <check_select>GRCLC.Cx.DEN.3_C4</check_select>$$
+    <check_select>GRCLC.Cx.DEN.3a_C4</check_select>$$
+    <check_select>GRCLC.Cx.DEN.4_C4</check_select>$$
+    <check_select>GRCLC.Cx.DEN.4a_C4</check_select>$$
+    <check_select>GRCLC.Cx.DEN.9_C4</check_select>$$
+    <check_select>GRCLC.Cx.DEN.10_C4</check_select>$$
+    <check_select>GRCLC.Cx.DEN.Cy.1_C4</check_select>$$
+    <check_select>GRCLC.Cx.DEN.Cy.1a_C4</check_select>$$
+    <check_select>GRCLC.Cx.DEN.1_C5</check_select>$$
+    <check_select>GRCLC.Cx.DEN.1a_C5</check_select>$$
+    <check_select>GRCLC.Cx.DEN.3_C5</check_select>$$
+    <check_select>GRCLC.Cx.DEN.3a_C5</check_select>$$
+    <check_select>GRCLC.Cx.DEN.4_C5</check_select>$$
+    <check_select>GRCLC.Cx.DEN.4a_C5</check_select>$$
+    <check_select>GRCLC.Cx.DEN.9_C5</check_select>$$
+    <check_select>GRCLC.Cx.DEN.10_C5</check_select>$$
+    <check_select>GRCLC.Cx.DEN.1_C6</check_select>$$
+    <check_select>GRCLC.Cx.DEN.1a_C6</check_select>$$
+    <check_select>GRCLC.Cx.DEN.3_C6</check_select>$$
+    <check_select>GRCLC.Cx.DEN.3a_C6</check_select>$$
+    <check_select>GRCLC.Cx.DEN.4_C6</check_select>$$
+    <check_select>GRCLC.Cx.DEN.4a_C6</check_select>$$
+    <check_select>GRCLC.Cx.DEN.9_C6</check_select>$$
+    <check_select>GRCLC.Cx.DEN.10_C6</check_select>$$
+    <check_select>GRCLC.Bx.DEN.1_BA</check_select>$$
+    <check_select>GRCLC.Bx.DEN.1a_BA</check_select>$$
+    <check_select>GRCLC.Bx.DEN.2_BA</check_select>$$
+    <check_select>GRCLC.Bx.DEN.2a_BA</check_select>$$
+    <check_select>GRCLC.Bx.DEN.3_BA</check_select>$$
+    <check_select>GRCLC.Bx.DEN.3a_BA</check_select>$$
+    <check_select>GRCLC.Bx.DEN.4_BA</check_select>$$
+    <check_select>GRCLC.Bx.DEN.4a_BA</check_select>$$
+    <check_select>GRCLC.Bx.DEN.9_BA</check_select>$$
+    <check_select>GRCLC.Bx.DEN.10_BA</check_select>$$
+    <check_select>GRCLC.Bx.DEN.1_BB</check_select>$$
+    <check_select>GRCLC.Bx.DEN.1a_BB</check_select>$$
+    <check_select>GRCLC.Bx.DEN.2_BB</check_select>$$
+    <check_select>GRCLC.Bx.DEN.2a_BB</check_select>$$
+    <check_select>GRCLC.Bx.DEN.3_BB</check_select>$$
+    <check_select>GRCLC.Bx.DEN.3a_BB</check_select>$$
+    <check_select>GRCLC.Bx.DEN.4_BB</check_select>$$
+    <check_select>GRCLC.Bx.DEN.4a_BB</check_select>$$
+    <check_select>GRCLC.Bx.DEN.9_BB</check_select>$$
+    <check_select>GRCLC.Bx.DEN.10_BB</check_select>$$
+    <check_select>GRCLC.Ix.DEN.1_IA</check_select>$$
+    <check_select>GRCLC.Ix.DEN.1a_IA</check_select>$$
+    <check_select>GRCLC.Ix.DEN.2_IA</check_select>$$
+    <check_select>GRCLC.Ix.DEN.2a_IA</check_select>$$
+    <check_select>GRCLC.Ix.DEN.1_IB</check_select>$$
+    <check_select>GRCLC.Ix.DEN.1a_IB</check_select>$$
+    <check_select>GRCLC.Ix.DEN.2_IB</check_select>$$
+    <check_select>GRCLC.Ix.DEN.2a_IB</check_select>$$
+    <check_select>GRCLC.Jx.DEN.1_JA</check_select>$$
+    <check_select>GRCLC.Jx.DEN.1a_JA</check_select>$$
+    <check_select>GRCLC.Jx.DEN.2_JA</check_select>$$
+    <check_select>GRCLC.Jx.DEN.2a_JA</check_select>$$
+    <check_select>GRCLC.Jx.DEN.1_JB</check_select>$$
+    <check_select>GRCLC.Jx.DEN.1a_JB</check_select>$$
+    <check_select>GRCLC.Jx.DEN.2_JB</check_select>$$
+    <check_select>GRCLC.Jx.DEN.2a_JB</check_select>$$
+    <check_select>GRCLC.Qx.DEN.1_QA</check_select>$$
+    <check_select>GRCLC.Qx.DEN.1a_QA</check_select>$$
+    <check_select>GRCLC.Qx.DEN.2_QA</check_select>$$
+    <check_select>GRCLC.Qx.DEN.2a_QA</check_select>$$
+    <check_select>GRCLC.Qx.DEN.1_QB</check_select>$$
+    <check_select>GRCLC.Qx.DEN.1a_QB</check_select>$$
+    <check_select>GRCLC.Qx.DEN.2_QB</check_select>$$
+    <check_select>GRCLC.Qx.DEN.2a_QB</check_select>$$
+    <check_select>GRCLC.OI.DEN.1</check_select>$$
+    <check_select>GRCLC.OI.DEN.1a</check_select>$$
+    <check_select>GRCLC.OI.DEN.2</check_select>$$
+    <check_select>GRATV.G1.Mx.DEN.10_M1</check_select>$$
+    <check_select>GRATV.G1.Mx.DEN.10_M2</check_select>$$
+    <check_select>GR8C.DEN.2</check_select>$$
+   </operations>$$  
+ </recipe>$$
+</user_recipes>$$")
+
+drc.recipeEditor.setActiveRecipe("CHIP BEOL Max density")
+

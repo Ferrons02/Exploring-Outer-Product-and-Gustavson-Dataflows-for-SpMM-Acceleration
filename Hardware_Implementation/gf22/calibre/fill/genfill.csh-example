@@ -1,0 +1,71 @@
+#!/bin/csh -f
+
+# Required files
+# Fill deck: fill_fdsoi22.enc.svrf
+# Wrapper script: run_calibre
+# Fill cell: EQ_CFILL.oas 
+# PCI cell: TGP.oas
+# Setup file: cfill.setup
+# Input file: <Input>.oas (or <Input>.gds)
+# Output file: <Output>.oas (or <Output>.gds)
+# Note: gzip is also supported for input and output files (*.oas.gz or *.gds.gz)
+
+# v0.4 - <muheim@ee.ethz.ch> - Tue Sep  7 11:22:45 CEST 2021
+# - check if the /scratch/$USER/tmp is existing, if not creat it
+# v0.3 - <muheim@ee.ethz.ch> - Wed Aug 25 08:37:53 CEST 2021
+# - the option '-ln' are the top_module name 
+# - add option '-beol_stack_var 1' and 'setenv CUSTOMIZED "GF"' so that,
+#   the settling of $BEOL_STACK from ".setPDK.csh" are taken.
+# v0.2 - <muheim@ee.ethz.ch> - Tue Mar 23 08:39:06 CET 2021
+# - copy from:
+#   "/usr/pack/gf-22-kgf/gf/pdk-22FDX-EXT-V1.0_2.0/FILLGEN/Calibre/genfill_Test"
+# - new style of the fill script , make that the rest of the scripts
+#   "cfill.setup" and "run_calibre" are version and stack indipendend.
+# - is copy (sed) the "run_calibre"
+
+source  ../../.setPDK.csh
+setenv CUSTOMIZED "GF"
+  # the seting of CUSTOMIZED "GF" is needet that '-beol_stack_var 1' is working!
+
+sed 's|calibre -drc|calibre-2024.4 calibre -drc|;s|calibredrv|calibre-2024.4 calibredrv|' $TECHDIR_FILLGEN/run_calibre  > run_calibre
+chmod +x run_calibre
+
+if (! -d /scratch/$USER/tmp ) then
+  echo "  Create new tmp directory /scratch/$USER/tmp"
+  mkdir -p "/scratch/$USER/tmp"
+
+endif
+
+
+# Option to set fill run output directory with environment variable (instead of using current directory)
+# Note: Path for run_calibre and TECHDIR_FILLGEN must be set if this option is used  
+#if ($?OUTDIR_FILLGEN) then
+#   cd $OUTDIR_FILLGEN
+#endif
+
+# Step 1: Edit setup files (if needet)
+#   add -setup to run_calibre when you like to use the local one
+#              -setup /cfill.chip.setup \
+# cfill.setup
+# cfill.rebal.setup (optional)
+
+# Step 2: Run Fill (and merge)
+echo "Starting fill run"
+./run_calibre -l ../drc/chip.gds -ln chip -input_type gds  \
+              -output_filename /scratch/$USER/tmp/chip.fill.gds \
+              -swap_output_file /scratch/$USER/tmp/chip.swap.gds \
+              -merged_output_file ./chip.merged_fill.gds \
+              -tech $TECHDIR_FILLGEN/fill_fdsoi22.enc.svrf \
+              -keep_merge_script -merge_input -beol_stack_var 1 -output_type gds
+
+
+# Step 3: Color Balance (optional)
+# Note: This is only required if there is a design with existing fill that requires fill color re-balancing.
+# Fill color balancing is automatically done by the fill deck during fill placement.
+#./run_calibre -l chip.merged_fill.gds -ln chip  \
+#              -output_filename chip.rebal.gds \
+#              -merged_output_file chip.merged.rebal.gds  \
+#              -setup cfill.rebal.setup -tech fill_fdsoi22.enc.svrf \
+#              -keep_merge_script -merge_input -suffix_gen_tiles_output _rebal -output_type gds
+
+echo "Fill run completed"

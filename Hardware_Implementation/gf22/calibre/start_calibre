@@ -1,0 +1,33 @@
+#! /bin/csh -f
+
+# v0.2 - muheim - Wed Sep  7 10:41:23 CEST 2022
+#  - change the $argv like it is done in the tsmc16
+# v0.1 - muheim - Tue May 31 11:31:54 CEST 2016
+#  - copy from gf28 v0.2
+
+## set the relevant env for dfii and calibre
+source ../.setPDK.csh
+
+## Determine the tool to startup 
+switch ($1)
+  case 2017.4
+     set CALIBRE = "calibre-2017.4 calibredrv -dl .init/gf22.layerprops $argv[2-]"
+     breaksw
+  case 2024.4
+     set CALIBRE = "calibre-2024.4 calibredrv -dl .init/gf22.layerprops $argv[2-]"
+     breaksw
+  case xterm 
+     set CALIBRE = "xterm" 
+     breaksw
+## this is the command that runs as default, it can be adjusted to whatever you
+## please
+default:
+     set CALIBRE = "calibre-2024.4 calibredrv -dl .init/gf22.layerprops $*"
+     breaksw
+endsw  
+
+##echo "Starting $CALIBRE"
+$CALIBRE
+
+# example of open gds with rve drc result:
+# ./start_calibre -m chip.gds -rve -drc drc/chip.drc.results

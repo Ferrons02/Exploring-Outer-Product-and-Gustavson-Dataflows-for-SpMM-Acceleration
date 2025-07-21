@@ -1,0 +1,1 @@
+/usr/pack/gf-22-kgf/invecas/std8t/2020.01/GF22FDX_SC8T_104CPP_BASE_CSC20L_FDK_RELV06R40/model/power/voltus/TT_0P65V_0P00V_0P00V_0P00V_85C/stdcells.cl

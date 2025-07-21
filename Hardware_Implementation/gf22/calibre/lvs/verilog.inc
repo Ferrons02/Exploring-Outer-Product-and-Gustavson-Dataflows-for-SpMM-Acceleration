@@ -1,0 +1,7 @@
+`include /usr/pack/gf-22-kgf/invecas//std8t/2020.01/GF22FDX_SC8T_104CPP_BASE_CSC20SL_FDK_RELV06R40/model/verilog/GF22FDX_SC8T_104CPP_BASE_CSC20SL_pwr.v
+`include /usr/pack/gf-22-kgf/invecas//std8t/2020.01/GF22FDX_SC8T_104CPP_BASE_CSC20L_FDK_RELV06R40/model/verilog/GF22FDX_SC8T_104CPP_BASE_CSC20L_pwr.v
+`include /usr/pack/gf-22-kgf/invecas//std8t/2020.01/GF22FDX_SC8T_104CPP_BASE_CSC24SL_FDK_RELV06R40/model/verilog/GF22FDX_SC8T_104CPP_BASE_CSC24SL_pwr.v
+`include /usr/pack/gf-22-kgf/invecas//std8t/2020.01/GF22FDX_SC8T_104CPP_BASE_CSC24L_FDK_RELV06R40/model/verilog/GF22FDX_SC8T_104CPP_BASE_CSC24L_pwr.v
+`include /usr/pack/gf-22-kgf/invecas//std8t/2020.01/GF22FDX_SC8T_104CPP_BASE_CSC28SL_FDK_RELV06R40/model/verilog/GF22FDX_SC8T_104CPP_BASE_CSC28SL_pwr.v
+`include /usr/pack/gf-22-kgf/invecas//std8t/2020.01/GF22FDX_SC8T_104CPP_BASE_CSC28L_FDK_RELV06R40/model/verilog/GF22FDX_SC8T_104CPP_BASE_CSC28L_pwr.v
+`include /usr/pack/gf-22-kgf/invecas/io/2020.01/IN22FDX_GPIO18_10M3S40PI_FE_RELV02R02SZ/model/verilog/IN22FDX_GPIO18_10M3S40PI_pwr.v

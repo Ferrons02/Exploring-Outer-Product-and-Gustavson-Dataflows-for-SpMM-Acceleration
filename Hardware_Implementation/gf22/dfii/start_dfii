@@ -1,0 +1,66 @@
+#! /bin/csh -f
+
+# v0.4 - muheim - Thu Aug 11 10:28:11 CEST 2022
+#  - change set CDS_LOAD_ENV to CSF
+# v0.3 - muheim - Tue Jun 21 11:15:53 CEST 2022
+#  - update ic to icadv20
+# v0.1 - muheim - Mon Jun 27 17:11:56 CEST 2016
+#  - update ic to icadv
+# v0.1 - muheim - Mon May 30 15:31:54 CEST 2016
+#  - copy from tsmc28 v0.1, use the v6 icfii
+#    add the source ../.setPDK.csh from gf28
+
+
+
+source ../.setPDK.csh
+
+
+## the variables to be set
+#setenv CDS_Netlisting_Mode "Analog"
+  # set it in the .cdsinit
+
+#  setenv CDS_LOAD_ENV CWD
+#
+#          CWD:  loads only the ./.cdsenv
+#        False: loads neither ~/.cdsenv nor ./.cdsenv
+#       addCWD: loads ~/.cdsenv , then load ./.cdsenv
+#  CWDElseHome: loads ./.cdsenv if it exists, or ~/.cdsenv , if it exists
+#          CSF: Search setup.loc for <toolname>.cdsenv files
+setenv CDS_LOAD_ENV "CSF"
+
+
+# This variable is used to make sure that the case is preserved
+# when VHDL files are read by Verilog In. Otherwise there is sometimes
+# a discrepancy between the VHDL file and the later resulting Verilog netlist
+#setenv CDS_ALT_NMP match
+
+# Calibre default runsets
+#setenv MGC_CALIBRE_DRC_RUNSET_FILE "../calibre/drc/runset.drc"
+#setenv MGC_CALIBRE_LVS_RUNSET_FILE "../calibre/lvs/runset.lvs"
+#setenv MGC_CALIBRE_PEX_RUNSET_FILE "../calibre/pex/runset.pex"
+
+
+## Determine the tool to startup 
+switch ($1)
+  case 618:
+     set CDS = "cds_ic-6.18.050 virtuoso"
+     breaksw
+  case 1230:
+     set CDS = "cds_icadv-12.30.717 virtuoso"
+     breaksw
+  case 2010:
+     set CDS = "cds_icadv-20.10.230 virtuoso"
+     breaksw
+  case xterm
+     set CDS = "cds_ic-23.10.030 xterm"
+     breaksw
+
+## this is the command that runs as default, it can be adjusted to whatever you
+## please
+default:
+     set CDS = "cds_ic-23.10.030 -usematlab virtuoso"
+     breaksw
+endsw  
+
+##echo "Starting $CDS"
+$CDS 

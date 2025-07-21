@@ -1,0 +1,320 @@
+[cockpit]
+  # Do not change this section
+  config = 2025-1
+
+[library]
+  # Setup files will be generated for these libraries.
+  # 
+  # - only libraries that can be found in the "kit.ascii" database
+  #   can be used (see cockpit.log for the full unix path)
+  # - use "-update" or "-rewrite" for the changes to take effect  
+  #
+  # The following libraries are available:
+  #   technology    : 22FDX
+  #
+  #   designkit     : 10M_2Mx_6Cx_2Ix_LB__V0.4_1.0              (10 Metals)  ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_6Cx_2Ix_LB__V0.5_0.0              (10 Metals)  ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_6Cx_2Ix_LB__V1.0_0.0              (10 Metals)  ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_6Cx_2Ix_LB__V1.1_0.0              (10 Metals)  ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_6Cx_2Ix_LB__V1.1_2.0              (10 Metals)  ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_6Cx_2Ix_LB__V1.2_0.0              (10 Metals)  ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_6Cx_2Ix_LB__V1.3_0.0              (10 Metals)  ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_6Cx_2Ix_LB__V1.3_1.0              (10 Metals)  ++ OBSOLETE ++
+  #   designkit     : 9M_2Mx_3Cx_2Bx_1Ix_1Ox_LB_MRAM__V1.3_1.0  ( 9 Metals)  ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_6Cx_2Ix_LB__V1.3_2.2              (10 Metals)  ++ OBSOLETE ++
+  #   designkit     : 9M_2Mx_3Cx_2Bx_1Ix_1Ox_LB_MRAM__V1.3_2.2  ( 9 Metals)  ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_6Cx_2Ix_LB__EXT-V1.0_0.0          (#3  - 10 Metals)  ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_5Cx_1Jx_2Qx_LB__EXT-V1.0_0.0      (#19 - 10 Metals)  ++ OBSOLETE ++
+  #   designkit     : 9M_2Mx_3Cx_2Bx_1Ix_1Ox_LB__EXT-V1.0_0.0   (#20 -  9 Metals)  ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_6Cx_2Ix_LB__EXT-V1.0_2.0          (#3  - 10 Metals)  ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_5Cx_1Jx_2Qx_LB__EXT-V1.0_2.0      (#19 - 10 Metals)  ++ OBSOLETE ++
+  #   designkit     : 9M_2Mx_3Cx_2Bx_1Ix_1Ox_LB__EXT-V1.0_2.0   (#20 -  9 Metals)  ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_6Cx_2Ix_LB__EXT-V1.0_3.1          (#3  - 10 Metals)  ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_4Cx_2Bx_2Jx_LB__EXT-V1.0_3.1      (#8  - 10 Metals - no IO cells)  ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_5Cx_1Jx_2Qx_LB__EXT-V1.0_3.1      (#19 - 10 Metals)  ++ OBSOLETE ++
+  #   designkit     : 9M_2Mx_3Cx_2Bx_1Ix_1Ox_LB__EXT-V1.0_3.1   (#20 -  9 Metals)  ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_6Cx_2Ix_LB__EXT-V1.0_4.0          (#3  - 10 Metals)  ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_4Cx_2Bx_2Jx_LB__EXT-V1.0_4.0      (#8  - 10 Metals - no IO cells)  ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_5Cx_1Jx_2Qx_LB__EXT-V1.0_4.0      (#19 - 10 Metals)  ++ OBSOLETE ++
+  #   designkit     : 9M_2Mx_3Cx_2Bx_1Ix_1Ox_LB__EXT-V1.0_4.0   (#20 -  9 Metals)  ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_6Cx_2Ix_LB__EXT-V1.0_4.1          (#3  - 10 Metals)
+  #   designkit     : 10M_2Mx_4Cx_2Bx_2Jx_LB__EXT-V1.0_4.1      (#8  - 10 Metals - no IO cells)
+  #   designkit     : 8M_2Mx_4Cx_1Ix_1Ox_LB__EXT-V1.0_4.1       (#17 -  8 Metals)
+  #   designkit     : 10M_2Mx_5Cx_1Jx_2Qx_LB__EXT-V1.0_4.1      (#19 - 10 Metals)
+  #   designkit     : 9M_2Mx_3Cx_2Bx_1Ix_1Ox_LB__EXT-V1.0_4.1   (#20 -  9 Metals)
+  #   designkit     : 10M_2Mx_6Cx_2Ix_LB__PLUS-V1.0_0.0b        (#3  - 10 Metals)  ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_5Cx_1Jx_2Qx_LB__PLUS-V1.0_0.0b    (#19 - 10 Metals)  ++ OBSOLETE ++
+  #   designkit     : 9M_2Mx_3Cx_2Bx_1Ix_1Ox_LB__PLUS-V1.0_0.0b (#20 -  9 Metals)  ++ OBSOLETE ++
+  #   designkit     : 9M_2Mx_3Cx_2Jx_2Qx_LB__PLUS-V1.0_0.0b     (#24 -  9 Metals)  ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_6Cx_2Ix_LB__PLUS-V1.0_1.0         (#3  - 10 Metals)  ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_5Cx_1Jx_2Qx_LB__PLUS-V1.0_1.0     (#19 - 10 Metals)  ++ OBSOLETE ++
+  #   designkit     : 9M_2Mx_3Cx_2Bx_1Ix_1Ox_LB__PLUS-V1.0_1.0  (#20 -  9 Metals)  ++ OBSOLETE ++
+  #   designkit     : 9M_2Mx_3Cx_2Jx_2Qx_LB__PLUS-V1.0_1.0      (#24 -  9 Metals)  ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_6Cx_2Ix_LB__PLUS-V1.0_1.0b        (#3  - 10 Metals)  ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_5Cx_1Jx_2Qx_LB__PLUS-V1.0_1.0b    (#19 - 10 Metals)  ++ OBSOLETE ++
+  #   designkit     : 9M_2Mx_3Cx_2Bx_1Ix_1Ox_LB__PLUS-V1.0_1.0b (#20 -  9 Metals)  ++ OBSOLETE ++
+  #   designkit     : 9M_2Mx_3Cx_2Jx_2Qx_LB__PLUS-V1.0_1.0b     (#24 -  9 Metals)  ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_6Cx_2Ix_LB__PLUS-V1.0_2.1        (#3  - 10 Metals)   ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_5Cx_1Jx_2Qx_LB__PLUS-V1.0_2.1    (#19 - 10 Metals)   ++ OBSOLETE ++
+  #   designkit     : 9M_2Mx_3Cx_2Bx_1Ix_1Ox_LB__PLUS-V1.0_2.1 (#20 -  9 Metals)   ++ OBSOLETE ++
+  #   designkit     : 9M_2Mx_3Cx_2Jx_2Qx_LB__PLUS-V1.0_2.1     (#24 -  9 Metals)   ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_6Cx_2Ix_LB__PLUS-V1.0_2.2        (#3  - 10 Metals)   ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_5Cx_1Jx_2Qx_LB__PLUS-V1.0_2.2    (#19 - 10 Metals)   ++ OBSOLETE ++
+  #   designkit     : 9M_2Mx_3Cx_2Bx_1Ix_1Ox_LB__PLUS-V1.0_2.2 (#20 -  9 Metals)   ++ OBSOLETE ++
+  #   designkit     : 9M_2Mx_3Cx_2Jx_2Qx_LB__PLUS-V1.0_2.2     (#24 -  9 Metals)   ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_6Cx_2Ix_LB__PLUS-V1.0_2.3        (#3  - 10 Metals)   ++ OBSOLETE ++
+  #   designkit     : 8M_2Mx_4Cx_1Ix_1Ox_LB__PLUS-V1.0_2.3     (#17 -  8 Metals)   ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_5Cx_1Jx_2Qx_LB__PLUS-V1.0_2.3    (#19 - 10 Metals)   ++ OBSOLETE ++
+  #   designkit     : 9M_2Mx_3Cx_2Bx_1Ix_1Ox_LB__PLUS-V1.0_2.3 (#20 -  9 Metals)   ++ OBSOLETE ++
+  #   designkit     : 9M_2Mx_3Cx_2Jx_2Qx_LB__PLUS-V1.0_2.3     (#24 -  9 Metals)   ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_6Cx_2Ix_LB__PLUS-V1.0_2.4        (#3  - 10 Metals)   ++ OBSOLETE ++
+  #   designkit     : 8M_2Mx_4Cx_1Ix_1Ox_LB__PLUS-V1.0_2.4     (#17 -  8 Metals)   ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_5Cx_1Jx_2Qx_LB__PLUS-V1.0_2.4    (#19 - 10 Metals)   ++ OBSOLETE ++
+  #   designkit     : 9M_2Mx_3Cx_2Bx_1Ix_1Ox_LB__PLUS-V1.0_2.4 (#20 -  9 Metals)   ++ OBSOLETE ++
+  #   designkit     : 9M_2Mx_3Cx_2Jx_2Qx_LB__PLUS-V1.0_2.4     (#24 -  9 Metals)   ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_6Cx_2Ix_LB__PLUS-V1.0_2.5        (#3  - 10 Metals)   ++ OBSOLETE ++   
+  #   designkit     : 8M_2Mx_4Cx_1Ix_1Ox_LB__PLUS-V1.0_2.5     (#17 -  8 Metals)   ++ OBSOLETE ++  
+  #   designkit     : 10M_2Mx_5Cx_1Jx_2Qx_LB__PLUS-V1.0_2.5    (#19 - 10 Metals)   ++ OBSOLETE ++
+  #   designkit     : 9M_2Mx_3Cx_2Bx_1Ix_1Ox_LB__PLUS-V1.0_2.5 (#20 -  9 Metals)   ++ OBSOLETE ++
+  #   designkit     : 9M_2Mx_3Cx_2Jx_2Qx_LB__PLUS-V1.0_2.5     (#24 -  9 Metals)   ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_4Cx_2Bx_2Jx_LB__PLUS-V1.0_2.5     (#8 -  10 Metals)   ++ OBSOLETE ++
+  #   designkit     : 10M_2Mx_6Cx_2Ix_LB__PLUS-V1.0_3.0a        (#3  - 10 Metals)
+  #   designkit     : 8M_2Mx_4Cx_1Ix_1Ox_LB__PLUS-V1.0_3.0a     (#17 -  8 Metals)
+  #   designkit     : 10M_2Mx_5Cx_1Jx_2Qx_LB__PLUS-V1.0_3.0a    (#19 - 10 Metals)
+  #   designkit     : 9M_2Mx_3Cx_2Bx_1Ix_1Ox_LB__PLUS-V1.0_3.0a (#20 -  9 Metals)
+  #   designkit     : 9M_2Mx_3Cx_2Jx_2Qx_LB__PLUS-V1.0_3.0a     (#24 -  9 Metals)
+  #   designkit     : 10M_2Mx_4Cx_2Bx_2Jx_LB__PLUS-V1.0_3.0a     (#8 -  10 Metals)
+
+
+
+  # For a comparison list see: 
+  # 
+  #   http://eda.ee.ethz.ch/index.php/
+  # 
+  #   Synopsys GLOBALFOUNDRIES 22FDX+ logic libraries follow the library naming convention as below:
+  #   gf22nsp - <VTH> - logl - <Channel Length> - <Architecture> - <Design Kit> - <Pitch> - <package>
+  #   Design Kit: ‘l’ BASE: Base Library, ‘p’ POK: Power Optimization Kit, ‘f’ PHY: Physical Library, ‘a’ AI: AI Kit optimized arithmetic cells   
+  #
+  #                  l:LVT                              v:SLVT                             s:RVT                              u:UHVT
+  # In the same block:(cannot mix with RVT)              (cannot mix with RVT)              (cannot mix with SLVT/LVT)         (cannot mix with any other VT)
+  # 6.75T (ed):                                                                                 
+  #---116nm CPP---
+  # AI        gf22nspllogl20eda116f_v1.02a       gf22nspvlogl20eda116f_v1.02a       gf22nspslogl20eda116f_v1.02a       
+  # PHY       gf22nspllogl20edf116f_v1.02a       gf22nspvlogl20edf116f_v1.02a       gf22nspslogl20edf116f_v1.02a       
+  # BASE      gf22nspllogl20edl116f_v2.00a       gf22nspvlogl20edl116f_v2.00a       gf22nspslogl20edl116f_v2.00a       
+  # POK       gf22nspllogl20edp116f_v4.01a       gf22nspvlogl20edp116f_v4.01a       gf22nspslogl20edp116f_v4.01a       
+  # AI        gf22nspllogl24eda116f_v1.02a       gf22nspvlogl24eda116f_v1.02a       gf22nspslogl24eda116f_v1.02a       gf22nspulogl24eda116f_v1.01a
+  # PHY       gf22nspllogl24edf116f_v1.02a       gf22nspvlogl24edf116f_v1.02a       gf22nspslogl24edf116f_v1.02a       gf22nspulogl24edf116f_v1.01a
+  # BASE      gf22nspllogl24edl116f_v2.00a       gf22nspvlogl24edl116f_v2.00a       gf22nspslogl24edl116f_v2.00a       gf22nspulogl24edl116f_v1.00a
+  # POK       gf22nspllogl24edp116f_v4.01a       gf22nspvlogl24edp116f_v4.01a       gf22nspslogl24edp116f_v4.01a       gf22nspulogl24edp116f_v3.01a
+  # AI        gf22nspllogl28eda116f_v1.02a       gf22nspvlogl28eda116f_v1.02a       gf22nspslogl28eda116f_v1.02a       gf22nspulogl28eda116f_v1.01a
+  # PHY       gf22nspllogl28edf116f_v1.02a       gf22nspvlogl28edf116f_v1.02a       gf22nspslogl28edf116f_v1.02a       gf22nspulogl28edf116f_v1.01a
+  # BASE      gf22nspllogl28edl116f_v2.00a       gf22nspvlogl28edl116f_v2.00a       gf22nspslogl28edl116f_v2.00a       gf22nspulogl28edl116f_v1.00a
+  # POK       gf22nspllogl28edp116f_v4.01a       gf22nspvlogl28edp116f_v4.01a       gf22nspslogl28edp116f_v4.01a       gf22nspulogl28edp116f_v3.01a
+  # AI        gf22nspllogl32eda116f_v1.02a       gf22nspvlogl32eda116f_v1.02a       gf22nspslogl32eda116f_v1.02a       gf22nspulogl32eda116f_v1.01a
+  # PHY       gf22nspllogl32edf116f_v1.02a       gf22nspvlogl32edf116f_v1.02a       gf22nspslogl32edf116f_v1.02a       gf22nspulogl32edf116f_v1.01a
+  # BASE      gf22nspllogl32edl116f_v2.00a       gf22nspvlogl32edl116f_v2.00a       gf22nspslogl32edl116f_v2.00a       gf22nspulogl32edl116f_v1.00a
+  # POK       gf22nspllogl32edp116f_v4.01a       gf22nspvlogl32edp116f_v4.01a       gf22nspslogl32edp116f_v4.01a       gf22nspulogl32edp116f_v3.01a
+  # AI        gf22nspllogl36eda116f_v1.02a       gf22nspvlogl36eda116f_v1.02a       gf22nspslogl36eda116f_v1.02a       gf22nspulogl36eda116f_v1.01a
+  # PHY       gf22nspllogl36edf116f_v1.02a       gf22nspvlogl36edf116f_v1.02a       gf22nspslogl36edf116f_v1.02a       gf22nspulogl36edf116f_v1.01a
+  # BASE      gf22nspllogl36edl116f_v2.00a       gf22nspvlogl36edl116f_v2.00a       gf22nspslogl36edl116f_v2.00a       gf22nspulogl36edl116f_v1.00a
+  # POK       gf22nspllogl36edp116f_v4.01a       gf22nspvlogl36edp116f_v4.01a       gf22nspslogl36edp116f_v4.01a       gf22nspulogl36edp116f_v3.01a
+  #---104nm CPP---
+  # AI        gf22nspllogl20eda104f_v1.01a       gf22nspvlogl20eda104f_v1.01a
+  # PHY       gf22nspllogl20edf104f_v1.00a       gf22nspvlogl20edf104f_v1.00a
+  # BASE      gf22nspllogl20edl104f_v1.00a       gf22nspvlogl20edl104f_v1.00a
+  # POK       gf22nspllogl20edp104f_v2.01a       gf22nspvlogl20edp104f_v2.01a
+  # AI        gf22nspllogl24eda104f_v1.01a       gf22nspvlogl24eda104f_v1.01a
+  # PHY       gf22nspllogl24edf104f_v1.00a       gf22nspvlogl24edf104f_v1.00a
+  # BASE      gf22nspllogl24edl104f_v1.00a       gf22nspvlogl24edl104f_v1.00a
+  # POK       gf22nspllogl24edp104f_v2.01a       gf22nspvlogl24edp104f_v2.01a
+  # AI        gf22nspllogl28eda104f_v1.01a       gf22nspvlogl28eda104f_v1.01a
+  # PHY       gf22nspllogl28edf104f_v1.00a       gf22nspvlogl28edf104f_v1.00a
+  # BASE      gf22nspllogl28edl104f_v1.00a       gf22nspvlogl28edl104f_v1.00a
+  # POK       gf22nspllogl28edp104f_v2.01a       gf22nspvlogl28edp104f_v2.01a
+  #-------------------------------------------------------------------------------------------------------------------------------------------
+  ### Invecas 
+  #   libraries     : SuperLow VT (fastfast)                            Low VT (fast)
+  #     8 track       GF22FDX_SC8T_104CPP_BASE_CSC20SL_V02.R20          GF22FDX_SC8T_104CPP_BASE_CSC20L_V02.R20  ++ OBSOLETE ++
+  #                   GF22FDX_SC8T_104CPP_BASE_CSC24SL_V02.R20          GF22FDX_SC8T_104CPP_BASE_CSC24L_V02.R20  ++ OBSOLETE ++
+  #                   GF22FDX_SC8T_104CPP_BASE_CSC28SL_V02.R20          GF22FDX_SC8T_104CPP_BASE_CSC28L_V02.R20  ++ OBSOLETE ++
+  #                     
+  #     8 track       GF22FDX_SC8T_104CPP_BASE_CSC20SL_V04R00           GF22FDX_SC8T_104CPP_BASE_CSC20L_V04R00   ++ OBSOLETE ++
+  #                   GF22FDX_SC8T_104CPP_BASE_CSC24SL_V04R00           GF22FDX_SC8T_104CPP_BASE_CSC24L_V04R00   ++ OBSOLETE ++
+  #                   GF22FDX_SC8T_104CPP_BASE_CSC28SL_V04R00           GF22FDX_SC8T_104CPP_BASE_CSC28L_V04R00   ++ OBSOLETE ++
+  #                     
+  #     8 track       GF22FDX_SC8T_104CPP_BASE_CSC20SL_V05R00           GF22FDX_SC8T_104CPP_BASE_CSC20L_V05R00   ++ OBSOLETE ++
+  #                   GF22FDX_SC8T_104CPP_BASE_CSC24SL_V05R00           GF22FDX_SC8T_104CPP_BASE_CSC24L_V05R00   ++ OBSOLETE ++
+  #                   GF22FDX_SC8T_104CPP_BASE_CSC28SL_V05R00           GF22FDX_SC8T_104CPP_BASE_CSC28L_V05R00   ++ OBSOLETE ++
+  #                     
+  #                   GF22FDX_SC8T_104CPP_LPK_CSSL_V02R00               GF22FDX_SC8T_104CPP_LPK_CSL_V02R00       ++ OBSOLETE ++
+  #                   GF22FDX_SC8T_104CPP_SHIFT_CSSL_V02R00             GF22FDX_SC8T_104CPP_SHIFT_CSL_V02R00     ++ OBSOLETE ++
+  #                   GF22FDX_SC8T_104CPP_HPK_CSSL_V02R00               GF22FDX_SC8T_104CPP_HPK_CSL_V02R00       ++ OBSOLETE ++
+  #                   GF22FDX_SC8T_104CPP_ECO_CSSL_V02R00               GF22FDX_SC8T_104CPP_ECO_CSL_V02R00       ++ OBSOLETE ++
+  #                     
+  #     8 track       GF22FDX_SC8T_104CPP_BASE_CSC20SL_V06R40           GF22FDX_SC8T_104CPP_BASE_CSC20L_V06R40
+  #                   GF22FDX_SC8T_104CPP_BASE_CSC24SL_V06R40           GF22FDX_SC8T_104CPP_BASE_CSC24L_V06R40
+  #                   GF22FDX_SC8T_104CPP_BASE_CSC28SL_V06R40           GF22FDX_SC8T_104CPP_BASE_CSC28L_V06R40
+  #
+  #                   GF22FDX_SC8T_104CPP_LPK_CSSL_V03R30               GF22FDX_SC8T_104CPP_LPK_CSL_V03R30
+  #                   GF22FDX_SC8T_104CPP_SHIFT_CSSL_V03R40             GF22FDX_SC8T_104CPP_SHIFT_CSL_V03R40
+  #                   GF22FDX_SC8T_104CPP_SHIFTHL_CSSL_V01R40           GF22FDX_SC8T_104CPP_SHIFTHL_CSL_V01R40
+  #                                                                     GF22FDX_SC8T_104CPP_HPKCUSTOM_CSL_V00R50
+  #                   GF22FDX_SC8T_104CPP_HPK_CSSL_V03R40               GF22FDX_SC8T_104CPP_HPK_CSL_V03R40
+  #                   GF22FDX_SC8T_104CPP_ECO_CSSL_V04R30               GF22FDX_SC8T_104CPP_ECO_CSL_V04R30
+  #                   
+  #     7.5 track     GF22FDX_SC7P5TLV_116CPP_BASE_CSC28SL_V01R10       GF22FDX_SC7P5TLV_116CPP_BASE_CSC28L_V01R10 ++ NOT UP TO DATE ++
+  #       Ultra-Low   GF22FDX_SC7P5TLV_116CPP_BASE_CSC32SL_V01R10       GF22FDX_SC7P5TLV_116CPP_BASE_CSC32L_V01R10 ++ NOT UP TO DATE ++
+  #       Voltage     GF22FDX_SC7P5TLV_116CPP_BASE_CSC36SL_V01R10       GF22FDX_SC7P5TLV_116CPP_BASE_CSC36L_V01R10 ++ NOT UP TO DATE ++
+  #                     
+  #                   GF22FDX_SC7P5TLV_116CPP_ECO_CSSL_V01R10                                                      ++ NOT UP TO DATE ++
+  #                                                                     GF22FDX_SC7P5TLV_116CPP_LPK_CSL_V01R10     ++ NOT UP TO DATE ++
+  #                   GF22FDX_SC7P5TLV_116CPP_SHIFT_CSSL_V01R11                                                    ++ NOT UP TO DATE ++                                       
+  #                   
+  #                                            GF22FDX_SC7P5TLV_116CPP_CUSTOM_CS_V01R10                            ++ NOT UP TO DATE ++
+  #                   
+  #     8 track       Ultra high VT
+  #       Ultra-Low   GF22FDX_SC8T_116CPP_BASE_DDC28UH_V04R00
+  #       Leakage     GF22FDX_SC8T_116CPP_BASE_DDC32UH_V04R00
+  #                   GF22FDX_SC8T_116CPP_BASE_DDC36UH_V04R00
+  #                   GF22FDX_SC8T_116CPP_LPK_DDUH_V04R00
+  #                   GF22FDX_SC8T_116CPP_HPK_DDC28UH_V03R00
+  #                   GF22FDX_SC8T_116CPP_ECO_DDUH_V03R20
+  #
+  #   libraries     : High VT (slow)                                    Regular VT
+  #     12 track      GF22FDX_SC12T_104CPP_BASE_CSC20H_V04R20           GF22FDX_SC12T_104CPP_BASE_CSC20R_V04R30
+  #       Regular     GF22FDX_SC12T_104CPP_BASE_CSC24H_V04R20           GF22FDX_SC12T_104CPP_BASE_CSC24R_V04R30
+  #       Well        GF22FDX_SC12T_104CPP_BASE_CSC28H_V04R20           GF22FDX_SC12T_104CPP_BASE_CSC28R_V04R30
+  #                   GF22FDX_SC12T_104CPP_LPK_CSH_V02R20               GF22FDX_SC12T_104CPP_LPK_CSR_V02R30    
+  #                   GF22FDX_SC12T_104CPP_HPK_CSH_V02R20               GF22FDX_SC12T_104CPP_HPK_CSR_V02R30    
+  #                   GF22FDX_SC12T_104CPP_ECO_CSH_V03R31               GF22FDX_SC12T_104CPP_ECO_CSR_V03R31    
+  #     
+  #                   SuperLow VT (fastfast)                            Low VT (fast)
+  #       Flip        GF22FDX_SC12T_104CPP_BASE_CSC20SL_V05R30          GF22FDX_SC12T_104CPP_BASE_CSC20L_V05R30
+  #       Well        GF22FDX_SC12T_104CPP_BASE_CSC24SL_V05R30          GF22FDX_SC12T_104CPP_BASE_CSC24L_V05R30
+  #                   GF22FDX_SC12T_104CPP_BASE_CSC28SL_V05R30          GF22FDX_SC12T_104CPP_BASE_CSC28L_V05R30
+  #                   GF22FDX_SC12T_104CPP_LPK_CSSL_V03R30              GF22FDX_SC12T_104CPP_LPK_CSL_V03R30
+  #                   GF22FDX_SC12T_104CPP_HPK_CSSL_V03R30              GF22FDX_SC12T_104CPP_HPK_CSL_V03R30
+  #                   GF22FDX_SC12T_104CPP_ECO_CSSL_V04R31              GF22FDX_SC12T_104CPP_ECO_CSL_V04R31
+  #                   
+  #   pad-libraries : GF22FDX_GPIO18_10M30PSG_V03.R10     ++ OBSOLETE ++
+  #                   IN22FDX_GPIO18_10M30P_V0410         ++ OBSOLETE ++
+  #                   IN22FDX_GPIO18_10M3S30P_FDK_V04R40  ++ OBSOLETE ++
+  #                   IN22FDX_GPIO18_9M20S30P_V01R20      ++ OBSOLETE ++
+  #                   IN22FDX_GPIO18_10M3S40PI_V02R02SZ   for 10M_2Mx_6Cx_2Ix_LB          (#3)
+  #                   IN22FDX_GPIO18_10M19S40PI_V02R02SZ  for 10M_2Mx_5Cx_1Jx_2Qx_LB      (#19)
+  #                   IN22FDX_GPIO18_9M20S40PI_V02R02SZ   for 9M_2Mx_3Cx_2Bx_1Ix_1Ox_LB   (#20)
+  #   Synopsys pad-libraries : 
+  #                   dwc_io_gf22fdx_1p8v_gpio_i_ull_fdk_10M_2Mx_6Cx_2Ix_LB_2.03a         (#3)
+  #                   dwc_io_gf22fdx_1p8v_gpio_i_ull_fdk_8M_2Mx_4Cx_1Ix_1Ox_LB_2.03a      (#17)
+  #                   dwc_io_gf22fdx_1p8v_gpio_i_ull_fdk_10M_2Mx_5Cx_1Jx_2Qx_LB_2.03a     (#19)
+  #                   dwc_io_gf22fdx_1p8v_gpio_i_ull_fdk_9M_2Mx_3Cx_2Bx_1Ix_1Ox_LB_2.03a  (#20)
+  #                   
+  #   ip blocks     : IN22FDX_PMON_0100_V02R02            ++ OBSOLETE ++
+  #                   IN22FDX_BBGENP_V01R02               ++ OBSOLETE ++
+  #                   IN22FDX_BBGENN_V01R02               ++ OBSOLETE ++
+  #                   IN22FDX_7P5T_ABB_FDK_RELV01R00_P1SZ useing : M1, M2, C1, C2, C3
+  #                   IN22FDX_8T_ABB_FDK_RELV01R00_P1SZ   useing : M1, M2, C1, C2, C3
+  #                   gf22_FLL_v3.3b                      useing : M1, M2, C1, C2, C3
+  #                   dwc_c10pcie3phy_gf22fdsoiext_x1ns_2.04c     8M_2Mx_4Cx_1Ix_1Ox_LB
+  #                   dwc_lpddr4_multiphy_v2_gf22fdsoi18_1.20a    6M_2Mx_4Cx
+  #
+  #   mem compiler  : gf22memory                          ++ OBSOLETE ++
+  #                   gf22memory_S1D_V02R51               ++ OBSOLETE ++
+  #                   gf22memory_S1D_V03R00               ++ OBSOLETE ++
+  #                   gf22memory_S1D_V03R02               ++ OBSOLETE ++
+  #                   gf22memory_S1D_V04R20SZ
+  #                   gf22memory_S1P_V03R00               ++ OBSOLETE ++
+  #                   gf22memory_S1P_V03R02               ++ OBSOLETE ++
+  #                   gf22memory_S1P_V04R20SZ
+  #                   gf22memory_R2P_V02R51               ++ OBSOLETE ++
+  #                   gf22memory_R1PH_V02R53              ++ OBSOLETE ++
+  #                   gf22memory_R1PH_V03R00              ++ OBSOLETE ++
+  #                   gf22memory_R1PH_V03R01              ++ OBSOLETE ++
+  #                   gf22memory_R1PH_V04R20SZ
+  #                   gf22memory_R2PV_V02R52              ++ OBSOLETE ++
+  #                   gf22memory_R2PV_V02R60              ++ OBSOLETE ++
+  #                   gf22memory_R2PV_V03R00              ++ OBSOLETE ++
+  #                   gf22memory_R2PV_V03R01              ++ OBSOLETE ++
+  #                   gf22memory_R2PV_V04R20SZ
+  #                   gf22memory_R1PV_V05R11
+  #   mem compiler  : gf22memory_R1PL_V01R00              ++ OBSOLETE ++
+  #       Ultra-Low   gf22memory_R1PL_V01R10              ++ OBSOLETE ++
+  #       Voltage     gf22memory_R1PL_V02R22SZ
+  #                   gf22memory_R2PL_V01R00              ++ OBSOLETE ++
+  #                   gf22memory_R2PL_V01R10              ++ OBSOLETE ++
+  #                   gf22memory_R2PL_V02R21SZ
+  #   rom compiler    gf22memory_ROMI_V02R51              ++ OBSOLETE ++
+  #                   gf22memory_ROMI_V03R00              ++ OBSOLETE ++
+  #                   gf22memory_ROMI_V03R01              ++ OBSOLETE ++
+  #                   gf22memory_ROMI_V04R22SZ  
+  #   Synopsys mem compiler: 
+  #             22FDX+:
+  #                   gf22nsd81p11saduv02msa03p1          #Single Port Ultra High Density Low Voltage Enabled SRAM 2M Sync
+  #                   gf22nsd81p11saduv256sa03p1          #Single Port Ultra High Density Low Voltage Enabled Register File 256K Sync
+  #             22FDX:
+  #                   gf22nsd41p10s1dvl01msa03p1          #Automotive Grade 1 Single Port High Density Via 12 ROM 1M Sync
+  #                   gf22nsd41p11s1crl256sa02p6          #Automotive Grade 1 Single Port High Density and Performance Leakage Control Register File 256K Sync
+  #                   gf22nsd41p11s1dcl02msa05p1          #Automotive Grade 1 Single Port High Density and Performance Leakage Control SRAM 2M Sync
+  #                   gf22nsd41p11s1srl256sa04p4          #Automotive Grade 1 Single Port High Speed Leakage Control Register File 256K Sync
+  #                   gf22nsd42p11s1cul256sa04p2          #Automotive Grade 1 Two Port Ultra High Density and Performance Leakage Control Register File 256K Sync
+  #                   gf22nsd42p11s1drl128sa04p4          #Automotive Grade 1 Two Port High Density Leakage Control Register File 128K Sync
+
+
+  libs    = 22FDX \
+            10M_2Mx_6Cx_2Ix_LB__PLUS-V1.0_3.0a \
+            GF22FDX_SC8T_104CPP_BASE_CSC20SL_V06R40 GF22FDX_SC8T_104CPP_BASE_CSC20L_V06R40 \
+            GF22FDX_SC8T_104CPP_BASE_CSC24SL_V06R40 GF22FDX_SC8T_104CPP_BASE_CSC24L_V06R40 \
+            GF22FDX_SC8T_104CPP_BASE_CSC28SL_V06R40 GF22FDX_SC8T_104CPP_BASE_CSC28L_V06R40 \
+            IN22FDX_GPIO18_10M3S40PI_V02R02SZ
+
+  # see /usr/pack/gf-22-kgf/dz/mem/<prefix>/<version>/gds to see which macros have already been generated
+  # see /usr/pack/gf-22-kgf/synopsys/mem/gf22*/compout/views to see which macros have already been generated
+  # enter the name WITHOUT '.gds' in the list below, contact us <dz@ee.ethz.ch>
+  
+  macros  = 
+  
+[version]
+  # Setup files will be generated for these software versions. 
+  # - only versions that can be found in the "kit.ascii" database
+  #   can be used (see cockpit.log for the full unix path)
+  # - if you change a version you might need to adjust some
+  #   startups in the [command] section too... 
+  # - use "-update" or "-rewrite" for the changes to take effect  
+
+  # WARNING: The primary purpose is to keep version settings within each
+  # project. Fiddling around will most likely result in an unsupported
+  # combinations and perl errors. Better update this file as a whole
+  # with '-updaterc'. 
+
+  #modelsim  =  modelsim-10.6b
+  #### modelsim  =  questa-2019.3  # not working because in the 'get_tool_values_regexp' the tool name will be get out of it.
+  modelsim  =  modelsim-2019.3
+  synopsys  =  synopsys-2022.03
+  tetramax  =  tetramax-2022.03
+  innovus   =  innovus-22
+  dfii      =  ic-23
+  calibre   =  calibre-2024.4
+  oseda     =  oseda -2025.01
+
+[command]
+  # Startup commands available through the GUI buttons.
+  # - startup commands can be modified but need to be compatible with the
+  #   setup file versions selected in the [version] section 
+  # - to add more modelsim/synopsys startups to the GUI just put your own entries
+  #   of the form "(modelsim|synopsys):<label> = <command>" there 
+  # - changes will take effect the next time you start
+
+#  emacs                        =  emacs -f vhdl-mode
+  modelsim                     =  questa-2021.3 vsim
+  synopsys:DC Shell            =  xterm -g 120x40 -T synopsys-2022.03 -e "sh -c 'synopsys-2022.03 dc_shell -64bit | tee view_command.log'"
+  synopsys:DesignVision        =  xterm -g 120x40 -T synopsys-2022.03 -e "sh -c 'synopsys-2022.03 design_vision -64bit -xg_mode | tee view_command.log'"
+  tetramax                     =  synopsys-2022.03 tmax
+  innovus                      =  xterm -g 136x40 -T innovus-22.15 -e "cds_ddi-22.15.000 innovus"
+  calibre                      =  xterm -g 120x40 -T calibredrv -e "./start_calibre"
+  dfii                         =  ./start_dfii
+  yosys                        =  xterm -g 120x40 -T yosys -e "oseda -2025.01 yosys -C"
+  openroad                     =  xterm -g 120x40 -T openroad -e "oseda -2025.01 openroad -gui"
+  klayout                      =  xterm -g 120x40 -T klayout -e "setenv KLAYOUT_HOME ./.klayout; oseda -2025.01 klayout -e"
+  dz:llama                     = llama
+

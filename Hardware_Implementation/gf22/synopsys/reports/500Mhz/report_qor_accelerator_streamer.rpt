@@ -1,0 +1,83 @@
+ 
+****************************************
+Report : qor
+Design : accelerator_streamer_wrap
+Version: T-2022.03
+Date   : Sat Jul 19 12:30:11 2025
+****************************************
+
+
+  Timing Path Group 'clk_i'
+  -----------------------------------
+  Levels of Logic:            59.0000
+  Critical Path Length:     1868.3851
+  Critical Path Slack:         0.2588
+  Critical Path Clk Period: 2000.0000
+  Total Negative Slack:        0.0000
+  No. of Violating Paths:      0.0000
+  Worst Hold Violation:      -31.4510
+  Total Hold Violation:    -1199.4385
+  No. of Hold Violations:    194.0000
+  -----------------------------------
+
+
+  Cell Count
+  -----------------------------------
+  Hierarchical Cell Count:         45
+  Hierarchical Port Count:       8337
+  Leaf Cell Count:              13130
+  Buf/Inv Cell Count:            1918
+  Buf Cell Count:                   8
+  Inv Cell Count:                1910
+  CT Buf/Inv Cell Count:            0
+  Combinational Cell Count:     11374
+  Sequential Cell Count:         1756
+  Macro Count:                      0
+  -----------------------------------
+
+
+  Area
+  -----------------------------------
+  Combinational Area:       4082.7238
+  Noncombinational Area:    2769.4285
+  Buf/Inv Area:              264.3098
+  Total Buffer Area:           2.3296
+  Total Inverter Area:       261.9802
+  Macro/Black Box Area:        0.0000
+  Net Area:                    0.0000
+  -----------------------------------
+  Cell Area:                6852.1523
+  Design Area:              6852.1523
+
+
+  Design Rules
+  -----------------------------------
+  Total Number of Nets:         14485
+  Nets With Violations:             0
+  Max Trans Violations:             0
+  Max Cap Violations:               0
+  -----------------------------------
+
+
+  Hostname: ojos2.ee.ethz.ch
+
+  Compile CPU Statistics
+  -----------------------------------------
+  Resource Sharing:                  3.4974
+  Logic Optimization:               12.7133
+  Mapping Optimization:             24.9500
+  -----------------------------------------
+  Overall Compile Time:            120.2799
+  Overall Compile Wall Clock Time: 122.0953
+
+  --------------------------------------------------------------------
+
+  Design  WNS: 0.0000  TNS: 0.0000  Number of Violating Paths: 0
+
+
+  Design (Hold)  WNS: 31.4510  TNS: 1199.4385  Number of Violating Paths: 194
+
+  --------------------------------------------------------------------
+
+
+1

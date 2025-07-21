@@ -1,0 +1,49 @@
+// v0.1 zerun@ethz.ch - Wed  2 Nov 13:36:59 CET 2022
+// - new runset format for calibre version 2022 and later
+
+// Rules path
+drc.rulesFile.value = "$TECHDIR_DRC/cmos22fdsoi.drc.cal"
+cmn.showOptionPages.value = [ "Database", "Environment", "Options", "Preferences" ]
+
+// Run directory 
+drc.runDir.value = "../calibre/drc"
+
+// Input
+drc.layout.layoutFile.value = "../dfii/chip.gds"
+drc.setNameTemplate("nt_layFile", "%l.gds")
+drc.layout.topCell.value = "chip"
+drc.layout.extraGoldenLayoutFiles.value = [ "$TECHDIR_DRC/TechCell.GoLd/EQ_CFILL_GoLd.gds.gz", "$TECHDIR_DRC/TechCell.GoLd/EQ_CFILL_CT_GoLd.gds.gz", "$TECHDIR_DRC/TechCell.GoLd/EQ_CFILL_NP_GoLd.gds.gz", "$TECHDIR_DRC/TechCell.GoLd/EQ_CFILL_PP_GoLd.gds.gz", "$TECHDIR_DRC/TechCell.GoLd/SRAM.GoLd.gds.gz" ]
+drc.layout.extraGoldenLayoutFiles.specified = true
+
+// Output
+drc.drcdb.resultsFile.value = "chip.drc.results"
+drc.setNameTemplate("nt_drcResults", "%l.drc.results")
+drc.reports.drcSummaryReport.value = "chip.drc.summary"
+drc.setNameTemplate("nt_drcSummaryReport", "%l.drc.summary")
+
+cmn.transcriptPrefs.specified = true
+cmn.transcriptPrefs.transcriptEchoFile.value = "chip.drc.log"
+drc.setNameTemplate("nt_transcriptFile", "%l.drc.log")
+
+// Run control
+cmn.turboCommand.runHow.value = "all"
+cmn.turboCommand.runHyper.value = true
+cmn.miscPrefs.warnLayoutFormatsDiff.value = true
+
+// Customization
+drc.envVars.setEnv("DP_GENERATION_TOOL_ALL", "NO", "Runset")
+drc.envVars.setEnv("DP_OFF_ALL", "YES", "Runset")
+drc.envVars.setEnv("ANTENNA_DEBUG", "NO", "Runset")
+drc.envVars.setEnv("ANTENNA_RESULTS", "chip.antenna.results", "Runset")
+drc.envVars.setEnv("DENSITY_RESULTS", "chip.density.results", "Runset")
+drc.envVars.setEnv("DP_CHECK_DESIGN_ALL", "NO", "Runset")
+drc.envVars.setEnv("DP_FLAT_DESIGN_ALL", "NO", "Runset")
+drc.envVars.setEnv("DP_APPLY_BALANCING", "NO", "Runset")
+drc.envVars.setEnv("DESIGN_TYPE", "CHIP", "Runset")
+cmn.customPrefs.customFile.value = "${TECHDIR_DRC}/runset/drc.ci.custom"
+cmn.customPrefs.customFile.specified = true
+$DESIGN_TYPE.value = "CHIP"
+$DENSITY_RESULTS.value = "./chip.density.results"
+$DP_CHIP_SIGNOFF.value = "YES"
+
+

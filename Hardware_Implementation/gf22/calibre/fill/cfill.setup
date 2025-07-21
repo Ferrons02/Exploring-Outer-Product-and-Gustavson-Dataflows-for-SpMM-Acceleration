@@ -1,0 +1,637 @@
+# Setup file for 22FDX Fill
+
+#####################################
+# REQUIRED INPUT VARIABLES
+#####################################
+
+# Select boundary layer (used to define the fill region)
+set boundary_layer_override GUARDEDG
+
+# Select metal stack option (given in list below)
+#set tiles_gen_layer_override OPTION3_10M_2Mx_6Cx_2Ix_LB_SELECT
+
+#####################################
+# Boundary layer options (select only one from list)
+# Default boundary layer is GUARDEDG
+#####################################
+#set boundary_layer_override GUARDEDG
+#set boundary_layer_override CHIPEDGE
+#set boundary_layer_override OUTLINE
+#set boundary_layer_override PRBOUNDARY
+
+#####################################
+# Another option is to use Chip extent as the fill region
+#####################################
+# set append_svrf {   
+#     PRIME_REGION = EXTENT DRAWN	  
+#  }
+# set boundary_layer_override PRIME_REGION
+
+#####################################
+# Metal stack options (select only one from list)
+# Note: Prime and frame fill metal stack options are the same
+#####################################
+
+# FEOL and BEOL fill
+#set tiles_gen_layer_override OPTION2_6M_2Mx_3Cx_1Ix_LB_SELECT
+#set tiles_gen_layer_override OPTION3_10M_2Mx_6Cx_2Ix_LB_SELECT
+#set tiles_gen_layer_override OPTION4_7M_2Mx_4Cx_1Ox_LB_SELECT
+#set tiles_gen_layer_override OPTION8_10M_2Mx_4Cx_2Bx_2Jx_LB_SELECT
+#set tiles_gen_layer_override OPTION10_6M_2Mx_3Cx_1Ix_LB__VZ_SELECT
+#set tiles_gen_layer_override OPTION11_9M_2Mx_5Cx_1Jx_1Ox_LB_SELECT
+#set tiles_gen_layer_override OPTION13_7M_2Mx_3Cx_1Ix_1Ox_LB_SELECT
+#set tiles_gen_layer_override OPTION14_7M_2Mx_4Cx_1Ix_LB_SELECT
+#set tiles_gen_layer_override OPTION15_7M_2Mx_3Cx_2Ix_LB_SELECT
+#set tiles_gen_layer_override OPTION16_8M_2Mx_4Cx_2Ix_LB_SELECT 
+#set tiles_gen_layer_override OPTION17_8M_2Mx_4Cx_1Ix_1Ox_LB_SELECT
+#set tiles_gen_layer_override OPTION19_10M_2Mx_5Cx_1Jx_2Qx_LB_SELECT
+#set tiles_gen_layer_override OPTION20_9M_2Mx_3Cx_2Bx_1Ix_1Ox_LB_SELECT
+#set tiles_gen_layer_override OPTION21_9M_2Mx_5Cx_2Ix_LB_SELECT
+#set tiles_gen_layer_override OPTION22_8M_2Mx_5Cx_1Ix_LB_SELECT
+#set tiles_gen_layer_override OPTION24_9M_2Mx_3Cx_2Jx_2Qx_LB_SELECT
+#set tiles_gen_layer_override OPTION25_9M_2Mx_4Cx_2Ix_1Ox_LB_SELECT
+#set tiles_gen_layer_override OPTION26_7M_2Mx_3Cx_2Ix_LB__VZ_SELECT
+#set tiles_gen_layer_override OPTION27_9M_2Mx_5Cx_2Ix_LB__VZ_SELECT	
+#set tiles_gen_layer_override OPTION30_12M_2Mx_4Cx_2Bx_4Jx_LB_SELECT		
+
+# LCOS (2LBCFILL) option for metal stack 8
+#set tiles_gen_layer_override OPTION8_10M_2Mx_4Cx_2Bx_2Jx_LB_LCOS_SELECT
+
+# MIM5/MIM6 CAP fill options for metal stack 25
+#set tiles_gen_layer_override OPTION25_9M_2Mx_4Cx_2Ix_1Ox_LB_MIM5_SELECT		
+#set tiles_gen_layer_override OPTION25_9M_2Mx_4Cx_2Ix_1Ox_LB_MIM6_SELECT
+
+# MRAM fill options for metal stacks 108 and 120
+# Note: Only for use with MRAM designs [MRAM fill layers (8CCFILL, 8YCFILL) are added instead of WTCFILL] (Recommended)
+#set tiles_gen_layer_override OPTION108_10M_2Mx_4Cx_2Bx_2Jx_LB__eMRAM_MRAM_SELECT
+#set tiles_gen_layer_override OPTION120_9M_2Mx_3Cx_2Bx_1Ix_1Ox_LB__eMRAM_MRAM_SELECT
+
+# WTCFILL options for metal stacks 108 and 120
+# Note: WTCFILL is added instead of MRAM fill layers (8CCFILL, 8YCFILL)
+#set tiles_gen_layer_override OPTION108_10M_2Mx_4Cx_2Bx_2Jx_LB__eMRAM_SELECT
+#set tiles_gen_layer_override OPTION120_9M_2Mx_3Cx_2Bx_1Ix_1Ox_LB__eMRAM_SELECT
+
+# WTCFILL/MRAM fill options for metal stacks 108 and 120
+# Note: Only for use with MRAM designs [Both MRAM fill layers (8CCFILL, 8YCFILL) and WTCFILL are added]
+# This uses an alternating pattern of MRAM fill and WTCFILL
+#set tiles_gen_layer_override OPTION108_10M_2Mx_4Cx_2Bx_2Jx_LB__eMRAM_WT_MRAM_SELECT
+#set tiles_gen_layer_override OPTION120_9M_2Mx_3Cx_2Bx_1Ix_1Ox_LB__eMRAM_WT_MRAM_SELECT
+
+#####################################
+# OPTIONAL INPUT VARIABLES
+#####################################
+# Note: The settings below are optional 
+
+#####################################
+# FEOL only, FEOL CA M1, and BEOL only options
+# These can be selected to output select layers
+# Note: A maximum of one of these should be set to 1 
+#####################################
+
+#####################################
+# FEOL only option (0 or 1)
+# Note: This option will output fill only on FEOL layers if it is set to 1
+# A metal stack option from the list above must also be selected
+#####################################
+set feol_only 0
+
+#####################################
+# FEOL CA M1 option (0 or 1)
+# Note: This option will output fill only on FEOL and CA, M1 (halo fill) layers if it is set to 1
+# A metal stack option from the list above must also be selected
+#####################################
+set feol_ca_m1 0
+
+#####################################
+# BEOL only option (0 or 1)
+# Note: This option will output fill only on BEOL layers if it is set to 1
+# A metal stack option from the list above must also be selected
+# CA fill is automatically placed
+#####################################
+set beol_only 0
+
+#####################################
+# PCI marker placement option (0 or 1)
+# Note: The pci marker option must be set to 1 to place PCI markers
+#####################################
+set pci_marker 0
+
+#####################################
+# Select PCI marker cell based on metal stack (0 or 1)
+# Note: This is an option to select the PCI marker cell TGP.oas/TGP.gds 
+# or a cell specific to a metal stack from the PCI directory (eg. PCI/TGP_Option3.oas) 
+# Note: pci_type must be set to 0 with FEOL_SELECT or FEOL_CA_M1_SELECT options
+#####################################
+set pci_type 0
+
+#####################################
+# Fill cell suffix
+#####################################
+# Set output cell suffix (standard is _gf)
+set suffix_gen_tiles_output _gf
+
+#####################################
+# Option to use variable exclude distance around inductor coils over mmwave and transmission lines
+# Drawn inductor coils inside IND and INDEM markers over MMWAVE markers can be sized inside and outside
+# Transmission lines inside TRANSMIS_SGN markers can be sized  
+# Sizing for inductor coils is based drawn shapes on LB,QB,QA,OI layers inside IND or INDEM marker over MMWAVE markers
+# Sizng for transmission lines is based on TRANSMIS_SGN markers
+# Exclude region is applied to fill on QA,QB,OI,JB,JA,IB,IA layers
+# Initial value for IND and INDEM is set to 0 (value less than or equal to 0 does not apply any exclusion)
+# Initial value for TRANSMIS is set to 2 (value less than 0 applies 2 micron exclusion)
+# Maximum value is 5 microns for inductor coils
+# Maximum value is 2 microns for transmission lines
+#####################################
+set ind_exclude_dist_in 0
+set ind_exclude_dist_out 0
+set indem_exclude_dist_in 0
+set indem_exclude_dist_out 0
+set transmis_exclude_dist 2
+
+#####################################
+# Equalizer Optimize (0 or 1)
+# This option is used to balance equalizer fill for NEPI/PEPI density
+#####################################
+set eq_optimize 1
+
+#####################################
+# Equalizer Type (0,1,2,3)
+# Type 0: Balanced NPLUS/PPLUS
+# Type 1: NPLUS Only
+# Type 2: PPLUS only
+# Type 3: Additional CT without RX
+# Note: eq_optimize is set to 1 for automatic NEPI/PEPI balancing
+# This option is only used when eq_optimize is set to 0
+# This option can be used to place a specific type of equalizer in a region 
+#####################################
+set eq_type 0
+
+#####################################
+# Option to use environment variables
+# Metal stack may be set using "setenv BEOL_STACK <beol_stack>" if beol_stack_var is set to 1
+# For metal stacks with MRAM, one of the additional variables below may be set:
+# setenv MRAM_SELECT true (for MRAM fill instead of WTCFILL)
+# setenv WT_MRAM_SELECT true (for both WTCFILL and MRAM fill)
+#####################################
+set beol_stack_var 0
+
+#####################################
+# Output exclude layers option (0 or 1)
+# Note: This is an option to output exclude layers after fill has been run
+# The exclude layers are output for layers that are selected for the fill run
+#####################################
+set output_exclude 0
+
+#####################################
+# Select data directory (optional)
+# Note: The data directory must have the equalizer cell (EQ_CFILL.oas), PCI marker cell (TGP.oas), and fill deck (fill_fdsoi22.enc.svrf)
+# If the data directory is not set, the current directory is used
+# Note: There is an option to set the fill directory from the TECHDIR_FILLGEN environment variable
+# If TECHDIR_FILLGEN is set, this directory is used instead of data_dir
+#####################################
+#set data_dir /proj/fill
+
+#####################################
+# Options for timing aware fill
+# Exclusion to critical exclude layers can be set for timing aware fill
+# Minimum distance must be at least 0.18 microns
+# Maximum distance should be set so that maximum empty space rules can be met
+#####################################
+set m1critexcl_dist 0.18
+set m2critexcl_dist 0.18
+set c1critexcl_dist 0.18
+set c2critexcl_dist 0.18
+set c3critexcl_dist 0.18
+set c4critexcl_dist 0.18
+set c5critexcl_dist 0.18
+set c6critexcl_dist 0.18
+set bacritexcl_dist 0.18
+set bbcritexcl_dist 0.18
+set iacritexcl_dist 0.18
+set ibcritexcl_dist 0.18
+set jacritexcl_dist 0.18
+set jbcritexcl_dist 0.18
+set jc1critexcl_dist 0.18
+set jd1critexcl_dist 0.18
+set oicritexcl_dist 0.18
+set qacritexcl_dist 0.18
+set qbcritexcl_dist 0.18
+
+#####################################
+# Option for high density via fill (0 or 1)
+# Only for V1, AY, Ax layers
+# viafill_high_dens: Adds via fill between square CFILL and CFILLOPC shapes
+# via_cfill_high_dens: Adds via fill between square CFILL shapes
+# via_cfillopc_high_dens: Adds via fill between CFILLOPC shapes
+# Note:
+# With viafill_high_dens = 1, high density via fill is placed for both CFILLOPC and square CFILL shapes
+# With viafill_high_dens = 0, high density via fill is independently set for the CFILLOPC and square CFILL shapes
+#####################################
+set viafill_high_dens 0
+set via_cfill_high_dens 0
+set via_cfillopc_high_dens 0
+
+#####################################
+# Option for VVCFILL
+# Note: VVCFILL is added only when this option is set
+#####################################
+set vv_select 0
+
+#####################################
+# Option for VZCFILL
+# Note: VZCFILL is added only when this option is set
+#####################################
+set vz_select 0
+
+#####################################
+# Option for high density MRAM fill
+# Note: This option is used to improve 8C density (for options 108 and 120)
+#####################################
+set mram_high_dens 0
+
+#####################################
+# CA EQ select option (0 or 1)
+# Note: This option will add CA fill over equalizers if it is set to 1 
+# A metal stack option from the list above must also be selected
+#####################################
+set ca_eq_select 0
+
+#####################################
+# CA V1 balance option (0 or 1)
+# This option will balance CA and V1 fill 
+# Note: This option will apply only if ca_eq_select is set to 1 
+#####################################
+set balance_ca_v1 0
+
+#####################################
+# Option for high density fill (0 or 1)
+# Only for Ix, Jx layers
+#####################################
+set ia_high_dens 0
+set ib_high_dens 0
+set ja_high_dens 0
+set jb_high_dens 0
+
+#####################################
+# Option to EXPAND fill output
+# This can be used to reduce the number of unique fill cells
+# Note: This may have a small impact on run time 
+#####################################
+set expand_output 0
+
+#####################################
+# Option to FLATTEN fill output
+# This is another option to reduce the number of unique fill cells
+# Note: This may have a larger impact on run time (so expand option is preferred) 
+#####################################
+set flatten_output 0
+
+#####################################
+# Optional Diagnostics
+#####################################
+
+#####################################
+# Fill Diagnostics (option to output available fill regions and exclusion regions)
+# Note: Diagnostics layers are not in the DM
+#####################################
+# Example: Output diagnostics with option 3
+#set tiles_gen_layer_override "OPTION3_10M_2Mx_6Cx_2Ix_LB_SELECT FILL_DIAGNOSTICS"
+
+#####################################
+# ADDITIONAL OPTIONS
+# Note: The options below are additional user settings that may be used when necessary.
+#####################################
+
+#####################################
+# Options to select (or un-select) metal or via layers
+# Notes:
+# The default setting is 1 (except for VV and VZ).
+# Metal or via fill layers are only output if they are in the selected metal stack option.
+# Via fill layers are output only if both metal layers that connect to the via layer are selected. 
+#####################################
+
+set v1_select 1
+set ay_select 1
+set a1_select 1
+set a2_select 1
+set a3_select 1
+set a4_select 1
+set a5_select 1
+set wt_select 1
+set wa_select 1
+set jq_select 1
+set yz_select 1
+set yx_select 1
+set ys_select 1
+set yr_select 1
+set xa_select 1
+set xd_select 1
+set xe1_select 1
+set xf1_select 1
+set jv_select 1
+set jw_select 1
+set 8c_select 1
+set 8y_select 1
+set m1_select 1
+set m2_select 1
+set c1_select 1
+set c2_select 1
+set c3_select 1
+set c4_select 1
+set c5_select 1
+set c6_select 1
+set ba_select 1
+set bb_select 1
+set ia_select 1
+set ib_select 1
+set ja_select 1
+set jb_select 1
+set jc1_select 1
+set jd1_select 1
+set qa_select 1
+set qb_select 1
+set oi_select 1
+set lb_select 1
+
+#####################################
+# Option to select the CFILLOPC region
+# Notes:
+# The CFILLOPC region should only be changed when necessary.
+# MxCFILLOPC region must be between 0.2 to 4 microns.
+# CxCFILLOPC region must be between 0.2 to 4 microns.
+# BxCFILLOPC region must be between 0.2 to 5 microns.
+# IxCFILLOPC region must be between 0.2 to 10 microns.
+# JxCFILLOPC region must be between 0.2 to 10 microns.
+# QxCFILLOPC region must be between 0.2 to 20 microns.
+# OICFILLOPC region must be between 0.2 to 20 microns.
+#####################################
+
+set m1_opc_region 1.6
+set m2_opc_region 1.6
+set c1_opc_region 1.8
+set c2_opc_region 1.8
+set c3_opc_region 1.8
+set c4_opc_region 1.8
+set c5_opc_region 1.8
+set c6_opc_region 1.8
+set ba_opc_region 2.4
+set bb_opc_region 2.4
+set ia_opc_region 5.0
+set ib_opc_region 5.0
+set ja_opc_region 5.0
+set jb_opc_region 5.0
+set jc1_opc_region 5.0
+set jd1_opc_region 5.0
+set qa_opc_region 10.0
+set qb_opc_region 10.0
+set oi_opc_region 10.0
+
+#####################################
+# Reserved variables
+#####################################
+set n_layer 2nb
+set n_val -1000
+
+#####################################
+# Maximum density settings for via layers
+# Notes:
+# Variables are available only for select layers below.
+# Variable for VV layer only applies to metal stacks where the top layer is OI or QB.
+# xxcfill_n_max_dens and xxcfillopc_n_max_dens are reserved variables.
+#####################################
+set v1cfill_max_dens 0.10
+set v1cfillopc_max_dens 0.10
+set v1cfill_n_max_dens 0.10
+set v1cfillopc_n_max_dens 0.10
+set aycfill_max_dens 0.10
+set aycfillopc_max_dens 0.10
+set aycfill_n_max_dens 0.10
+set aycfillopc_n_max_dens 0.10
+set a1cfill_max_dens 0.10
+set a1cfillopc_max_dens 0.10
+set a1cfill_n_max_dens 0.10
+set a1cfillopc_n_max_dens 0.10
+set a2cfill_max_dens 0.10
+set a2cfillopc_max_dens 0.10
+set a2cfill_n_max_dens 0.10
+set a2cfillopc_n_max_dens 0.10
+set a3cfill_max_dens 0.10
+set a3cfillopc_max_dens 0.10
+set a3cfill_n_max_dens 0.10
+set a3cfillopc_n_max_dens 0.10
+set a4cfill_max_dens 0.10
+set a4cfillopc_max_dens 0.10
+set a4cfill_n_max_dens 0.10
+set a4cfillopc_n_max_dens 0.10
+set a5cfill_max_dens 0.10
+set a5cfillopc_max_dens 0.10
+set a5cfill_n_max_dens 0.10
+set a5cfillopc_n_max_dens 0.10
+set yxcfill_max_dens 0.08
+set yxcfill_n_max_dens 0.08
+set yscfill_max_dens 0.08
+set yscfill_n_max_dens 0.08
+set xdcfill_max_dens 0.08
+set xe1cfill_max_dens 0.08
+set xf1cfill_max_dens 0.08
+set jvcfill_max_dens 0.022
+set jwcfill_max_dens 0.022
+set jqcfill_max_dens 0.022
+set vvcfill_max_dens 0.20
+set vzcfill_max_dens 0.02
+
+#####################################
+#####################################
+#####################################
+# ADVANCED OPTIONS: INTERNAL GF USE OPTIONS
+# Note: The options below are advanced options and are generally for internal GF use only. 
+#####################################
+#####################################
+#####################################
+
+#####################################
+# CA select option (0 or 1)
+# Note: This option will add opportunistic CA fill if it is set to 1
+# This option is only used if the beol_only option is set to 1 
+# A metal stack option must also be selected
+#####################################
+set ca_select 1
+
+#####################################
+# Individual layer FEOL max density values for pre-scan (must be between 0.0 and 1.00)
+# These values define the local maximum density for each FEOL fill step (equalizer, CFILLOPC, CFILL, low density CFILL)
+# Note: These values should not be changed unless necessary
+#####################################
+set rxeq_max_dens 0.40
+set pceq_max_dens 0.40
+set rxcfillopc_max_dens 0.60
+set pccfillopc_max_dens 0.60
+set rxcfill_max_dens 0.60
+set pccfill_max_dens 0.60
+set rx_max_dens 0.68
+set pc_max_dens 0.68
+
+#####################################
+# Individual layer BEOL CFILLOPC local max density values for optimizer (must be between 0.0 and 1.00)
+# Note: These values should not be changed unless necessary
+#####################################
+set m1cfillopc_max_dens 0.60
+set m2cfillopc_max_dens 0.60
+set c1cfillopc_max_dens 0.60
+set c2cfillopc_max_dens 0.60
+set c3cfillopc_max_dens 0.60
+set c4cfillopc_max_dens 0.60
+set c5cfillopc_max_dens 0.60
+set c6cfillopc_max_dens 0.60
+set bacfillopc_max_dens 0.60
+set bbcfillopc_max_dens 0.60
+set iacfillopc_max_dens 0.70
+set ibcfillopc_max_dens 0.70
+set jacfillopc_max_dens 0.70
+set jbcfillopc_max_dens 0.70
+set jc1cfillopc_max_dens 0.70
+set jd1cfillopc_max_dens 0.70
+set oicfillopc_max_dens 0.40
+set qacfillopc_max_dens 0.40
+set qbcfillopc_max_dens 0.40
+
+#####################################
+# Individual layer BEOL CFILL local max density values for optimizer (must be between 0.0 and 1.00)
+# These values define the local maximum density for rectangle and square CFILL
+# Note: These values should not be changed unless necessary
+#####################################
+set m1cfill_max_dens 0.60
+set m2cfill_max_dens 0.60
+set c1cfill_max_dens 0.60
+set c2cfill_max_dens 0.60
+set c3cfill_max_dens 0.60
+set c4cfill_max_dens 0.60
+set c5cfill_max_dens 0.60
+set c6cfill_max_dens 0.60
+set bacfill_max_dens 0.60
+set bbcfill_max_dens 0.60
+set iacfill_max_dens 0.70
+set ibcfill_max_dens 0.70
+set jacfill_max_dens 0.70
+set jbcfill_max_dens 0.70
+set jc1cfill_max_dens 0.70
+set jd1cfill_max_dens 0.70
+set oicfill_max_dens 0.58
+set qacfill_max_dens 0.58
+set qbcfill_max_dens 0.58
+set lbcfill_max_dens 0.78
+
+#####################################
+# Individual layer BEOL local max density values for optimizer (must be between 0.0 and 1.00)
+# These values define the local maximum density for low density square CFILL
+# Note: These values should not be changed unless necessary
+#####################################
+set m1_max_dens 0.68
+set m2_max_dens 0.68
+set c1_max_dens 0.68
+set c2_max_dens 0.68
+set c3_max_dens 0.68
+set c4_max_dens 0.68
+set c5_max_dens 0.68
+set c6_max_dens 0.68
+set ba_max_dens 0.68
+set bb_max_dens 0.68
+set ia_max_dens 0.78
+set ib_max_dens 0.78
+set ja_max_dens 0.78
+set jb_max_dens 0.78
+set jc1_max_dens 0.78
+set jd1_max_dens 0.78
+set oi_max_dens 0.68
+set qa_max_dens 0.68
+set qb_max_dens 0.68
+
+#####################################
+# Individual layer BEOL CFILL max global density values for optimizer (must be between 0.0 and 1.00)
+# Note: These values should not be changed unless necessary
+#####################################
+set m1_max_dens_global 0.55
+set m2_max_dens_global 0.55
+set c1_max_dens_global 0.60
+set c2_max_dens_global 0.60
+set c3_max_dens_global 0.60
+set c4_max_dens_global 0.60
+set c5_max_dens_global 0.60
+set c6_max_dens_global 0.60
+set ba_max_dens_global 0.55
+set bb_max_dens_global 0.55
+set ia_max_dens_global 0.80
+set ib_max_dens_global 0.80
+set ja_max_dens_global 0.80
+set jb_max_dens_global 0.80
+set jc1_max_dens_global 0.80
+set jd1_max_dens_global 0.80
+set oi_max_dens_global 0.50
+set qa_max_dens_global 0.50
+set qb_max_dens_global 0.50
+set lb_max_dens_global 0.80
+
+#####################################
+# NEPI/PEPI density ratio for each step of equalizer placement (must be between 0.001 and 2.00)
+# Used only when eq_optimize = 1
+# Note: These values should not be changed unless necessary
+#####################################
+set eq_ratio1_min 0.80
+set eq_ratio1_max 1.25
+set eq_ratio2_min 0.70
+set eq_ratio2_max 0.80
+set eq_ratio3_min 0.60
+set eq_ratio3_max 0.70
+set eq_ratio4_min 0.40
+set eq_ratio4_max 0.60
+set eq_ratio5_min 0.001
+set eq_ratio5_max 0.40
+set eq_opt_min_dens 0.0
+
+#####################################
+# Select technology node (must be set to 22fdsoi for 22nm fill)
+#####################################
+set tech_node 22fdsoi
+
+#####################################
+# Option for fill color balancing (0 or 1)
+# Note: This option can be used to re-balance fill colors if the design colors are not balanced
+# This option should be used only after fill has already been run
+#####################################
+set rebal_fill 0
+
+#####################################
+# Color balance option
+# Note: This option can be used to re-balance fill colors when necessary
+# This option is selected separately after fill has already been run
+#####################################
+#set tiles_gen_layer_override COLOR_BALANCE_SELECT
+
+#####################################
+# Optional variables
+#####################################
+# Standard options
+set verbose 1
+set ncpu 8
+
+#####################################
+# Fill region definition 
+#####################################
+# Note: A boolean may be used to define the fill region
+# Example:
+# set append_svrf {   
+#     PRIME_REGION = SIZE OUTLINE BY -1.0	  
+#  }
+# set boundary_layer_override PRIME_REGION
+
+#####################################
+# Metal stacks currently not supported
+#####################################
+#set tiles_gen_layer_override OPTION1_8M_2Mx_4Cx_1Bx_1Ix_LB_SELECT
+#set tiles_gen_layer_override OPTION5_9M_2Mx_6Cx_1Ox_LB_SELECT
+#set tiles_gen_layer_override OPTION6_10M_2Mx_6Cx_1Ix_1Ox_LB_SELECT
+#set tiles_gen_layer_override OPTION7_9M_2Mx_5Cx_2Jx_LB_SELECT
+#set tiles_gen_layer_override OPTION9_8M_2Mx_5Cx_1Jx_LB_SELECT
+#set tiles_gen_layer_override OPTION12_10M_2Mx_4Cx_2Bx_1Jx_1Ox_LB_SELECT
+
+

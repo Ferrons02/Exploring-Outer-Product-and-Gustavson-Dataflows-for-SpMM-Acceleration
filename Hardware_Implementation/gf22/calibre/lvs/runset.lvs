@@ -1,0 +1,65 @@
+// v0.2 Zerun Thu 10 Jul 10:49:06 CEST 2025
+// - add transcript
+// v0.2 Zerun Fri 30 May 10:49:57 CEST 2025
+// - add devices.cdl
+// v0.1 bmuheim@ethz.ch - Thu Dec  8 16:01:32 CET 2022
+// - new runset format for calibre version 2022 and later
+
+// Rules path
+lvs.rulesFile.value = "$TECHDIR_LVS/cmos22fdsoi.lvs.cal"
+
+// Run directory 
+lvs.runDir.value = "../calibre/lvs"
+
+// Input
+lvs.layout.layoutFile.value = "chip.calibre.db"
+lvs.layout.topCell.value = "chip"
+//lvs.layout.exportFromLayoutViewer.value = false
+lvs.layout.layoutNetlist.value = "chip.lay.net"
+lvs.setNameTemplate("nt_layNetlist", "%l.lay.net")
+lvs.source.sourceFile.value = "chip.src.net"
+lvs.source.topCell.value = "chip"
+lvs.source.extraSourceFiles.value = [ "$TECHDIR_LVS/Include/22fdsoi.devices.cdl" ]
+lvs.source.extraSourceFiles.specified = true
+
+
+// Output
+lvs.source2.sourceFile.value = "chip.lay.net"
+lvs.svdb.dirPath.value = "/scratch/$USER/tmp/svdb"
+lvs.setNameTemplate("nt_maskDir", "/scratch/$USER/tmp/svdb")
+lvs.ercdb.resultsFile.value = "chip.erc.results"
+lvs.ercSummaryReport.report.value = "chip.erc.summary"
+lvs.svdb.si.value = true
+lvs.reports.lvsReport.value = "chip.lvs.report"
+cmn.transcriptPrefs.specified = true
+cmn.transcriptPrefs.transcriptEchoFile.value = "chip.lvs.log"
+lvs.setNameTemplate("nt_transcriptFile", "%l.lvs.log")
+
+// Options
+cmn.showOptionPages.value = [ "Database", "Options" ]
+lvs.supply.powerNames.value = [ "VDD", "vdd", "VDD!", "vdd!", "DVDD" ]
+lvs.supply.powerNames.specified = true
+lvs.supply.groundNames.value = [ "VSS", "vss", "GND", "VSS!", "vss!", "DVSS" ]
+lvs.supply.groundNames.specified = true
+lvs.lvsIsolateShorts.specified = true
+lvs.lvsIsolateShorts.isolate.value = "YES"
+lvs.lvsRecognizeGates.specified = true
+lvs.lvsRecognizeGates.gatesType.value = "NONE"
+lvs.includes.specified = true
+lvs.includes.ruleFiles.value = [ "/usr/pack/gf-22-kgf/dz/calibre/lvs_options.txt" ]
+lvs.svrfIncludes.statementType.value = "SVRF"
+lvs.erc.execute.value = "NO"
+lvs.envVars.setEnv("GNDS", "vssa vssb", "Runset")
+lvs.envVars.setEnv("PWR", "vdda vddb", "Runset")
+lvs.envVars.setEnv("RUN_ERC", "RUN_ALL", "Runset")
+
+// Run control
+cmn.turboCommand.runHow.value = "all"
+cmn.turboCommand.runHyper.value = true
+cmn.turboCommand.runHyperCompare.value = true
+cmn.turboCommand.runHyperPathChk.value = true
+
+// Preferences
+cmn.runsetPrefs.saveOnClose.value = "NOSAVE"
+cmn.miscPrefs.overwriteLayoutPref.value = false
+cmn.miscPrefs.overwriteSourcePref.value = false

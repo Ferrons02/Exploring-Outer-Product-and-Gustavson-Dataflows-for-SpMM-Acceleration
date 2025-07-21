@@ -1,0 +1,177 @@
+; v0.3 - Zerun Mon 31 Mar 11:39:41 CEST 2025
+;   - changing the version matching for calibre layout export enableColoring
+; v0.2 - <muheim@ee.ethz.ch> - Mon Mar  4 13:12:25 CET 2019
+;   - add loading "loadUserCust.il"
+; v0.1 - <muheim@ee.ethz.ch> - Tue May 31 09:07:22 CEST 2016
+;   - first part from "/usr/pack/gf-22-kgf/gf/pdk-22FDX_V0.4_1.0/cdslib/setup/pdk.cdsinit"
+;     comment out 'Load Calibre Interactive'
+;   - the DZ setup from the gf-28 flow, /usr/pack/global-28-kgf/dz/dfii/6/.cdsinit 
+
+;-------------------------------------------------------------------------------
+printf("DZ: BEGIN OF GF22 SETUP\n")
+
+;-------------------------------------------------------------------------------
+;
+; Required environment setting to enable CDF look-up and callbacks.
+; Alternately, this environment variable can be set in the UNIX shell, or
+; defined in your shell initialization file: .cshrc, .profile, etc.
+;
+setShellEnvVar("CDS_Netlisting_Mode=Analog")
+cdsSetNetlistMode()
+
+;-------------------------------------------------------------------------------
+;
+; Recommended cdsenv settings
+;
+
+; Make sure vias are created based on constraint defintions rather
+; than default values set in the via definition
+envSetVal("layout"      "viaParamCalcMode"      'cyclic     "minRules"  )
+envSetVal("layout"      "wireViaParamCalcMode"  'cyclic     "minRules"  )
+
+; Required setting to netlist schematic pcells: "AMS-UNL" or "OSS-based"
+envSetVal("ams.envOpts" "netlisterMode"         'string     "AMS-UNL" )
+
+; Causes all SKLL callbacks defined on CDF parameters to be evaluated when
+; runing the following Layout XL commands:
+;   - Gernerate All From Source
+;   - Gernerate Selected From Source
+;   - Gernerate Folded Devices
+;   - Gernerate Chained Devices
+;   - Update Components And Nets
+;   - Update Layout Parameter
+;   - Update Schematic Parameter
+;   - Gernerate Clones
+; The callbacks are evaluated in the order in which they're listed in the CDF.
+; When lxCDFCallbackParams is defined, it only evaluates the callbacks listed
+; in lxCDFCallbackParams.
+envSetVal("layoutXL" "lxEvalCDFCallbacks" 'boolean t)
+
+;-------------------------------------------------------------------------------
+;
+; Dual/Multi patterning
+;
+let(((compat pcreCompile("^IC2\\d\\.(\\d+)")))
+   when( pcreExecute(compat cadr(parseString(getVersion(t))))
+      
+      case( atoi(pcreSubstitute(compat "\\1"))
+         ( 1
+            envSetVal("dpt" "defaultColorHeuristic" 'string
+               "ColorByClusterHeuristic")
+            envSetVal("dpt" "unclusteredShapeColor" 'cyclic "random")
+         )
+         ( t
+            envSetVal("mpt" "unclusteredShapeColor" 'cyclic "random")
+         )
+      ) ; case
+      
+      ; Turn on XStream GUI field for coloring
+      xstSetField("enableColoring" "true")
+      xstInSetField("enableColoring" "true")
+      ; enables option for Calibre Interactive Layout Export
+      streamOutKeys = '(nil enableColoring t)
+   ) ; when
+) ; let
+
+; ;-------------------------------------------------------------------------------
+; ;
+; ; Load Calibre Interactive
+; ;
+; unless( fboundp('mgcGetMGCVersion) || fboundp('mgcDisplayMGCVersion)
+;    let( (calibreHome filePath)
+;       calibreHome = getShellEnvVar("CALIBRE_HOME") ||
+;             getShellEnvVar("MGC_HOME")
+;       when( calibreHome && isDir(calibreHome)
+;          filePath = sprintf(nil "%s/shared/pkgs/icv/tools/queryskl/calibre.skl"
+;                calibreHome)
+;          when( isFile(filePath)
+;             loadi(filePath)
+;          )
+;       )
+;    ) ; let
+; ) ; unless
+
+;-------------------------------------------------------------------------------
+;
+; Adds selected message IDs to StreamIn/StreamOut noWarn option
+;
+; XSTRM-31:  Layer map file contains duplicate entries for Stream
+;            layer:datatype.
+;
+;            This warning is generated since Mx:drawing, Mx:vdd, Mx:gnd
+;            layer-purpose-pairs map to the same Stream layer:datatype.
+;            On StreamIn operation, Mx:vdd, and Mx:gnd will be ignored and
+;            corresponding layer:datatype get mapped to Mx:drawing.
+;
+let(
+   (
+      ( xstInNoWarn     '("31"))
+      ( xstNoWarn       '())
+      noWarnList
+   )
+   
+   foreach( key '(xstIn xst)
+      noWarnList = parseString(eval(list(concat(key 'GetField) "noWarn")))
+      foreach( warning eval(concat(key 'NoWarn))
+         unless( member(warning noWarnList)
+            noWarnList = cons(warning noWarnList)))
+      eval(list(concat(key 'SetField) "noWarn" buildString(noWarnList)))
+   ) ; foreach
+   
+) ; let
+
+;-------------------------------------------------------------------------------
+
+printf("DZ: END OF GF22 SETUP\n")
+;-------------------------------------------------------------------------------
+printf("DZ: BEGIN OF LOCAL CUSTOMIZATION LOADING\n")
+
+let( ( localLibPath addon addonsL )
+
+  localLibPath = "./.init/"
+
+  addonsL = '(
+               "loadKit.il"
+               "loadCalibreInteractive.il"
+               "loadUserCust.il"
+               "emxconfig.il"
+               "loadPathwave_rfic.il"
+               "loadPathwave_ads.il"
+            )
+
+  foreach( addon addonsL
+    if( isFile( strcat( localLibPath addon ) ) then
+        load( strcat( localLibPath addon ) )
+    else
+        printf( "DZ: ERROR: load '%s' -> no such file!\n" strcat( localLibPath addon ) )
+    )
+  );foreach
+);let
+
+; This should prevent that the processes that are spawned from
+; ic6 do not get a priority 10 which clashes with condor jobs 
+ipcSetPriority(1)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; User local custumization
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; you can add your own customizations by adding them to the
+;; file 
+;;
+;;   .init/loadLocalCust.il
+;;
+;; This file will *not* be managed by cockpit, and so it will
+;; not change when you update 
+
+  if( isFile( "./.init/loadLocalCust.il" ) then
+      printf( "load user customization file ./.init/loadLocalCust.il\n" )
+      load( "./.init/loadLocalCust.il" )
+  else
+      printf( "No user customization file ./.init/loadLocalCust.il found\n" )
+  )
+;; end user customization
+
+
+printf("DZ: END OF LOCAL CUSTOMIZATION LOADING\n")
+;-------------------------------------------------------------------------------

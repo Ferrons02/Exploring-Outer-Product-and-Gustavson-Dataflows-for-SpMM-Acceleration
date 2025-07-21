@@ -1,0 +1,78 @@
+// v0.1 bmuheim@ethz.ch - Thu Dec  8 16:01:32 CET 2022
+// - new runset format for calibre version 2022 and later
+// v0.2 Zerun - Thu 15 Jun 11:51:30 CEST 2023
+// - remove the recipe
+// - change the DESIGN_TYPE to CELL_NODEN, for not checking the density
+// - add separate runset.maxdensity.drc for checking maximum density with Innovus gds
+
+// Rules path
+drc.rulesFile.value = "$TECHDIR_DRC/cmos22fdsoi.drc.cal"
+
+// Run directory 
+drc.runDir.value = "../calibre/drc"
+
+// Input
+drc.layout.layoutFile.value = "../dfii/chip.gds"
+drc.setNameTemplate("nt_layFile", "%l.gds")
+drc.layout.topCell.value = "chip"
+drc.layout.extraGoldenLayoutFiles.value = [ "$TECHDIR_DRC/TechCell.GoLd/EQ_CFILL_GoLd.gds.gz", "$TECHDIR_DRC/TechCell.GoLd/EQ_CFILL_CT_GoLd.gds.gz", "$TECHDIR_DRC/TechCell.GoLd/EQ_CFILL_NP_GoLd.gds.gz", "$TECHDIR_DRC/TechCell.GoLd/EQ_CFILL_PP_GoLd.gds.gz", "$TECHDIR_DRC/TechCell.GoLd/SRAM.GoLd.gds.gz" ]
+drc.layout.extraGoldenLayoutFiles.specified = true
+
+// Output
+drc.drcdb.resultsFile.value = "chip.drc.results"
+drc.setNameTemplate("nt_drcResults", "%l.drc.results")
+drc.reports.drcSummaryReport.value = "chip.drc.summary"
+drc.setNameTemplate("nt_drcSummaryReport", "%l.drc.summary")
+
+cmn.transcriptPrefs.specified = true
+cmn.transcriptPrefs.transcriptEchoFile.value = "chip.drc.log"
+drc.setNameTemplate("nt_transcriptFile", "%l.drc.log")
+
+// Run control
+cmn.turboCommand.runHow.value = "all"
+cmn.turboCommand.runHyper.value = true
+cmn.miscPrefs.warnLayoutFormatsDiff.value = true
+
+// Preferences
+cmn.runsetPrefs.saveOnClose.value = "NOSAVE"
+
+// Customization
+cmn.customPrefs.customFile.value = "${TECHDIR_DRC}/runset/drc.ci.custom"
+cmn.customPrefs.customFile.specified = true
+cmn.miscPrefs.overwriteLayoutPref.value = false
+drc.envVars.setEnv("DESIGN_TYPE", "CELL_NODEN", "Runset")
+$DESIGN_TYPE.value = "CELL_NODEN"
+
+
+
+drc.recipeEditor.setUserRecipes("
+<user_recipes>$$
+ <recipe>$$
+  <name>No CFILL.W.1 (Maximum space between Metal shape)</name>$$
+   <operations>$$
+      <group_select>rule_file</group_select>$$
+      <check_unselect>GRC1CFILL.W.1</check_unselect>$$
+      <check_unselect>GRCxCFILL.W.1_C2</check_unselect>$$
+      <check_unselect>GRCxCFILL.W.1_C3</check_unselect>$$
+      <check_unselect>GRCxCFILL.W.1_C4</check_unselect>$$
+      <check_unselect>GRCxCFILL.W.1_C5</check_unselect>$$
+      <check_unselect>GRCxCFILL.W.1_C6</check_unselect>$$
+      <check_unselect>GRBxCFILL.W.1_BA</check_unselect>$$
+      <check_unselect>GRBxCFILL.W.1_BB</check_unselect>$$
+      <check_unselect>GRIxCFILL.W.1_IA</check_unselect>$$
+      <check_unselect>GRIxCFILL.W.1_IB</check_unselect>$$
+      <check_unselect>GRLBCFILL.W.1</check_unselect>$$
+      <check_unselect>GRJxCFILL.W.1_JA</check_unselect>$$
+      <check_unselect>GRJxCFILL.W.1_JB</check_unselect>$$
+      <check_unselect>GRQxCFILL.W.1_QA</check_unselect>$$
+      <check_unselect>GRQxCFILL.W.1_QB</check_unselect>$$
+      <check_unselect>GROICFILL.W.1</check_unselect>$$
+      <check_unselect>GRM1CFILL.W.1</check_unselect>$$
+      <check_unselect>GRM2CFILL.W.1</check_unselect>$$
+      <check_unselect>GRPCCFILL.RXCFILL.W.1</check_unselect>$$
+   </operations>$$
+ </recipe>$$
+</user_recipes>$$")
+
+drc.recipeEditor.setActiveRecipe("No CFILL.W.1 (Maximum space between Metal shape)")
+

@@ -1,0 +1,37 @@
+# v0.1 - <muheim@ee.ethz.ch> - Tue Aug 18 10:46:56 CEST 2020
+#   - copy from /usr/pack/gf-22-kgf/gf/pdk-22FDX-EXT-V1.0_0.0/DFM/DRCplus/Calibre/PM/RUN_LN22FDX_PM_GUI.runset
+#   - change runDir (WA) - we not working with absolut paths
+#     the drcRunDir will be ./calibre/dfm/GUI_RUN
+#     OUTPUT_DIR have to be ..
+#   - commend out drcLayoutPaths, cmnTemplate_RN
+#   - change LayoutSystem from OASIS to GDSII
+#   - no GUI_RUN in the path for the sum
+
+*drcRulesFile: $TECHDIR_DFM_DRCPLUS/Include/LN22FDX_PM_MAIN.tvf
+# WA *drcRunDir: ${OUTPUT_DIR}/GUI_RUN
+*drcRunDir: ../calibre/dfm/GUI_RUN
+#*drcLayoutPaths: $LAYOUT_PATH
+*drcLayoutSystem: GDSII
+*drcLayoutGetFromViewer: 0
+#*drcLayoutPrimary: *
+*drcEnvVars: {CALIBRE_INCLUDE_DFM_RESULTS 1 Runset}
+*drcDRCMaxResultsAll: 1
+*drcDRCMaxVertexAll: 1
+*drcSideRDBOpenList: ${OUTPUT_DIR}/rdb/${PROJECT_NAME}/${PROJECT_NAME}_PM_ALL.rdb
+*drcSummaryFile: ${OUTPUT_DIR}/rdb/${PROJECT_NAME}/${PROJECT_NAME}_PM.sum
+*drcIncrDRCSlaveHosts: {use {}} {hostName {}} {cpuCount {}} {a32a64 {}} {rsh {}} {maxMem {}} {workingDir {}} {layerDir {}} {mgcLibPath {}} {launchName {}}
+*drcIncrDRCLSFSlaveTbl: {use 1} {totalCpus 1} {minCpus 1} {architecture {{}}} {minMemory {{}}} {resourceOptions {{}}} {submitOptions {{}}}
+*drcIncrDRCGridSlaveTbl: {use 1} {totalCpus 1} {minCpus 1} {architecture {{}}} {minMemory {{}}} {resourceOptions {{}}} {submitOptions {{}}}
+*cmnShowOptions: 1
+*cmnReleaseLicense: 1
+*cmnLicenseReleaseTime: 1.0
+*cmnRunMT: 1
+*cmnRunHyper: 1
+#*cmnTemplate_RN: %l.drcRunDir
+*cmnSlaveHosts: {use {}} {hostName {}} {cpuCount {}} {a32a64 {}} {rsh {}} {maxMem {}} {workingDir {}} {layerDir {}} {mgcLibPath {}} {launchName {}}
+*cmnLSFSlaveTbl: {use 1} {totalCpus 1} {minCpus 1} {architecture {{}}} {minMemory {{}}} {resourceOptions {{}}} {submitOptions {{}}}
+*cmnGridSlaveTbl: {use 1} {totalCpus 1} {minCpus 1} {architecture {{}}} {minMemory {{}}} {resourceOptions {{}}} {submitOptions {{}}}
+# Customization
+*cmnShowCustomDialog: 1
+*cmnUseCustomFile: 1
+*cmnCustomFileName: ${TECHDIR_DFM_DRCPLUS}/RUN_LN22FDX_PM_GUI.runset.custom

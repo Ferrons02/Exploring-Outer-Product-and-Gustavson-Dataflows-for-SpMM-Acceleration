@@ -1,0 +1,76 @@
+//################################################################################
+//#
+//# Description:     22FDX xACT Calibre Interactive Runset
+//#
+//# Copyright (C) 2017, GLOBALFOUNDRIES.  All rights reserved.
+//#
+//################################################################################
+// v0.4 - <zejiang@ethz.ch> - Thu 10 Jul 10:43:45 CEST 2025
+//   - add transcript
+// v0.3 - <kgf@iis.ee.ethz.ch> - Wed Jul 27 10:41:21 CEST 2022 
+//   - Adaptations suggested by Yuqi added cmn. preferences
+// v0.2 - <muheim@ee.ethz.ch> - Mon Oct 26 16:47:30 CET 2020
+//   - comment out the WA for the caliber versions 2018.2 and newer,
+//     this is not needed for the newer PDK withe EXT versions.
+// v0.1 - <muheim@ee.ethz.ch> - Tue Feb 26 11:31:05 CET 2019
+//   - copy from /usr/pack/gf-22-kgf/gf/pdk-22FDX-V1.3_2.2/PEX/xACT/runset/xact.runset
+//   - add runDir
+//   - set outpot CALIBREVIEW (SPECTRE)
+
+pex.rulesFile.value = "$TECHDIR_LVS/cmos22fdsoi.lvs.cal"
+pex.runDir.value = "../calibre/pex"
+pex.layout.format.value = "GDSII"
+pex.layout.exportFromLayoutViewer.value = true
+pex.source.format.value = "SPICE"
+pex.source.exportFromSourceViewer.value = true
+pex.xactMode.mode.value = "xACT"
+pex.pexCornerCommand.corners.value = [ "all" ]
+pex.pexCornerCommand.corners.specified = true
+//pex.pexExtractionType.rcMode.value = "c"
+//pex.pexNetlist.netlistFormat.value = "SPECTRE"
+pex.pexNetlist.netlistFormat.value = "CALIBREVIEW"
+pex.pexNetlist.system.value = "SOURCENAMES"
+pex.pexNetlist.location.value = true
+pex.pexNetlist.rcnamed.value = true
+pex.pexNetlist.rlocation.value = true
+pex.pexNetlist.separator.value = "|"
+pex.pexNetlist.separator.specified = true
+pex.svdb.specified = true
+pex.svdb.dirPath.value = "svdb"
+pex.svdb.asciixref.value = true
+pex.svdb.cci.value = true
+pex.svdb.genParasiticData.value = true
+pex.reports.pexReport.value = "pex.report"
+pex.reports.pexReport.specified = true
+pex.pexExtractTemp.temperatures.specified = true
+pex.pexExtractFloatingNets.specified = true
+pex.pexExtractFloatingNets.netsType.value = "REDUCED"
+pex.pexReduceAnalog.specified = true
+pex.pexReduceAnalog.yesNo.value = "NO"
+pex.pexPinOrder.orderBy.value = "SCHEMATIC"
+pex.pexCellMap.specified = true
+pex.pexCellMap.mapFiles.value = [ "$TECHDIR_XACT/calview/22fdsoi_${BEOL_STACK}thick_calview.cellmap" ]
+pex.includes.specified = true
+pex.includes.ruleFiles.value = [ "$TECHDIR_XACT/${BEOL_STACK}thick/nominal/22fdsoi_${BEOL_STACK}thick_nominal_CalLVS.map", "$TECHDIR_XACT/runset/xact.inc", "/usr/pack/gf-22-kgf/dz/calibre/lvs_options.txt" ]
+// for the 2018.2 and newer version - and PDK withe no EXT versions
+//pex.svrfIncludes.specified = true
+//pex.svrfIncludes.svrfStatements.value = "PEX EXCEPTION SEVERITY VIA_MAPPED_TO_CONDUCTOR 1"
+pex.turboCommand.runHow.value = "multi"
+pex.turboCommand.numProcessors.value = 8
+pex.runSteps.runLvsStep.value = true
+pex.applyTemplates.value = true
+pex.setNameTemplate("nt_layFile", "%l.gds")
+pex.setNameTemplate("nt_srcFile", "%s.cdl")
+pex.setNameTemplate("nt_netFile", "%l.pex.%x")
+pex.source.extraSourceFiles.specified = true
+pex.source.extraSourceFiles.value = [ "$TECHDIR_LVS/Include/22fdsoi.devices.cdl" ]
+
+// Some CMN prefs that could be useful
+cmn.runsetPrefs.saveOnClose.value = "NOSAVE"
+cmn.miscPrefs.overwriteSourcePref.value = false 
+cmn.miscPrefs.overwriteLayoutPref.value = false 
+
+// save the transcript
+cmn.transcriptPrefs.specified = true
+cmn.transcriptPrefs.transcriptEchoFile.value = "chip.pex.log"
+pex.setNameTemplate("nt_transcriptFile", "%l.pex.log")

@@ -1,0 +1,60 @@
+#!/bin/csh -f
+
+#
+# v0.3 - BM  - Wed Nov 28 11:48:30 CET 2018
+#  -  remove option '-b' to let the script remove the '\' before a signal.
+#      -b               : Preserve backslash character in escaped identifiers.
+# v0.2 - BM  - Wed Sep 13 10:03:33 CEST 2017
+#  -  use dedicated calibre version
+#  -  fix Ground, Power names
+# v0.1a - BM  - Tue Jan 19 10:06:57 CET 2016
+#  -  only style changes
+# v0.1 - BM  - Fri Aug  6 11:27:46 CEST 2010
+#  -  Fillter Warning out, in to the log are all Warnings:
+#       Unsupported compiler directive, Multiple declarations of module udp_XXXX/ipicg_XXXX , Duplicate port/net, Module instantiation XXXX has pin mismatches
+
+if ( $#argv == 2 ) then
+
+
+   calibre-2024.4 v2lvs -l ./verilog.inc \
+                        -s ./spice.inc \
+                        -s0 VSS \
+                        -s1 VDD \
+                        -sn \
+                        -w 4 \
+                        -v $1 \
+                        -o $2 | grep -v -e "Warning: Unsupported compiler directive" \
+                                        -e "Warning: Multiple declarations of module udp_" \
+                                        -e "Warning: Multiple declarations of module ipicg_" \
+                                        -e "Warning: Duplicate port/net" \
+                                        -e "Second declaration ignored" \
+                                        -e "Warning: Module instantiation .* has pin mismatches"
+   echo ""
+   echo    "Warnings:"
+   echo -n "    Unsupported compiler directive :  "
+   grep -c -e "Warning: Unsupported compiler directive" v2lvs.log 
+   echo -n "    Multiple declarations of module udp_XXXX :  "
+   grep -c -e "Warning: Multiple declarations of module udp_" v2lvs.log 
+   echo -n "    Multiple declarations of module ipicg_XXXX : "
+   grep -c -e "Warning: Multiple declarations of module ipicg_" v2lvs.log 
+   echo -n "    Duplicate port/net :  "
+   grep -c -e "Warning: Duplicate port/net" v2lvs.log 
+   echo -n "    Module instantiation XXXX has pin mismatches :  "
+   grep -c -e "Second declaration ignored" v2lvs.log 
+   echo ""
+   echo "The output is filtered, check the log file v2lvs.log for details."
+   echo ""
+   
+else
+
+   set wrapper_name=$0
+   echo ""
+   echo "Usage: $wrapper_name:t <netlist.v> <netlist.spi>"
+   echo ""
+   echo "       Converts verilog netlist to spice format,"
+   echo "       logfile is 'v2lvs.log'"
+   echo ""
+   echo ""
+   exit 1
+
+endif

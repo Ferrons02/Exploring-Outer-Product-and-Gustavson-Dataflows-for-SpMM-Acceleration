@@ -1,0 +1,1 @@
+/usr/pack/gf-22-kgf/dz/../gf/pdk-22FDX-PLUS-V1.0_3.0a/PlaceRoute/ICC2/Techfiles/10M_2Mx_6Cx_2Ix_LB/22FDSOI_10M_2Mx_6Cx_2Ix_LB_104cpp_6p75t_mw.tf

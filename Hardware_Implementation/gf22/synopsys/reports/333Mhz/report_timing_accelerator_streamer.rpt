@@ -1,0 +1,200 @@
+ 
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+Design : accelerator_streamer_wrap
+Version: T-2022.03
+Date   : Sat Jul 19 12:33:29 2025
+****************************************
+
+ # A fanout number of 1000 was used for high fanout net computations.
+
+Operating Conditions: TT_0P80V_0P00V_0P00V_0P00V_25C   Library: GF22FDX_SC8T_104CPP_BASE_CSC20L_TT_0P80V_0P00V_0P00V_0P00V_25C
+Wire Load Model Mode: top
+
+  Startpoint: streamer_i/X_scheduler/meta_chunk_used_bits_q_reg[0]
+              (rising edge-triggered flip-flop clocked by clk_i)
+  Endpoint: streamer_i/X_scheduler/nonzero_counter_q_reg[29]
+            (rising edge-triggered flip-flop clocked by clk_i)
+  Path Group: clk_i
+  Path Type: max
+
+  Point                                                   Incr       Path
+  --------------------------------------------------------------------------
+  clock clk_i (rise edge)                               0.0000     0.0000
+  clock network delay (ideal)                           0.0000     0.0000
+  streamer_i/X_scheduler/meta_chunk_used_bits_q_reg[0]/CLK (SC8T_DFFRQX4_CSC28L)
+                                                        0.0000     0.0000 r
+  streamer_i/X_scheduler/meta_chunk_used_bits_q_reg[0]/Q (SC8T_DFFRQX4_CSC28L)
+                                                       79.0810    79.0810 r
+  streamer_i/X_scheduler/U134/Z (SC8T_OR2X4_MR_CSC28L)
+                                                       71.8274   150.9084 r
+  streamer_i/X_scheduler/U20/Z (SC8T_INVX1_MR_CSC20L) 108.2534   259.1617 f
+  streamer_i/X_scheduler/U2256/Z (SC8T_AOI22X1_CSC28L)
+                                                       49.4742   308.6360 r
+  streamer_i/X_scheduler/U2257/Z (SC8T_ND2X1_CSC28L)   31.0130   339.6490 f
+  streamer_i/X_scheduler/U2493/Z (SC8T_AOI22X1_CSC28L)
+                                                       26.3705   366.0195 r
+  streamer_i/X_scheduler/U2496/Z (SC8T_OAI211X0P5_CSC28L)
+                                                       60.0120   426.0315 f
+  streamer_i/X_scheduler/U2512/Z (SC8T_AOI22X1_CSC28L)
+                                                       32.3544   458.3859 r
+  streamer_i/X_scheduler/U124/Z (SC8T_ND3X1_CSC28L)    32.6389   491.0248 f
+  streamer_i/X_scheduler/meta_searcher/in_i[125] (lzc_00000080_1_1)
+                                                        0.0000   491.0248 f
+  streamer_i/X_scheduler/meta_searcher/U75/Z (SC8T_NR2X0P5_CSC28L)
+                                                       21.1613   512.1861 r
+  streamer_i/X_scheduler/meta_searcher/U14/Z (SC8T_ND2X1_CSC28L)
+                                                       28.1786   540.3647 f
+  streamer_i/X_scheduler/meta_searcher/U146/Z (SC8T_NR3X0P5_CSC28L)
+                                                       26.6771   567.0417 r
+  streamer_i/X_scheduler/meta_searcher/U30/Z (SC8T_ND2X1_CSC28L)
+                                                       35.3835   602.4253 f
+  streamer_i/X_scheduler/meta_searcher/U80/Z (SC8T_NR2IAX0P5_CSC28L)
+                                                       23.7381   626.1634 r
+  streamer_i/X_scheduler/meta_searcher/U79/Z (SC8T_ND2X1_CSC28L)
+                                                       26.7140   652.8774 f
+  streamer_i/X_scheduler/meta_searcher/U21/Z (SC8T_AN4IAX1_CSC28L)
+                                                       31.1636   684.0410 r
+  streamer_i/X_scheduler/meta_searcher/U157/Z (SC8T_ND2X1_CSC28L)
+                                                       27.6456   711.6866 f
+  streamer_i/X_scheduler/meta_searcher/U9/Z (SC8T_AN4IAX2_CSC24L)
+                                                       27.3942   739.0807 r
+  streamer_i/X_scheduler/meta_searcher/U178/Z (SC8T_NR2X0P5_CSC28L)
+                                                       21.8632   760.9439 f
+  streamer_i/X_scheduler/meta_searcher/U250/Z (SC8T_ND4X1_CSC28L)
+                                                       14.6503   775.5942 r
+  streamer_i/X_scheduler/meta_searcher/U36/Z (SC8T_OA31X1_CSC28L)
+                                                       34.6747   810.2690 r
+  streamer_i/X_scheduler/meta_searcher/U7/Z (SC8T_OAI211X1_CSC24L)
+                                                       46.3105   856.5795 f
+  streamer_i/X_scheduler/meta_searcher/cnt_o[0] (lzc_00000080_1_1)
+                                                        0.0000   856.5795 f
+  streamer_i/X_scheduler/U59/CO (SC8T_HAX1_MR_CSC28L)  38.6210   895.2005 f
+  streamer_i/X_scheduler/U162/CO (SC8T_FAX1_A_MR_CSC24L)
+                                                       40.9895   936.1900 f
+  streamer_i/X_scheduler/U161/CO (SC8T_FAX1_A_CSC28SL)
+                                                       32.2570   968.4470 f
+  streamer_i/X_scheduler/U160/CO (SC8T_FAX1_A_CSC28SL)
+                                                       31.6937   1000.1407 f
+  streamer_i/X_scheduler/U159/CO (SC8T_FAX1_A_MR_CSC24L)
+                                                       41.5215   1041.6622 f
+  streamer_i/X_scheduler/U288/Z (SC8T_ND2X1_CSC28L)    13.2330   1054.8953 r
+  streamer_i/X_scheduler/U123/Z (SC8T_ND3X1_MR_CSC20L)
+                                                       28.0323   1082.9276 f
+  streamer_i/X_scheduler/U122/S (SC8T_FAX1_A_MR_CSC24L)
+                                                       73.9490   1156.8766 r
+  streamer_i/X_scheduler/U220/CO (SC8T_HAX1_MR_CSC28L)
+                                                       39.6266   1196.5032 r
+  streamer_i/X_scheduler/U219/CO (SC8T_HAX1_MR_CSC28L)
+                                                       35.8959   1232.3990 r
+  streamer_i/X_scheduler/U218/CO (SC8T_HAX1_MR_CSC28L)
+                                                       35.8990   1268.2981 r
+  streamer_i/X_scheduler/U285/CO (SC8T_HAX1_MR_CSC28L)
+                                                       38.1421   1306.4402 r
+  streamer_i/X_scheduler/U721/Z (SC8T_AN2X1_MR_CSC28L)
+                                                       31.9977   1338.4379 r
+  streamer_i/X_scheduler/U121/Z (SC8T_AN2X1_MR_CSC28L)
+                                                       33.8722   1372.3101 r
+  streamer_i/X_scheduler/U525/CO (SC8T_HAX1_MR_CSC28L)
+                                                       35.9390   1408.2490 r
+  streamer_i/X_scheduler/U215/CO (SC8T_HAX1_MR_CSC28L)
+                                                       35.8992   1444.1482 r
+  streamer_i/X_scheduler/U213/CO (SC8T_HAX1_MR_CSC28L)
+                                                       35.8987   1480.0469 r
+  streamer_i/X_scheduler/U212/CO (SC8T_HAX1_MR_CSC28L)
+                                                       35.8989   1515.9458 r
+  streamer_i/X_scheduler/U211/S (SC8T_HAX1_MR_CSC28L)  33.2246   1549.1704 r
+  streamer_i/X_scheduler/U722/Z (SC8T_INVX1_MR_CSC28L)
+                                                        9.7687   1558.9391 f
+  streamer_i/X_scheduler/U756/Z (SC8T_ND2X1_CSC28L)     9.1991   1568.1382 r
+  streamer_i/X_scheduler/U52/Z (SC8T_ND2X1_MR_CSC24L)  14.5587   1582.6969 f
+  streamer_i/X_scheduler/U6/Z (SC8T_OA21IAX1_MR_CSC20L)
+                                                       31.9098   1614.6067 f
+  streamer_i/X_scheduler/U51/Z (SC8T_NR2IAX1_MR_CSC24L)
+                                                       23.9757   1638.5824 r
+  streamer_i/X_scheduler/U50/Z (SC8T_ND2X3_CSC24L)     41.3276   1679.9100 f
+  streamer_i/X_scheduler/U157/Z (SC8T_INVX1_MR_CSC28L)
+                                                       53.3617   1733.2717 r
+  streamer_i/X_scheduler/U262/Z (SC8T_NR2IAX0P5_CSC28L)
+                                                       38.0991   1771.3708 r
+  streamer_i/X_scheduler/U256/Z (SC8T_XOR2X1_CSC28L)   50.5685   1821.9393 f
+  streamer_i/X_scheduler/U2425/Z (SC8T_NR2X0P5_CSC28L)
+                                                       20.7256   1842.6649 r
+  streamer_i/X_scheduler/U152/Z (SC8T_OAI21X1_CSC28L)  30.6021   1873.2670 f
+  streamer_i/X_scheduler/U151/Z (SC8T_AOI21X1_MR_CSC28L)
+                                                       32.6858   1905.9528 r
+  streamer_i/X_scheduler/U150/Z (SC8T_OAI21X1_MR_CSC28L)
+                                                       29.2729   1935.2257 f
+  streamer_i/X_scheduler/U37/Z (SC8T_AOI21X1_MR_CSC28L)
+                                                       30.6187   1965.8444 r
+  streamer_i/X_scheduler/U36/Z (SC8T_OAI21X1_MR_CSC24L)
+                                                       27.0260   1992.8704 f
+  streamer_i/X_scheduler/U35/Z (SC8T_AOI21X1_MR_CSC24L)
+                                                       27.4021   2020.2725 r
+  streamer_i/X_scheduler/U103/Z (SC8T_OAI21X1_MR_CSC20L)
+                                                       24.1743   2044.4468 f
+  streamer_i/X_scheduler/U25/Z (SC8T_AOI21X1_MR_CSC20L)
+                                                       27.7744   2072.2212 r
+  streamer_i/X_scheduler/U34/Z (SC8T_OAI21X2_MR_CSC28L)
+                                                       23.7563   2095.9775 f
+  streamer_i/X_scheduler/U99/Z (SC8T_AOI21X2_CSC28L)   20.1267   2116.1042 r
+  streamer_i/X_scheduler/U141/Z (SC8T_OAI21X1_MR_CSC28SL)
+                                                       18.0417   2134.1460 f
+  streamer_i/X_scheduler/U139/Z (SC8T_AOI21X2_CSC24L)  19.3853   2153.5312 r
+  streamer_i/X_scheduler/U138/Z (SC8T_OAI21X1_MR_CSC28SL)
+                                                       17.7019   2171.2332 f
+  streamer_i/X_scheduler/U137/Z (SC8T_AOI21X2_CSC24L)  20.7070   2191.9402 r
+  streamer_i/X_scheduler/U24/Z (SC8T_OAI21X2_MR_CSC28L)
+                                                       18.3811   2210.3213 f
+  streamer_i/X_scheduler/U95/Z (SC8T_AO21X2_MR_CSC24L)
+                                                       29.1169   2239.4382 f
+  streamer_i/X_scheduler/U184/CO (SC8T_FAX1_A_MR_CSC28L)
+                                                       44.6167   2284.0549 f
+  streamer_i/X_scheduler/U32/CO (SC8T_FAX1_A_MR_CSC24L)
+                                                       42.7739   2326.8289 f
+  streamer_i/X_scheduler/U31/CO (SC8T_FAX1_A_MR_CSC24L)
+                                                       42.2571   2369.0859 f
+  streamer_i/X_scheduler/U30/CO (SC8T_FAX1_A_MR_CSC24L)
+                                                       42.2559   2411.3418 f
+  streamer_i/X_scheduler/U29/CO (SC8T_FAX1_A_MR_CSC24L)
+                                                       42.2559   2453.5977 f
+  streamer_i/X_scheduler/U28/CO (SC8T_FAX1_A_MR_CSC24L)
+                                                       42.2559   2495.8535 f
+  streamer_i/X_scheduler/U27/CO (SC8T_FAX1_A_MR_CSC24L)
+                                                       42.2559   2538.1094 f
+  streamer_i/X_scheduler/U26/CO (SC8T_FAX1_A_MR_CSC24L)
+                                                       42.4333   2580.5427 f
+  streamer_i/X_scheduler/U180/CO (SC8T_FAX1_A_MR_CSC28L)
+                                                       47.4216   2627.9644 f
+  streamer_i/X_scheduler/U178/CO (SC8T_FAX1_A_MR_CSC28L)
+                                                       47.9641   2675.9285 f
+  streamer_i/X_scheduler/U176/CO (SC8T_FAX1_A_MR_CSC28L)
+                                                       47.9651   2723.8936 f
+  streamer_i/X_scheduler/U174/CO (SC8T_FAX1_A_MR_CSC28L)
+                                                       47.9651   2771.8586 f
+  streamer_i/X_scheduler/U173/S (SC8T_FAX1_A_MR_CSC28L)
+                                                       65.5840   2837.4426 r
+  streamer_i/X_scheduler/U92/Z (SC8T_AO22X1_MR_CSC28L)
+                                                       29.1731   2866.6157 r
+  streamer_i/X_scheduler/nonzero_counter_q_reg[29]/D (SC8T_DFFRQX1_CSC28L)
+                                                        0.0000   2866.6157 r
+  data arrival time                                              2866.6157
+
+  clock clk_i (rise edge)                             3000.0000  3000.0000
+  clock network delay (ideal)                           0.0000   3000.0000
+  clock uncertainty                                   -100.0000  2900.0000
+  streamer_i/X_scheduler/nonzero_counter_q_reg[29]/CLK (SC8T_DFFRQX1_CSC28L)
+                                                        0.0000   2900.0000 r
+  library setup time                                  -31.5317   2868.4683
+  data required time                                             2868.4683
+  --------------------------------------------------------------------------
+  data required time                                             2868.4683
+  data arrival time                                              -2866.6157
+  --------------------------------------------------------------------------
+  slack (MET)                                                      1.8525
+
+
+1

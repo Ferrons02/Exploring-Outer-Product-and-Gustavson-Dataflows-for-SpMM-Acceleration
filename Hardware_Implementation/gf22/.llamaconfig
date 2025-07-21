@@ -1,0 +1,96 @@
+# LLama config file
+#
+# Adapted for UMC65
+# Thu Oct 16 13:50:22 CEST 2014
+
+
+# Files matching the regular expression anywhere under 
+# the cockpit directory will be scheduled for deletion.
+==FILES_ANYWHERE
+
+# All date extensions that cocpit creates
+*.20[012][\d]-[01][\d]-[0123][\d]-[012][\d]:[0-5][\d]:[0-5][\d]
+
+# Standard backup files
+*~
+
+#Cadence cdb backup files
+*.cd%
+
+# Files matching the regular expression under a particular 
+# directory will be scheduled for deletion. 
+==FILES_IN_DIRS
+
+calibre/drc/*.db 
+calibre/drc/*.rdb
+calibre/drc/*.DEN
+calibre/drc/ANT*.sum
+calibre/drc/PIPO.LOG.*
+calibre/drc/calibre.drc.*
+calibre/lvs/*.db
+calibre/lvs/v2lvs.log.gz
+calibre/lvs/PIPO.LOG.*
+
+synopsys/WORK/*
+synopsys/default.svf
+
+modelsim/*.wlf
+modelsim/transcript
+
+innovus/*.cts_trace
+innovus/*.ctsrpt
+innovus/*.rguide
+innovus/*.wirerpt
+innovus/*.rguide
+innovus/.*.rs.fp*
+innovus/.timing_file.tif
+innovus/.timing_file_*.tif.gz
+innovus/.routing_guide.rgf
+innovus/.interactive.constr.sdc
+innovus/.cce.env.*
+innovus/.em.file
+innovus/.*_launch_*_*
+innovus/.tdrlog
+innovus/vs2_slave_*_*.pinfo
+innovus/vs2api.log
+innovus/vstorm2*.log
+innovus/eps_missing_netnames.rpt
+innovus/innovus.log*
+innovus/innovus.cmd*
+innovus/CTS_RP_MOVE.txt
+innovus/_[0-9].res
+innovus/_[1-9][0-9].res
+innovus/__qrc.log
+innovus/rc_model.bin
+
+tmp/.*
+
+# The contents of directories matching the regular expression 
+# will be scheduled for deletion. 
+==DEL_DIRS_BUT_NOT_FILES
+
+tmp
+
+# Schedules for deletion directories which contain a particular file.
+==DEL_DIRS_CONTAINING_FILE
+
+# any modelsim directories will be selected for deletion
+modelsim/*/_info
+
+# Schedules the directory for deletion. This marks the diretory
+# as a single item to be deleted, you will not be able to browse its
+# contents
+==DIRS
+calibre/lvs/svdb
+synopsys/dwsvf*
+innovus/appOption.dat
+innovus/-1
+innovus/extLogDir
+innovus/regenerateDir
+innovus/work
+innovus/work_vs2api
+innovus/.cadence
+innovus/.AAE_*
+
+# We need this tag in the file 
+==END

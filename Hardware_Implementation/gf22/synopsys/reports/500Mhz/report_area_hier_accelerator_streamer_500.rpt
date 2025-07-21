@@ -1,0 +1,123 @@
+ 
+****************************************
+Report : area
+Design : accelerator_streamer_wrap
+Version: T-2022.03
+Date   : Sat Jul 19 12:30:11 2025
+****************************************
+
+Library(s) Used:
+
+    GF22FDX_SC8T_104CPP_BASE_CSC28L_TT_0P80V_0P00V_0P00V_0P00V_25C (File: /scratch/sem25f34/AcceleratorDefinitive/gf22/technology/db/GF22FDX_SC8T_104CPP_BASE_CSC28L_TT_0P80V_0P00V_0P00V_0P00V_25C.db)
+    GF22FDX_SC8T_104CPP_BASE_CSC20SL_TT_0P80V_0P00V_0P00V_0P00V_25C (File: /scratch/sem25f34/AcceleratorDefinitive/gf22/technology/db/GF22FDX_SC8T_104CPP_BASE_CSC20SL_TT_0P80V_0P00V_0P00V_0P00V_25C.db)
+    GF22FDX_SC8T_104CPP_BASE_CSC24L_TT_0P80V_0P00V_0P00V_0P00V_25C (File: /scratch/sem25f34/AcceleratorDefinitive/gf22/technology/db/GF22FDX_SC8T_104CPP_BASE_CSC24L_TT_0P80V_0P00V_0P00V_0P00V_25C.db)
+    GF22FDX_SC8T_104CPP_BASE_CSC20L_TT_0P80V_0P00V_0P00V_0P00V_25C (File: /scratch/sem25f34/AcceleratorDefinitive/gf22/technology/db/GF22FDX_SC8T_104CPP_BASE_CSC20L_TT_0P80V_0P00V_0P00V_0P00V_25C.db)
+    GF22FDX_SC8T_104CPP_BASE_CSC28SL_TT_0P80V_0P00V_0P00V_0P00V_25C (File: /scratch/sem25f34/AcceleratorDefinitive/gf22/technology/db/GF22FDX_SC8T_104CPP_BASE_CSC28SL_TT_0P80V_0P00V_0P00V_0P00V_25C.db)
+    GF22FDX_SC8T_104CPP_BASE_CSC24SL_TT_0P80V_0P00V_0P00V_0P00V_25C (File: /scratch/sem25f34/AcceleratorDefinitive/gf22/technology/db/GF22FDX_SC8T_104CPP_BASE_CSC24SL_TT_0P80V_0P00V_0P00V_0P00V_25C.db)
+
+Number of ports:                         9693
+Number of nets:                         19739
+Number of cells:                        13175
+Number of combinational cells:          11374
+Number of sequential cells:              1756
+Number of macros/black boxes:               0
+Number of buf/inv:                       1918
+Number of references:                      13
+
+Combinational area:               4082.723827
+Buf/Inv area:                      264.309761
+Noncombinational area:            2769.428523
+Macro/Black Box area:                0.000000
+Net Interconnect area:      undefined  (No wire load specified)
+
+Total cell area:                  6852.152350
+Total area:                 undefined
+
+Hierarchical area distribution
+------------------------------
+
+                                  Global cell area          Local cell area
+                                  ------------------  ---------------------------- 
+Hierarchical cell                 Absolute   Percent  Combi-     Noncombi-  Black-
+                                  Total      Total    national   national   boxes   Design
+--------------------------------  ---------  -------  ---------  ---------  ------  -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+accelerator_streamer_wrap         6852.1523    100.0    54.5126     0.0000  0.0000  accelerator_streamer_wrap
+streamer_i                        6797.6397     99.2   171.1923   481.0291  0.0000  accelerator_streamer_128_0_128_32_32_64_4_I_dataX_o_hwpe_stream_intf_stream__DATA_WIDTH_128I_dataY_o_hwpe_stream_intf_stream__DATA_WIDTH_128I_dataZ_i_hwpe_stream_intf_stream__DATA_WIDTH_256I_tcdm_hci_core_intf_initiator_DW_128_AW_32_h00000020_BW_32_h00000008_UW_32_h00000001_IW_32_h00000008_EW_32_h00000001_EHW_32_h00000001_252949
+streamer_i/X_scheduler            2185.0982     31.9  1477.5654   436.7667  0.0000  X_data_scheduler_00000080_00000020_00000080_I_elem_num_o_hwpe_stream_intf_stream__DATA_WIDTH_8I_addr_o_hwpe_stream_intf_stream__DATA_WIDTH_48
+streamer_i/X_scheduler/X_addr_fifo
+                                   155.4842      2.3    39.5366   113.1520  0.0000  hwpe_stream_fifo_DATA_WIDTH32_FIFO_DEPTH2_I_push_i_hwpe_stream_intf_stream__DATA_WIDTH_32I_pop_o_hwpe_stream_intf_stream_source_DATA_WIDTH_48
+streamer_i/X_scheduler/X_addr_fifo/clk_gate_fifo_registers_reg[0]
+                                     1.3978      0.0     0.0000     1.3978  0.0000  SNPS_CLOCK_GATE_HIGH_hwpe_stream_fifo_DATA_WIDTH32_FIFO_DEPTH2_I_push_i_hwpe_stream_intf_stream__DATA_WIDTH_32I_pop_o_hwpe_stream_intf_stream_source_DATA_WIDTH_48_1
+streamer_i/X_scheduler/X_addr_fifo/clk_gate_fifo_registers_reg[1]
+                                     1.3978      0.0     0.0000     1.3978  0.0000  SNPS_CLOCK_GATE_HIGH_hwpe_stream_fifo_DATA_WIDTH32_FIFO_DEPTH2_I_push_i_hwpe_stream_intf_stream__DATA_WIDTH_32I_pop_o_hwpe_stream_intf_stream_source_DATA_WIDTH_48_0
+streamer_i/X_scheduler/clk_gate_needing_meta_nextcycle_q_reg
+                                     1.3978      0.0     0.0000     1.3978  0.0000  SNPS_CLOCK_GATE_HIGH_X_data_scheduler_00000080_00000020_00000080_I_elem_num_o_hwpe_stream_intf_stream__DATA_WIDTH_8I_addr_o_hwpe_stream_intf_stream__DATA_WIDTH_48_0
+streamer_i/X_scheduler/clk_gate_params_q_reg[base_address]
+                                     1.3978      0.0     0.0000     1.3978  0.0000  SNPS_CLOCK_GATE_HIGH_X_data_scheduler_00000080_00000020_00000080_I_elem_num_o_hwpe_stream_intf_stream__DATA_WIDTH_8I_addr_o_hwpe_stream_intf_stream__DATA_WIDTH_48_2
+streamer_i/X_scheduler/clk_gate_previous_meta_addr_q_reg
+                                     1.3978      0.0     0.0000     1.3978  0.0000  SNPS_CLOCK_GATE_HIGH_X_data_scheduler_00000080_00000020_00000080_I_elem_num_o_hwpe_stream_intf_stream__DATA_WIDTH_8I_addr_o_hwpe_stream_intf_stream__DATA_WIDTH_48_1
+streamer_i/X_scheduler/elem_num_fifo
+                                    30.2848      0.4    10.8493    16.6400  0.0000  hwpe_stream_fifo_DATA_WIDTH8_FIFO_DEPTH2_I_push_i_hwpe_stream_intf_stream__DATA_WIDTH_8I_pop_o_hwpe_stream_intf_stream_source_DATA_WIDTH_8
+streamer_i/X_scheduler/elem_num_fifo/clk_gate_fifo_registers_reg[0]
+                                     1.3978      0.0     0.0000     1.3978  0.0000  SNPS_CLOCK_GATE_HIGH_hwpe_stream_fifo_DATA_WIDTH8_FIFO_DEPTH2_I_push_i_hwpe_stream_intf_stream__DATA_WIDTH_8I_pop_o_hwpe_stream_intf_stream_source_DATA_WIDTH_8_1
+streamer_i/X_scheduler/elem_num_fifo/clk_gate_fifo_registers_reg[1]
+                                     1.3978      0.0     0.0000     1.3978  0.0000  SNPS_CLOCK_GATE_HIGH_hwpe_stream_fifo_DATA_WIDTH8_FIFO_DEPTH2_I_push_i_hwpe_stream_intf_stream__DATA_WIDTH_8I_pop_o_hwpe_stream_intf_stream_source_DATA_WIDTH_8_0
+streamer_i/X_scheduler/meta_searcher
+                                    80.8038      1.2    80.8038     0.0000  0.0000  lzc_00000080_1_1
+streamer_i/Y_scheduler            1978.4960     28.9  1251.2614   423.2550  0.0000  Y_data_scheduler_00000020_00000080_00000004_I_addr_o_hwpe_stream_intf_stream__DATA_WIDTH_48
+streamer_i/Y_scheduler/Y_addr_fifo
+                                   220.6464      3.2    51.4509   166.4000  0.0000  hwpe_stream_fifo_DATA_WIDTH48_FIFO_DEPTH2_I_push_i_hwpe_stream_intf_stream__DATA_WIDTH_48I_pop_o_hwpe_stream_intf_stream_source_DATA_WIDTH_48
+streamer_i/Y_scheduler/Y_addr_fifo/clk_gate_fifo_registers_reg[0]
+                                     1.3978      0.0     0.0000     1.3978  0.0000  SNPS_CLOCK_GATE_HIGH_hwpe_stream_fifo_DATA_WIDTH48_FIFO_DEPTH2_I_push_i_hwpe_stream_intf_stream__DATA_WIDTH_48I_pop_o_hwpe_stream_intf_stream_source_DATA_WIDTH_48_1
+streamer_i/Y_scheduler/Y_addr_fifo/clk_gate_fifo_registers_reg[1]
+                                     1.3978      0.0     0.0000     1.3978  0.0000  SNPS_CLOCK_GATE_HIGH_hwpe_stream_fifo_DATA_WIDTH48_FIFO_DEPTH2_I_push_i_hwpe_stream_intf_stream__DATA_WIDTH_48I_pop_o_hwpe_stream_intf_stream_source_DATA_WIDTH_48_0
+streamer_i/Y_scheduler/clk_gate_params_q_reg[base_address]
+                                     1.3978      0.0     0.0000     1.3978  0.0000  SNPS_CLOCK_GATE_HIGH_Y_data_scheduler_00000020_00000080_00000004_I_addr_o_hwpe_stream_intf_stream__DATA_WIDTH_48_2
+streamer_i/Y_scheduler/clk_gate_previous_meta_addr_q_reg
+                                     1.3978      0.0     0.0000     1.3978  0.0000  SNPS_CLOCK_GATE_HIGH_Y_data_scheduler_00000020_00000080_00000004_I_addr_o_hwpe_stream_intf_stream__DATA_WIDTH_48_0
+streamer_i/Y_scheduler/clk_gate_x_row_q_reg
+                                     1.3978      0.0     0.0000     1.3978  0.0000  SNPS_CLOCK_GATE_HIGH_Y_data_scheduler_00000020_00000080_00000004_I_addr_o_hwpe_stream_intf_stream__DATA_WIDTH_48_1
+streamer_i/Y_scheduler/meta_searcher
+                                    79.1398      1.2    79.1398     0.0000  0.0000  lzc_00000080_1_0
+streamer_i/Z_data_accumulator      755.1232     11.0   170.1274   582.2003  0.0000  output_stream_accumulator_00000040_00000100_00000080_I_stream_i_hwpe_stream_intf_stream_sink_DATA_WIDTH_256I_stream_o_hwpe_stream_intf_stream_source_DATA_WIDTH_32_h00000080
+streamer_i/Z_data_accumulator/clk_gate_beat_count_q_reg
+                                     1.3978      0.0     0.0000     1.3978  0.0000  SNPS_CLOCK_GATE_HIGH_output_stream_accumulator_00000040_00000100_00000080_I_stream_i_hwpe_stream_intf_stream_sink_DATA_WIDTH_256I_stream_o_hwpe_stream_intf_stream_source_DATA_WIDTH_32_h00000080_1
+streamer_i/Z_data_accumulator/clk_gate_buffer_q_reg
+                                     1.3978      0.0     0.0000     1.3978  0.0000  SNPS_CLOCK_GATE_HIGH_output_stream_accumulator_00000040_00000100_00000080_I_stream_i_hwpe_stream_intf_stream_sink_DATA_WIDTH_256I_stream_o_hwpe_stream_intf_stream_source_DATA_WIDTH_32_h00000080_0
+streamer_i/Z_scheduler             492.9434      7.2   223.1757   265.5744  0.0000  Z_data_scheduler_00000080_00000040_00000004
+streamer_i/Z_scheduler/clk_gate_config_o_q_reg[req_start]
+                                     1.3978      0.0     0.0000     1.3978  0.0000  SNPS_CLOCK_GATE_HIGH_Z_data_scheduler_00000080_00000040_00000004_1
+streamer_i/Z_scheduler/clk_gate_current_offset_address_q_reg
+                                     1.3978      0.0     0.0000     1.3978  0.0000  SNPS_CLOCK_GATE_HIGH_Z_data_scheduler_00000080_00000040_00000004_2
+streamer_i/Z_scheduler/clk_gate_params_q_reg[base_address]
+                                     1.3978      0.0     0.0000     1.3978  0.0000  SNPS_CLOCK_GATE_HIGH_Z_data_scheduler_00000080_00000040_00000004_0
+streamer_i/clk_gate_X_buf_q_reg      1.3978      0.0     0.0000     1.3978  0.0000  SNPS_CLOCK_GATE_HIGH_accelerator_streamer_128_0_128_32_32_64_4_I_dataX_o_hwpe_stream_intf_stream__DATA_WIDTH_128I_dataY_o_hwpe_stream_intf_stream__DATA_WIDTH_128I_dataZ_i_hwpe_stream_intf_stream__DATA_WIDTH_256I_tcdm_hci_core_intf_initiator_DW_128_AW_32_h00000020_BW_32_h00000008_UW_32_h00000001_IW_32_h00000008_EW_32_h00000001_EHW_32_h00000001_252949_2
+streamer_i/clk_gate_Y_mask_q_reg     1.3978      0.0     0.0000     1.3978  0.0000  SNPS_CLOCK_GATE_HIGH_accelerator_streamer_128_0_128_32_32_64_4_I_dataX_o_hwpe_stream_intf_stream__DATA_WIDTH_128I_dataY_o_hwpe_stream_intf_stream__DATA_WIDTH_128I_dataZ_i_hwpe_stream_intf_stream__DATA_WIDTH_256I_tcdm_hci_core_intf_initiator_DW_128_AW_32_h00000020_BW_32_h00000008_UW_32_h00000001_IW_32_h00000008_EW_32_h00000001_EHW_32_h00000001_252949_1
+streamer_i/clk_gate_elem_cnt_q_reg
+                                     1.3978      0.0     0.0000     1.3978  0.0000  SNPS_CLOCK_GATE_HIGH_accelerator_streamer_128_0_128_32_32_64_4_I_dataX_o_hwpe_stream_intf_stream__DATA_WIDTH_128I_dataY_o_hwpe_stream_intf_stream__DATA_WIDTH_128I_dataZ_i_hwpe_stream_intf_stream__DATA_WIDTH_256I_tcdm_hci_core_intf_initiator_DW_128_AW_32_h00000020_BW_32_h00000008_UW_32_h00000001_IW_32_h00000008_EW_32_h00000001_EHW_32_h00000001_252949_3
+streamer_i/clk_gate_metadata_buf_data_q_reg
+                                     1.3978      0.0     0.0000     1.3978  0.0000  SNPS_CLOCK_GATE_HIGH_accelerator_streamer_128_0_128_32_32_64_4_I_dataX_o_hwpe_stream_intf_stream__DATA_WIDTH_128I_dataY_o_hwpe_stream_intf_stream__DATA_WIDTH_128I_dataZ_i_hwpe_stream_intf_stream__DATA_WIDTH_256I_tcdm_hci_core_intf_initiator_DW_128_AW_32_h00000020_BW_32_h00000008_UW_32_h00000001_IW_32_h00000008_EW_32_h00000001_EHW_32_h00000001_252949_4
+streamer_i/data_demux                1.5974      0.0     1.5974     0.0000  0.0000  hwpe_stream_demux_static_NB_OUT_STREAMS3_I_push_i_hwpe_stream_intf_stream_sink_DATA_WIDTH_32_h00000080I_pop_o_hwpe_stream_intf_stream_source_DATA_WIDTH_32_h00000080
+streamer_i/i_sink                  548.3213      8.0    81.2032    31.6160  0.0000  hci_core_sink_00000000_I_tcdm_hci_core_intf__DW_32_h00000080_BW_32_UW_32_h00000001_IW_32_h00000008_EW_32_h00000001_EHW_32_h00000001I_stream_hwpe_stream_intf_stream_sink_DATA_WIDTH_32_h00000080_252949
+streamer_i/i_sink/clk_gate_address_cnt_q_reg
+                                     1.3978      0.0     0.0000     1.3978  0.0000  SNPS_CLOCK_GATE_HIGH_hci_core_sink_00000000_I_tcdm_hci_core_intf__DW_32_h00000080_BW_32_UW_32_h00000001_IW_32_h00000008_EW_32_h00000001_EHW_32_h00000001I_stream_hwpe_stream_intf_stream_sink_DATA_WIDTH_32_h00000080_252949_1
+streamer_i/i_sink/i_addressgen     288.6707      4.2   184.3712   101.5040  0.0000  hwpe_stream_addressgen_v3_I_addr_o_hwpe_stream_intf_stream__DATA_WIDTH_36
+streamer_i/i_sink/i_addressgen/clk_gate_d0_addr_q_reg
+                                     1.3978      0.0     0.0000     1.3978  0.0000  SNPS_CLOCK_GATE_HIGH_hwpe_stream_addressgen_v3_I_addr_o_hwpe_stream_intf_stream__DATA_WIDTH_36_0
+streamer_i/i_sink/i_addressgen/clk_gate_d1_addr_q_reg
+                                     1.3978      0.0     0.0000     1.3978  0.0000  SNPS_CLOCK_GATE_HIGH_hwpe_stream_addressgen_v3_I_addr_o_hwpe_stream_intf_stream__DATA_WIDTH_36_2
+streamer_i/i_sink/i_fifo_addr      145.4336      2.1    36.1421   106.4960  0.0000  hwpe_stream_fifo_DATA_WIDTH36_FIFO_DEPTH2_I_push_i_hwpe_stream_intf_stream__DATA_WIDTH_36I_pop_o_hwpe_stream_intf_stream__DATA_WIDTH_36
+streamer_i/i_sink/i_fifo_addr/clk_gate_fifo_registers_reg[0]
+                                     1.3978      0.0     0.0000     1.3978  0.0000  SNPS_CLOCK_GATE_HIGH_hwpe_stream_fifo_DATA_WIDTH36_FIFO_DEPTH2_I_push_i_hwpe_stream_intf_stream__DATA_WIDTH_36I_pop_o_hwpe_stream_intf_stream__DATA_WIDTH_36_1
+streamer_i/i_sink/i_fifo_addr/clk_gate_fifo_registers_reg[1]
+                                     1.3978      0.0     0.0000     1.3978  0.0000  SNPS_CLOCK_GATE_HIGH_hwpe_stream_fifo_DATA_WIDTH36_FIFO_DEPTH2_I_push_i_hwpe_stream_intf_stream__DATA_WIDTH_36I_pop_o_hwpe_stream_intf_stream__DATA_WIDTH_36_0
+streamer_i/i_sink/no_tcdm_fifos_gen.i_tcdm_assign
+                                     0.0000      0.0     0.0000     0.0000  0.0000  hci_core_assign_I_tcdm_target_hci_core_intf__DW_32_h00000080_AW_32_h00000020_BW_32_h00000008_UW_32_h00000001_IW_32_h00000008_EW_32_h00000001_EHW_32_h00000001I_tcdm_initiator_hci_core_intf_initiator_DW_32_h00000080_BW_32_UW_32_h00000001_IW_32_h00000008_EW_32_h00000001_EHW_32_h00000001
+streamer_i/i_source                 46.5920      0.7    44.7949     1.7971  0.0000  source_fast_00000000_I_tcdm_hci_core_intf__DW_32_h00000080_BW_32_UW_32_h00000001_IW_32_h00000008_EW_32_h00000001_EHW_32_h00000001I_stream_hwpe_stream_intf_stream_source_DATA_WIDTH_32_h00000080I_addr_i_hwpe_stream_intf_stream_sink_DATA_WIDTH_32_252949
+streamer_i/i_tcdm_filter             2.7290      0.0     1.0650     1.6640  0.0000  hci_core_r_valid_filter_I_tcdm_target_hci_core_intf_target_DW_32_h00000080_BW_32_UW_32_h00000001_IW_32_h00000008_EW_32_h00000001_EHW_32_h00000001I_tcdm_initiator_hci_core_intf_initiator_DW_128_AW_32_h00000020_BW_32_h00000008_UW_32_h00000001_IW_32_h00000008_EW_32_h00000001_EHW_32_h00000001_252949
+streamer_i/memory_requests_mux     110.6893      1.6   105.6973     4.9920  0.0000  hci_core_mux_dynamic_2_1_I_in_hci_core_intf__DW_32_h00000080_BW_32_UW_32_h00000001_IW_32_h00000008_EW_32_h00000001_EHW_32_h00000001I_out_hci_core_intf__DW_32_h00000080_BW_32_UW_32_h00000001_IW_32_h00000008_EW_32_h00000001_EHW_32_h00000001_252949
+streamer_i/req_mux                  18.2374      0.3    18.2374     0.0000  0.0000  hwpe_stream_mux_static_I_push_0_i_hwpe_stream_intf_stream_sink_DATA_WIDTH_48I_push_1_i_hwpe_stream_intf_stream_sink_DATA_WIDTH_48I_pop_o_hwpe_stream_intf_stream_source_DATA_WIDTH_32
+--------------------------------  ---------  -------  ---------  ---------  ------  -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Total                                                 4082.7238  2769.4285  0.0000
+
+1
